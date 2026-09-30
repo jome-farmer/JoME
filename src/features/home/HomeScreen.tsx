@@ -23,7 +23,7 @@ import { StatusPill } from "../../ui/StatusPill";
 import { WaterRing } from "../../ui/WaterRing";
 import { RainDelaySheet } from "./RainDelaySheet";
 import { greeting, todayRuns, whenLabel } from "./today";
-import { useHomeData } from "./useHomeData";
+import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
 
 const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
@@ -72,7 +72,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
   const { client } = useDevice();
   const navigate = useNavigate();
   const { status, zones, programs, run, remaining, now, error, refresh } =
-    useHomeData(client);
+    useGarden(client);
   const [rainOpen, setRainOpen] = useState(false);
   const [busy, setBusy] = useState<"stop" | "stopAll">();
   const [actionError, setActionError] = useState<string>();

@@ -35,7 +35,8 @@ Target structure for the refactor. The framework choice is recorded in
 
 **Dependency rule:** imports only point down. `ui/` never imports from
 `device/` or `features/`. Features don't import from each other; shared code
-moves down a layer. `device/` has no React code except `DeviceProvider.tsx`.
+moves down a layer. `device/`'s only React code is `DeviceProvider.tsx` and
+the shared data hook `useGarden.ts`.
 
 ## Folder layout
 
@@ -66,6 +67,7 @@ src/
     handshake.ts          hello + protocol version check + time.set
     DeviceContext.ts      context type + useDevice()
     DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
+    useGarden.ts          live status, zones, programs, running zone + zone actions (Home, Zones)
   features/
     onboarding/           Welcome → Connect (BLE scan or browser chooser, USB, demo) → Wi‑Fi → Name
     home/                 status hero, quick actions
@@ -136,9 +138,9 @@ launch starts disconnected.
 
 ## State and data
 
-- **Board state:** feature hooks (`useZones`, `usePrograms`, `useStatus`) call
-  `client.request` on mount and update from events. There is no global store.
-  Add one only when two features need the same cached data.
+- **Board state:** `useGarden(client)` loads status, zones and programs, follows
+  events, and counts the running zone down between board reports. Home and Zones
+  use it. Each screen mounts its own copy, so there's no global store yet.
 - **App state kept between launches:** known devices
   `{serial, name, lastLink, bleDeviceId?}` in `@capacitor/preferences`.
 - **Writes are optimistic** only for toggles and switches. Everything else

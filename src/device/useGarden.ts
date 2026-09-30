@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { DeviceClient } from "../../device/client";
-import type { Program, Status, Zone } from "../../device/types";
+import type { DeviceClient } from "./client";
+import type { Program, Status, Zone } from "./types";
 
 export type Run = {
   zone: number;
@@ -11,11 +11,13 @@ export type Run = {
   at: number;
 };
 
+type ZonePatch = Partial<Omit<Zone, "zone">>;
+
 /**
- * Home's live view of the board: status, zones, programs and the running zone.
- * ponytail: Home-only for now; move to a shared layer when Zones (#19) needs the same data.
+ * Live view of the board shared by Home and Zones: status, zones, programs, the running zone,
+ * and the zone actions. Each screen that mounts it loads fresh data and follows board events.
  */
-export function useHomeData(client: DeviceClient | undefined) {
+export function useGarden(client: DeviceClient | undefined) {
   const [status, setStatus] = useState<Status>();
   const [zones, setZones] = useState<Zone[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -83,9 +85,62 @@ export function useHomeData(client: DeviceClient | undefined) {
     return () => clearInterval(id);
   }, []);
 
+  const runZone = useCallback(
+    async (zone: number, seconds: number) => {
+      if (!client) throw new Error("Not connected");
+      await client.request("zone.run", { zone, seconds });
+    },
+    [client],
+  );
+
+  const stopZone = useCallback(
+    async (zone: number) => {
+      if (!client) throw new Error("Not connected");
+      await client.request("zone.stop", { zone });
+    },
+    [client],
+  );
+
+  /** Optimistic: the change shows at once and rolls back if the board refuses it. */
+  const updateZone = useCallback(
+    async (zone: number, patch: ZonePatch) => {
+      if (!client) throw new Error("Not connected");
+      let before: Zone | undefined;
+      setZones((zs) =>
+        zs.map((z) => {
+          if (z.zone !== zone) return z;
+          before = z;
+          return { ...z, ...patch };
+        }),
+      );
+      try {
+        await client.request("zone.update", { zone, ...patch });
+      } catch (e) {
+        if (before) {
+          const restore = before;
+          setZones((zs) => zs.map((z) => (z.zone === zone ? restore : z)));
+        }
+        throw e;
+      }
+    },
+    [client],
+  );
+
   const remaining = run
     ? Math.max(0, run.remaining - (now - run.at) / 1000)
     : 0;
 
-  return { status, zones, programs, run, remaining, now, error, refresh };
+  return {
+    status,
+    zones,
+    programs,
+    run,
+    remaining,
+    now,
+    error,
+    refresh,
+    runZone,
+    stopZone,
+    updateZone,
+  };
 }
