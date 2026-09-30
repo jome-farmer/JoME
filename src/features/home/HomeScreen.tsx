@@ -24,6 +24,7 @@ import { StatusPill } from "../../ui/StatusPill";
 import { WaterRing } from "../../ui/WaterRing";
 import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { greeting, todayRuns } from "./today";
+import { WeatherCard } from "./WeatherCard";
 import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
 import { errorText } from "../../device/errors";
@@ -237,6 +238,8 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
           disabled={!run || busy === "stopAll"}
         />
       </div>
+
+      {info && <WeatherCard serial={info.serial} />}
 
       <section className={styles.section}>
         <h2 className={styles.label}>Today</h2>

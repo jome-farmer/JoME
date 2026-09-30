@@ -36,6 +36,36 @@ export async function rememberDevice(device: KnownDevice): Promise<void> {
 export async function forgetDevice(serial: string): Promise<void> {
   const rest = (await getKnownDevices()).filter((d) => d.serial !== serial);
   await Preferences.set({ key: KEY, value: JSON.stringify(rest) });
+  await Preferences.remove({ key: placeKey(serial) });
+}
+
+/** Where a controller's garden is, in degrees. Kept on this phone only. */
+export type Place = { lat: number; lon: number };
+
+const placeKey = (serial: string) => `gardenPlace.v1.${serial}`;
+
+export async function getGardenPlace(
+  serial: string,
+): Promise<Place | undefined> {
+  const { value } = await Preferences.get({ key: placeKey(serial) });
+  try {
+    const p = JSON.parse(value ?? "null") as Place | null;
+    return p && Number.isFinite(p.lat) && Number.isFinite(p.lon)
+      ? p
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function setGardenPlace(
+  serial: string,
+  place: Place,
+): Promise<void> {
+  await Preferences.set({
+    key: placeKey(serial),
+    value: JSON.stringify(place),
+  });
 }
 
 /** Small yes/no settings, e.g. whether the assistant's data notice was accepted. */
