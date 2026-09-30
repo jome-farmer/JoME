@@ -1,0 +1,13 @@
+.text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+.error {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--text-sm);
+}

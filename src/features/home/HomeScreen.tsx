@@ -14,15 +14,15 @@ import {
 } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
-import { formatDuration } from "../../lib/format";
+import { formatDuration, whenLabel } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { Screen } from "../../ui/Screen";
 import { StatusPill } from "../../ui/StatusPill";
 import { WaterRing } from "../../ui/WaterRing";
-import { RainDelaySheet } from "./RainDelaySheet";
-import { greeting, todayRuns, whenLabel } from "./today";
+import { RainDelaySheet } from "../../ui/RainDelaySheet";
+import { greeting, todayRuns } from "./today";
 import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
 
@@ -267,9 +267,11 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
         <RainDelaySheet
           open={rainOpen}
           onClose={() => setRainOpen(false)}
-          client={client}
           until={rainUntil}
-          onChanged={() => void refresh()}
+          onSet={async (hours) => {
+            await client.request("rain.delay", { hours });
+            await refresh();
+          }}
         />
       )}
     </Screen>

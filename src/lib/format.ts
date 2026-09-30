@@ -17,3 +17,25 @@ export function formatClock(seconds: number): string {
   const ss = String(s % 60).padStart(2, "0");
   return h ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
 }
+
+const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+/** Epoch seconds → "today 18:00", "tomorrow 06:00", "Friday 06:00". */
+export function whenLabel(at: number, now: Date): string {
+  const d = new Date(at * 1000);
+  const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const startOf = (x: Date) =>
+    new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(d) - startOf(now)) / 86_400_000);
+  const day =
+    days === 0 ? "today" : days === 1 ? "tomorrow" : WEEKDAYS[d.getDay()];
+  return `${day} ${hhmm}`;
+}

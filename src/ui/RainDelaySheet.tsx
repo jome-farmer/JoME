@@ -1,30 +1,23 @@
 import { useState } from "react";
 import { CloudRain } from "lucide-react";
-import type { DeviceClient } from "../../device/client";
-import { Button } from "../../ui/Button";
-import { List, ListRow } from "../../ui/ListRow";
-import { Sheet } from "../../ui/Sheet";
-import styles from "./HomeScreen.module.css";
+import { Button } from "./Button";
+import { List, ListRow } from "./ListRow";
+import { Sheet } from "./Sheet";
+import styles from "./RainDelaySheet.module.css";
 
 const OPTIONS = [24, 48, 72];
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  client: DeviceClient;
   /** Epoch seconds, or null when no delay is set. */
   until: number | null;
-  onChanged: () => void;
+  /** Hours to pause programs; 0 cancels the delay. */
+  onSet: (hours: number) => Promise<void>;
 };
 
-/** Pause every program for a while, e.g. when rain is on the way. */
-export function RainDelaySheet({
-  open,
-  onClose,
-  client,
-  until,
-  onChanged,
-}: Props) {
+/** Pause every program for a while, e.g. when rain is on the way. Used by Home and Device. */
+export function RainDelaySheet({ open, onClose, until, onSet }: Props) {
   const [busy, setBusy] = useState<number>();
   const [error, setError] = useState<string>();
 
@@ -32,8 +25,7 @@ export function RainDelaySheet({
     setBusy(hours);
     setError(undefined);
     try {
-      await client.request("rain.delay", { hours });
-      onChanged();
+      await onSet(hours);
       onClose();
     } catch (e) {
       setError(
@@ -46,7 +38,7 @@ export function RainDelaySheet({
 
   return (
     <Sheet open={open} onClose={onClose} title="Rain delay">
-      <p className={styles.sheetText}>
+      <p className={styles.text}>
         Programs skip their runs until the delay ends. You can still water by
         hand.
       </p>

@@ -79,7 +79,8 @@ src/
   lib/
     storage.ts            @capacitor/preferences wrapper (known devices)
     platform.ts           isIOS / isAndroid / hasWebSerial …
-    format.ts             durations, times
+    format.ts             durations, times, "today 18:00" labels
+    theme.ts              Appearance: saved choice, data-theme, status-bar style
     agentApi.ts           SSE chat client for the agent backend (fetch + ReadableStream)
 android/
   app/src/main/java/.../UsbSerialPlugin.kt   local plugin (usb-serial-for-android)
