@@ -12,6 +12,8 @@ import type { LinkKind } from "../../device/link";
 import { appendCapped, clock, toPlainText, type TermLine } from "./lines";
 import styles from "./TerminalScreen.module.css";
 import { errorText } from "../../device/errors";
+import { parseTerminalCommand } from "./commands";
+import { terminalBanner } from "./banner";
 
 const BAUD_RATES = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600];
 const LINK_LABEL: Record<LinkKind, string> = {
@@ -20,10 +22,10 @@ const LINK_LABEL: Record<LinkKind, string> = {
   mock: "Demo",
 };
 
-/** Raw serial view of whatever link is connected: firmware logs plus app ↔ board protocol. */
+/** Friendly shell and raw serial view of whatever link is connected. */
 export function TerminalScreen() {
   const navigate = useNavigate();
-  const { state, client, linkKind, baudRate, setBaudRate } = useDevice();
+  const { state, client, info, linkKind, baudRate, setBaudRate } = useDevice();
   const [lines, setLines] = useState<TermLine[]>([]);
   const [showProtocol, setShowProtocol] = useState(true);
   const [timestamps, setTimestamps] = useState(false);
@@ -37,6 +39,20 @@ export function TerminalScreen() {
   const nextId = useRef(0);
   useEffect(() => {
     if (!client) return;
+    if (linkKind) {
+      const text = terminalBanner(info, linkKind);
+      setLines((ls) =>
+        appendCapped(ls, [
+          {
+            dir: "rx",
+            kind: "log",
+            text,
+            id: nextId.current++,
+            at: Date.now(),
+          },
+        ]),
+      );
+    }
     const off = client.onLine((l) => {
       pending.current.push({ ...l, id: nextId.current++, at: Date.now() });
       frame.current ??= requestAnimationFrame(() => {
@@ -51,7 +67,7 @@ export function TerminalScreen() {
       if (frame.current !== undefined) cancelAnimationFrame(frame.current);
       frame.current = undefined;
     };
-  }, [client]);
+  }, [client, info, linkKind]);
 
   // Follow new output unless the user scrolled up to read.
   const scroller = useRef<HTMLDivElement>(null);
@@ -67,9 +83,28 @@ export function TerminalScreen() {
     e.preventDefault();
     if (!client || !input) return;
     setSendError(undefined);
-    client.writeRaw(input).catch((err: unknown) => {
-      setSendError(errorText(err));
-    });
+    const parsed = parseTerminalCommand(input);
+    if (parsed.type === "error") {
+      setSendError(parsed.text);
+    } else if (parsed.type === "local") {
+      setLines((ls) =>
+        appendCapped(ls, [
+          {
+            dir: "rx",
+            kind: "log",
+            text: parsed.text,
+            id: nextId.current++,
+            at: Date.now(),
+          },
+        ]),
+      );
+    } else {
+      client
+        .request(parsed.command.cmd, parsed.command.args)
+        .catch((err: unknown) => {
+          setSendError(errorText(err));
+        });
+    }
     setInput("");
     stick.current = true;
   };
@@ -175,9 +210,7 @@ export function TerminalScreen() {
             }}
           >
             {visible.length === 0 && (
-              <p className={styles.hint}>
-                Waiting for output. Type a command below or run a zone.
-              </p>
+              <p className={styles.hint}>Type help to see terminal commands.</p>
             )}
             {visible.map((l) => (
               <p
@@ -208,7 +241,7 @@ export function TerminalScreen() {
               className={styles.input}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a command"
+              placeholder="Type help or a command"
               autoCapitalize="off"
               autoCorrect="off"
               autoComplete="off"
