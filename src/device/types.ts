@@ -50,6 +50,11 @@ export type ProgramState = {
   reason?: "RAIN_DELAY" | "BUSY" | "CANCELLED";
 };
 
+export type Sensors = {
+  /** Board LM35, 0.1 °C steps. null when out of range (sensor missing or broken). */
+  temperatureC: number | null;
+};
+
 export type WifiState = {
   state: "disconnected" | "connecting" | "connected" | "failed";
   ssid?: string;
@@ -98,6 +103,7 @@ export type Commands = {
   "rain.delay": [{ hours: number }, { until: Epoch | null }];
   "device.rename": [{ name: string }, Empty];
   "device.reboot": [Empty, Empty];
+  "sensors.read": [Empty, Sensors];
   "log.level": [
     { level: "error" | "warn" | "info" | "debug" | "trace" },
     Empty,

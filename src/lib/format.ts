@@ -9,6 +9,11 @@ export function formatDuration(seconds: number): string {
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
+/** Board temperature → "28.5 °C", or "— °C" when the sensor has no reading. */
+export function formatTemperature(celsius: number | null): string {
+  return celsius === null ? "— °C" : `${celsius.toFixed(1)} °C`;
+}
+
 /** Seconds → countdown clock "6:42", or "1:05:00" past an hour. */
 export function formatClock(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));

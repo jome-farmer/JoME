@@ -306,6 +306,10 @@ export function createMockLink(): Link {
       setTimeout(() => close(new Error("JoME restarted")), 300);
       return {};
     },
+    "sensors.read": () => ({
+      temperatureC:
+        Math.round((27 + Math.sin(Date.now() / 600_000) * 2) * 10) / 10,
+    }),
     "log.level": (a) => {
       if (
         !["error", "warn", "info", "debug", "trace"].includes(String(a.level))

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bluetooth,
@@ -10,11 +10,12 @@ import {
   Play,
   Plug,
   Square,
+  Thermometer,
   type LucideIcon,
 } from "lucide-react";
 import { supports, useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
-import { formatDuration, whenLabel } from "../../lib/format";
+import { formatDuration, formatTemperature, whenLabel } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
@@ -77,6 +78,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
   const [rainOpen, setRainOpen] = useState(false);
   const [busy, setBusy] = useState<"stop" | "stopAll">();
   const [actionError, setActionError] = useState<string>();
+  const temperature = useTemperature();
 
   const date = new Date(now);
   const today = todayRuns(programs, date);
@@ -112,9 +114,24 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
       eyebrow={greeting(date.getHours())}
       title={name}
       actions={
-        <StatusPill tone="ok" icon={Link.icon}>
-          {Link.label}
-        </StatusPill>
+        <span className={styles.pills}>
+          {temperature !== undefined && (
+            <span
+              aria-label={
+                temperature === null
+                  ? "Board temperature unavailable"
+                  : `Board temperature ${formatTemperature(temperature)}`
+              }
+            >
+              <StatusPill tone="idle" icon={Thermometer}>
+                {formatTemperature(temperature)}
+              </StatusPill>
+            </span>
+          )}
+          <StatusPill tone="ok" icon={Link.icon}>
+            {Link.label}
+          </StatusPill>
+        </span>
       }
     >
       {(error || actionError) && (
@@ -306,4 +323,23 @@ function QuickAction({
       {label}
     </button>
   );
+}
+
+/** Board temperature from sensors.read, on load and every minute; undefined until read or when the board has no sensor. */
+function useTemperature(): number | null | undefined {
+  const { client, info } = useDevice();
+  const canRead = supports(info, "sensors.read");
+  const [celsius, setCelsius] = useState<number | null>();
+  useEffect(() => {
+    if (!client || !canRead) return;
+    const read = () =>
+      client.request("sensors.read", {}).then(
+        (s) => setCelsius(s.temperatureC),
+        () => {}, // keep the last reading; the next minute tries again
+      );
+    void read();
+    const timer = setInterval(read, 60_000);
+    return () => clearInterval(timer);
+  }, [client, canRead]);
+  return canRead ? celsius : undefined;
 }

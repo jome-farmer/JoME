@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { formatClock, formatDuration, whenLabel } from "./format";
+import {
+  formatClock,
+  formatDuration,
+  formatTemperature,
+  whenLabel,
+} from "./format";
+
+describe("formatTemperature", () => {
+  it.each([
+    [28.5, "28.5 °C"],
+    [30, "30.0 °C"],
+    [null, "— °C"],
+  ])("%s → %s", (c, text) => expect(formatTemperature(c)).toBe(text));
+});
 
 describe("formatDuration", () => {
   it.each([

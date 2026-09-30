@@ -3,6 +3,11 @@
   gap: var(--s-2);
   justify-items: center;
 }
+.pills {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+}
 .error {
   margin: 0;
   padding: var(--s-3) var(--s-4);
