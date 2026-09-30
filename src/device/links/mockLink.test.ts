@@ -147,6 +147,68 @@ describe("mock board", () => {
     ).toBe(true);
   });
 
+  it("creates zones on free valves only, and changes valves", async () => {
+    const { client, ask } = await connected();
+    const hello = await ask(client.request("hello", {}));
+    expect(hello.valveCount).toBe(8);
+
+    const { zone } = await ask(
+      client.request("zone.create", {
+        name: "Rose bed",
+        valve: 3,
+        defaultSeconds: 300,
+      }),
+    );
+    const { zones } = await ask(client.request("zones.list", {}));
+    expect(zones.find((z) => z.zone === zone)).toMatchObject({
+      name: "Rose bed",
+      valve: 3,
+      enabled: true,
+    });
+
+    const taken = client.request("zone.create", {
+      name: "X",
+      valve: 1,
+      defaultSeconds: 60,
+    });
+    const outOfRange = client.request("zone.update", { zone, valve: 9 });
+    const moveOnto = client.request("zone.update", { zone, valve: 5 });
+    const checks = [
+      expect(taken).rejects.toMatchObject({
+        code: "VALVE_IN_USE",
+        message: "Valve 1 is used by Front lawn",
+      }),
+      expect(outOfRange).rejects.toMatchObject({ code: "BAD_REQUEST" }),
+      expect(moveOnto).rejects.toMatchObject({ code: "VALVE_IN_USE" }),
+    ];
+    await vi.advanceTimersByTimeAsync(100);
+    await Promise.all(checks);
+
+    await ask(client.request("zone.update", { zone, valve: 8 }));
+    const after = await ask(client.request("zones.list", {}));
+    expect(after.zones.find((z) => z.zone === zone)?.valve).toBe(8);
+  });
+
+  it("deletes a zone: stops it, removes it from programs, frees its valve", async () => {
+    const { client, ask } = await connected();
+    await ask(client.request("zone.run", { zone: 5, seconds: 60 }));
+    await ask(client.request("zone.delete", { zone: 5 }));
+    const status = await ask(client.request("status", {}));
+    expect(status.running).toEqual([]);
+    const { programs } = await ask(client.request("programs.list", {}));
+    expect(programs.some((p) => p.steps.some((s) => s.zone === 5))).toBe(false);
+    // "Drip pots" only watered zone 5, so it's turned off.
+    expect(programs.find((p) => p.name === "Drip pots")?.enabled).toBe(false);
+    // Its valve (7) is free again.
+    await ask(
+      client.request("zone.create", {
+        name: "New pots",
+        valve: 7,
+        defaultSeconds: 480,
+      }),
+    );
+  });
+
   it("reports the next run from its enabled programs", async () => {
     vi.setSystemTime(new Date(2026, 8, 30, 12, 0)); // Wednesday noon
     const { client, ask } = await connected();

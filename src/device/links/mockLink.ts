@@ -23,13 +23,44 @@ export function createMockLink(): Link {
   let ticker: ReturnType<typeof setInterval> | undefined;
 
   let name = "Demo garden";
+  const VALVES = 8;
   const zones: Zone[] = [
-    { zone: 1, name: "Front lawn", enabled: true, defaultSeconds: 1200 },
-    { zone: 2, name: "Backyard hedge", enabled: true, defaultSeconds: 900 },
-    { zone: 3, name: "Vegetable beds", enabled: true, defaultSeconds: 600 },
-    { zone: 4, name: "Fruit trees", enabled: true, defaultSeconds: 2400 },
-    { zone: 5, name: "Pots", enabled: true, defaultSeconds: 480 },
-    { zone: 6, name: "Pool side", enabled: false, defaultSeconds: 600 },
+    {
+      zone: 1,
+      name: "Front lawn",
+      valve: 1,
+      enabled: true,
+      defaultSeconds: 1200,
+    },
+    {
+      zone: 2,
+      name: "Backyard hedge",
+      valve: 2,
+      enabled: true,
+      defaultSeconds: 900,
+    },
+    {
+      zone: 3,
+      name: "Vegetable beds",
+      valve: 5,
+      enabled: true,
+      defaultSeconds: 600,
+    },
+    {
+      zone: 4,
+      name: "Fruit trees",
+      valve: 4,
+      enabled: true,
+      defaultSeconds: 2400,
+    },
+    { zone: 5, name: "Pots", valve: 7, enabled: true, defaultSeconds: 480 },
+    {
+      zone: 6,
+      name: "Pool side",
+      valve: 6,
+      enabled: false,
+      defaultSeconds: 600,
+    },
   ];
   const programs: Program[] = [
     {
@@ -130,7 +161,8 @@ export function createMockLink(): Link {
   const stopZone = (zone: number) => {
     if (running?.zone !== zone) return;
     running = null;
-    log("I", "valve", `zone ${zone} CLOSED`);
+    const valve = zones.find((z) => z.zone === zone)?.valve;
+    log("I", "valve", `${valve} CLOSED (zone ${zone})`);
     event("zone.state", { zone, state: "idle" });
   };
 
@@ -160,6 +192,16 @@ export function createMockLink(): Link {
     if (!z) throw new Fail("NOT_FOUND", `There is no zone ${String(zone)}`);
     return z;
   };
+  /** A valve number in range and not used by another zone (one zone per valve). */
+  const checkValve = (valve: unknown, self?: number) => {
+    const v = Number(valve);
+    if (!Number.isInteger(v) || v < 1 || v > VALVES)
+      throw new Fail("BAD_REQUEST", `Valve must be 1 to ${VALVES}`);
+    const owner = zones.find((z) => z.valve === v && z.zone !== self);
+    if (owner)
+      throw new Fail("VALVE_IN_USE", `Valve ${v} is used by ${owner.name}`);
+    return v;
+  };
 
   // Each handler returns the response data or throws Fail.
   const handlers: Record<string, (a: Record<string, unknown>) => unknown> = {
@@ -170,6 +212,7 @@ export function createMockLink(): Link {
       serial: "JM-DEMO-0001",
       name,
       zoneCount: zones.length,
+      valveCount: VALVES,
     }),
     "time.set": () => ({}),
     status,
@@ -202,6 +245,33 @@ export function createMockLink(): Link {
       }
       if (typeof a.defaultSeconds === "number")
         z.defaultSeconds = a.defaultSeconds;
+      if (a.valve !== undefined) z.valve = checkValve(a.valve, z.zone);
+      return {};
+    },
+    "zone.create": (a) => {
+      const name = String(a.name ?? "")
+        .trim()
+        .slice(0, 32);
+      if (!name) throw new Fail("BAD_REQUEST", "Give the zone a name");
+      const valve = checkValve(a.valve);
+      const seconds = Number(a.defaultSeconds ?? 600);
+      if (!(seconds >= 1 && seconds <= 3600))
+        throw new Fail("BAD_REQUEST", "Run time must be 1 s to 60 min");
+      const zone = Math.max(0, ...zones.map((z) => z.zone)) + 1;
+      zones.push({ zone, name, valve, enabled: true, defaultSeconds: seconds });
+      log("I", "zones", `zone ${zone} "${name}" on valve ${valve}`);
+      return { zone };
+    },
+    "zone.delete": (a) => {
+      const z = findZone(a.zone);
+      stopZone(z.zone);
+      zones.splice(zones.indexOf(z), 1);
+      // Programs stop watering it; a program left with nothing to water is turned off.
+      for (const p of programs) {
+        p.steps = p.steps.filter((s) => s.zone !== z.zone);
+        if (p.steps.length === 0) p.enabled = false;
+      }
+      log("I", "zones", `zone ${z.zone} deleted, valve ${z.valve} free`);
       return {};
     },
     "zone.run": (a) => {
@@ -214,7 +284,7 @@ export function createMockLink(): Link {
       if (running && running.zone !== z.zone)
         throw new Fail("ZONE_BUSY", `Zone ${running.zone} is running`);
       running = { zone: z.zone, remaining: seconds, total: seconds };
-      log("I", "valve", `zone ${z.zone} OPEN`);
+      log("I", "valve", `${z.valve} OPEN (zone ${z.zone})`);
       event("zone.state", {
         zone: z.zone,
         state: "watering",

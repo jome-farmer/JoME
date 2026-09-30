@@ -77,13 +77,15 @@ Event, sent by the board without being asked (no `id`):
 
 | `cmd` | `args` | `data` returned |
 |---|---|---|
-| `hello` | `{}` | `{proto, fw, hw, serial, name, zoneCount}` |
+| `hello` | `{}` | `{proto, fw, hw, serial, name, zoneCount, valveCount}` (`valveCount`: valve outputs on this board, e.g. 8 or 16) |
 | `time.set` | `{epoch, tz}` | `{}` (the app sends this on every connect because the board may lack an RTC) |
 | `status` | `{}` | `Status` (below) |
 | `wifi.scan` | `{}` | `{networks: [{ssid, rssi, secure}]}` |
 | `wifi.set` | `{ssid, password}` | `{}` (outcome arrives as `wifi.state` events) |
-| `zones.list` | `{}` | `{zones: [{zone, name, enabled, defaultSeconds}]}` |
-| `zone.update` | `{zone, name?, enabled?, defaultSeconds?}` | `{}` |
+| `zones.list` | `{}` | `{zones: [Zone]}` |
+| `zone.create` | `{name, valve, defaultSeconds}` | `{zone}` (the new zone's id) |
+| `zone.update` | `{zone, name?, valve?, enabled?, defaultSeconds?}` | `{}` |
+| `zone.delete` | `{zone}` | `{}` (stops it if running, and removes it from programs) |
 | `zone.run` | `{zone, seconds}` | `{}` |
 | `zone.stop` | `{zone}` | `{}` |
 | `stop.all` | `{}` | `{}` |
@@ -101,6 +103,14 @@ type Program = {
   days: number[];          // 0 = Sunday … 6 = Saturday
   start: string;           // "HH:MM", device local time
   steps: { zone: number; seconds: number }[]; // run in order
+};
+
+type Zone = {
+  zone: number;            // id the board assigns; stable, never reused while the zone exists
+  name: string;            // up to 32 characters
+  valve: number;           // valve output it drives, 1 … valveCount; each valve belongs to at most one zone
+  enabled: boolean;
+  defaultSeconds: number;
 };
 
 type Status = {
@@ -127,7 +137,18 @@ TypeScript mirror of this section is `src/device/types.ts`.
 ### Error codes
 
 `BAD_REQUEST`, `UNKNOWN_CMD`, `ZONE_BUSY`, `NOT_FOUND`, `WIFI_FAILED`,
-`INTERNAL`.
+`VALVE_IN_USE` (another zone already uses that valve), `INTERNAL`.
+
+### Zones and valves
+
+A **valve** is a physical output on the board: a numbered terminal wired to a
+solenoid. A **zone** is what the gardener names and schedules ("Front lawn").
+Each zone drives exactly one valve, and each valve belongs to at most one zone,
+so there can be up to `valveCount` zones. (Decided: one valve per zone for
+now. Several valves per zone would be a protocol change.) The board rejects a `zone.create` or
+`zone.update` that would reuse a taken valve with `VALVE_IN_USE`, and a valve
+number outside `1 … valveCount` with `BAD_REQUEST`. Deleting a zone removes its
+steps from programs. A program left with no steps is disabled.
 
 ## 4. QR code on the device label
 
@@ -150,3 +171,4 @@ the passkey from the label.
   add a `WebSocketLink` with the same framing, and nothing above the link
   changes.
 - Can the board hold at least 16 zones and 8 programs in flash?
+

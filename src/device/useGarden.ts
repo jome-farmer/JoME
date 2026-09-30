@@ -126,6 +126,26 @@ export function useGarden(client: DeviceClient | undefined) {
     [client],
   );
 
+  const createZone = useCallback(
+    async (zone: Omit<Zone, "zone" | "enabled">) => {
+      if (!client) throw new Error("Not connected");
+      const created = await client.request("zone.create", zone);
+      setZones((zs) => [...zs, { ...zone, zone: created.zone, enabled: true }]);
+      return created.zone;
+    },
+    [client],
+  );
+
+  const deleteZone = useCallback(
+    async (zone: number) => {
+      if (!client) throw new Error("Not connected");
+      await client.request("zone.delete", { zone });
+      // Programs changed on the board too (steps removed), so reload everything.
+      await refresh();
+    },
+    [client, refresh],
+  );
+
   const remaining = run
     ? Math.max(0, run.remaining - (now - run.at) / 1000)
     : 0;
@@ -142,5 +162,7 @@ export function useGarden(client: DeviceClient | undefined) {
     runZone,
     stopZone,
     updateZone,
+    createZone,
+    deleteZone,
   };
 }

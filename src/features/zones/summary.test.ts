@@ -5,6 +5,7 @@ import { zoneSummary } from "./summary";
 const zone = (n: number, enabled = true): Zone => ({
   zone: n,
   name: `Zone ${n}`,
+  valve: n,
   enabled,
   defaultSeconds: 600,
 });

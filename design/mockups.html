@@ -140,6 +140,23 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
 .zone.disabled { box-shadow: none; background: transparent; border: 1px dashed var(--line); }
 .zone.disabled .t { color: var(--ink-3); }
 
+.add-zone { display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: var(--tap); border: 1.5px dashed var(--line); border-radius: var(--r-md); background: transparent; color: var(--primary); font: 700 var(--text-sm) var(--font-ui); }
+
+/* Add a zone (sheet) */
+.backdrop { position: absolute; inset: 0; background: color-mix(in srgb, var(--ink) 38%, transparent); }
+.sheet { position: absolute; inset-inline: 0; inset-block-end: 0; top: 70px; background: var(--surface); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: var(--s-3) var(--s-5) var(--s-5); display: flex; flex-direction: column; gap: var(--s-4); }
+.handle { align-self: center; width: 40px; height: 5px; border-radius: var(--r-full); background: var(--line); }
+.input.plain { border-color: var(--line); letter-spacing: 0; font-size: 16px; }
+.valves { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.valve { display: grid; justify-items: center; gap: 1px; padding-block: 8px; border-radius: var(--r-sm); border: 1.5px solid var(--line); background: var(--surface); }
+.valve b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.valve small { font-size: 10px; color: var(--ink-3); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-inline: 4px; }
+.valve.taken { background: var(--surface-2); border-color: transparent; color: var(--ink-3); }
+.valve.sel { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.valve.sel small { color: var(--on-primary); }
+.stepper { display: flex; align-items: center; justify-content: space-between; padding: 4px; border-radius: var(--r-full); background: var(--surface-2); }
+.stepper span { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-weight: 700; box-shadow: var(--shadow); }
+
 /* Schedule */
 .prog { display: grid; gap: var(--s-3); }
 .days { display: flex; gap: 5px; }
@@ -276,7 +293,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
   <header class="intro">
     <span class="label">JoME · design v1 · for review</span>
     <h1>Your garden, <span>watered on time</span>.</h1>
-    <p>These are the ten core screens of the redesigned JoME app, in first-run order. Water blue appears only while a valve is open. Leaf green marks what you can do. The JoME assistant suggests, and you confirm. Everything else stays quiet. Every colour and size comes from <code>design/tokens.css</code>. Switch your system to dark mode to see the dark theme.</p>
+    <p>These are the eleven core screens of the redesigned JoME app, in first-run order. Water blue appears only while a valve is open. Leaf green marks what you can do. The JoME assistant suggests, and you confirm. Everything else stays quiet. Every colour and size comes from <code>design/tokens.css</code>. Switch your system to dark mode to see the dark theme.</p>
     <div class="swatches" aria-label="Palette">
       <span class="sw"><i style="background:var(--forest)"></i>Forest · ink</span>
       <span class="sw"><i style="background:var(--leaf)"></i>Leaf · actions</span>
@@ -413,27 +430,24 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
       <div class="phone">
         <div class="sbar"><span>18:11</span><span>●●● ▮</span></div>
         <div class="screen" style="gap:var(--s-3)">
-          <div><h3 class="title">Zones</h3><p class="sub">1 running · 4 idle · 1 off</p></div>
+          <div><h3 class="title">Zones</h3><p class="sub">1 running · 2 idle · 1 off</p></div>
           <div class="zone">
             <div class="water"></div>
-            <div class="grow"><span class="zn">ZONE 3</span><div class="t">Vegetable beds</div><div class="meta"><span class="pill flow"><svg class="i sm fill"><use href="#i-drop"/></svg><span class="num">6:42</span> left</span></div></div>
+            <div class="grow"><span class="zn">VALVE 5</span><div class="t">Vegetable beds</div><div class="meta"><span class="pill flow"><svg class="i sm fill"><use href="#i-drop"/></svg><span class="num">6:42</span> left</span></div></div>
             <button class="run stop" aria-label="Stop Vegetable beds"><svg class="i fill"><use href="#i-stop"/></svg></button>
           </div>
           <div class="zone">
-            <div class="grow"><span class="zn">ZONE 1</span><div class="t">Front lawn</div><div class="meta"><span class="pill idle">Idle</span><span class="num">20 min</span></div></div>
+            <div class="grow"><span class="zn">VALVE 1</span><div class="t">Front lawn</div><div class="meta"><span class="pill idle">Idle</span><span class="num">20 min</span></div></div>
             <button class="run" aria-label="Run Front lawn"><svg class="i fill"><use href="#i-play"/></svg></button>
           </div>
           <div class="zone">
-            <div class="grow"><span class="zn">ZONE 2</span><div class="t">Backyard hedge</div><div class="meta"><span class="pill idle">Idle</span><span class="num">15 min</span></div></div>
+            <div class="grow"><span class="zn">VALVE 2</span><div class="t">Backyard hedge</div><div class="meta"><span class="pill idle">Idle</span><span class="num">15 min</span></div></div>
             <button class="run" aria-label="Run Backyard hedge"><svg class="i fill"><use href="#i-play"/></svg></button>
           </div>
-          <div class="zone">
-            <div class="grow"><span class="zn">ZONE 4</span><div class="t">Fruit trees</div><div class="meta"><span class="pill idle">Idle</span><span class="num">40 min</span></div></div>
-            <button class="run" aria-label="Run Fruit trees"><svg class="i fill"><use href="#i-play"/></svg></button>
-          </div>
           <div class="zone disabled">
-            <div class="grow"><span class="zn">ZONE 6</span><div class="t">Pool side</div><div class="meta"><span class="pill off">Off</span></div></div>
+            <div class="grow"><span class="zn">VALVE 6</span><div class="t">Pool side</div><div class="meta"><span class="pill off">Off</span></div></div>
           </div>
+          <button class="add-zone"><svg class="i"><use href="#i-plus"/></svg>Add zone</button>
         </div>
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
@@ -443,9 +457,39 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
       </div>
-      <figcaption><b><em>5</em>Zones</b><span>A running zone fills with water to show the share of time done. One big button runs or stops. Tapping a card opens its sheet for duration, rename and enable.</span></figcaption>
+      <figcaption><b><em>5</em>Zones</b><span>Each zone is labelled with the valve it drives on the controller. A running zone fills with water to show the share of time done. One big button runs or stops. Tapping a card opens its sheet for duration, rename, valve, on/off and delete.</span></figcaption>
     </figure>
 
+
+    <!-- 5b Add a zone -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:14</span><span>●●● ▮</span></div>
+        <div class="backdrop"></div>
+        <div class="sheet">
+          <span class="handle"></span>
+          <h3 class="title" style="font-size:var(--text-lg)">Add a zone</h3>
+          <div class="field"><label>Name</label><div class="input plain">Rose bed</div></div>
+          <div class="field">
+            <label>Valve</label>
+            <div class="valves" role="radiogroup" aria-label="Valve">
+              <span class="valve taken"><b>1</b><small>Front lawn</small></span>
+              <span class="valve taken"><b>2</b><small>Hedge</small></span>
+              <span class="valve sel" aria-checked="true"><b>3</b><small>Free</small></span>
+              <span class="valve"><b>4</b><small>Free</small></span>
+              <span class="valve taken"><b>5</b><small>Veg beds</small></span>
+              <span class="valve taken"><b>6</b><small>Pool side</small></span>
+              <span class="valve"><b>7</b><small>Free</small></span>
+              <span class="valve"><b>8</b><small>Free</small></span>
+            </div>
+            <p class="note">Valves are the numbered terminals on the controller. Each valve can belong to one zone.</p>
+          </div>
+          <div class="field"><label>Default run time</label><div class="stepper"><span>−</span><b class="num">10 min</b><span>+</span></div></div>
+          <button class="btn primary lg">Add zone</button>
+        </div>
+      </div>
+      <figcaption><b><em>5b</em>Add a zone</b><span>Pick a free valve for the new zone. Taken valves show which zone uses them. The controller has 8 or 16 valves (<code>hello.valveCount</code>).</span></figcaption>
+    </figure>
 
     <!-- Assistant start -->
     <figure>

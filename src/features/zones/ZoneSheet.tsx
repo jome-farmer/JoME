@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Square } from "lucide-react";
+import { Play, Square, Trash2 } from "lucide-react";
 import type { Zone } from "../../device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -7,6 +7,8 @@ import { Sheet } from "../../ui/Sheet";
 import { Stepper } from "../../ui/Stepper";
 import { Switch } from "../../ui/Switch";
 import { TextField } from "../../ui/TextField";
+import { ValvePicker } from "./ValvePicker";
+import type { ValveOption } from "./valves";
 import styles from "./ZonesScreen.module.css";
 
 const MAX_MIN = 60; // App-side limit, same as the assistant's (docs/assistant.md).
@@ -19,6 +21,9 @@ type Props = {
   onRun: (seconds: number) => Promise<void>;
   onStop: () => Promise<void>;
   onUpdate: (patch: Partial<Omit<Zone, "zone">>) => Promise<void>;
+  onDelete: () => Promise<void>;
+  /** Valves for the picker; this zone's own valve counts as free. */
+  valves: ValveOption[];
 };
 
 /** Everything about one zone: run it for a chosen time, turn it on/off, rename, set its default. */
@@ -29,6 +34,8 @@ export function ZoneSheet({
   onRun,
   onStop,
   onUpdate,
+  onDelete,
+  valves,
 }: Props) {
   const [minutes, setMinutes] = useState(
     Math.min(MAX_MIN, Math.max(1, Math.round(zone.defaultSeconds / 60))),
@@ -36,6 +43,8 @@ export function ZoneSheet({
   const [name, setName] = useState(zone.name);
   const [busy, setBusy] = useState<string>();
   const [error, setError] = useState<string>();
+  const [pickValve, setPickValve] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const act = async (what: string, fn: () => Promise<void>, close = false) => {
     setBusy(what);
@@ -150,6 +159,65 @@ export function ZoneSheet({
           Save name
         </Button>
       </form>
+
+      <div className={styles.fieldGroup}>
+        <div className={styles.settingRow}>
+          <span>
+            <b>Valve {zone.valve}</b>
+            <span className={styles.muted}>
+              The terminal on the controller this zone is wired to.
+            </span>
+          </span>
+          <Button variant="secondary" onClick={() => setPickValve((p) => !p)}>
+            {pickValve ? "Done" : "Change"}
+          </Button>
+        </div>
+        {pickValve && (
+          <ValvePicker
+            options={valves}
+            value={zone.valve}
+            disabled={busy === "valve"}
+            onChange={(valve) =>
+              valve !== zone.valve &&
+              void act("valve", () => onUpdate({ valve }))
+            }
+          />
+        )}
+      </div>
+
+      {confirmDelete ? (
+        <div
+          className={styles.confirm}
+          role="alertdialog"
+          aria-label="Delete zone"
+        >
+          <p>
+            <b>Delete {zone.name}?</b> Programs stop watering it, and valve{" "}
+            {zone.valve} becomes free.
+          </p>
+          <div className={styles.confirmActions}>
+            <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              icon={Trash2}
+              loading={busy === "delete"}
+              onClick={() => void act("delete", onDelete, true)}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          variant="ghost"
+          icon={Trash2}
+          onClick={() => setConfirmDelete(true)}
+        >
+          Delete zone
+        </Button>
+      )}
     </Sheet>
   );
 }
