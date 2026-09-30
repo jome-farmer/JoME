@@ -3,6 +3,7 @@ import {
   formatClock,
   formatDuration,
   formatFlow,
+  formatLiters,
   formatTemperature,
   whenLabel,
 } from "./format";
@@ -64,4 +65,13 @@ describe("whenLabel", () => {
     );
     expect(whenLabel(at(new Date(2026, 9, 2, 6, 0)), now)).toBe("Friday 06:00");
   });
+});
+
+describe("formatLiters", () => {
+  it.each([
+    [0, "0 L"],
+    [4.46, "4.5 L"],
+    [812.4, "812 L"],
+    [1240, "1,240 L"],
+  ])("%s → %s", (l, text) => expect(formatLiters(l)).toBe(text));
 });

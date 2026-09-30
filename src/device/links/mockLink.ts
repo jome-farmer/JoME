@@ -134,8 +134,36 @@ export function createMockLink(): Link {
     nextRun: clockSet ? nextRun() : null,
   });
 
+  // Usage log (usage.read): litres per local day and zone, like the board keeps.
+  const DEMO_LPM = 11.5;
+  const usage = new Map<
+    string,
+    Map<number, { liters: number; seconds: number }>
+  >();
+  const dayKey = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const addUsage = (date: string, zone: number, seconds: number) => {
+    const day = usage.get(date) ?? new Map();
+    const z = day.get(zone) ?? { liters: 0, seconds: 0 };
+    day.set(zone, {
+      liters: z.liters + (DEMO_LPM * seconds) / 60,
+      seconds: z.seconds + seconds,
+    });
+    usage.set(date, day);
+  };
+  // Some history: the evening program on most days, the hedge every third.
+  for (let ago = 1; ago <= 60; ago++) {
+    const d = new Date();
+    d.setDate(d.getDate() - ago);
+    if (ago % 7 === 3) continue; // a rain day
+    addUsage(dayKey(d), 1, 600 + (ago % 5) * 60);
+    addUsage(dayKey(d), 3, 480);
+    if (ago % 3 === 0) addUsage(dayKey(d), 2, 900);
+  }
+
   const stopZone = (zone: number) => {
     if (running?.zone !== zone) return;
+    addUsage(dayKey(new Date()), zone, running.total - running.remaining);
     running = null;
     const z = zones.find((x) => x.zone === zone);
     const valve = z?.valve ?? zone;
@@ -301,6 +329,41 @@ export function createMockLink(): Link {
         throw new Fail("CLOCK_NOT_SET", "Clock not set; send time.set first");
       rainDelayUntil = hours > 0 ? now() + hours * 3600 : null;
       return { until: rainDelayUntil };
+    },
+    "usage.read": (a) => {
+      const days = Number(a.days);
+      if (!Number.isInteger(days) || days < 1 || days > 90)
+        throw new Fail("BAD_REQUEST", "days must be 1-90");
+      if (!clockSet)
+        throw new Fail("CLOCK_NOT_SET", "Clock not set; send time.set first");
+      const from = new Date();
+      from.setDate(from.getDate() - days + 1);
+      const first = dayKey(from);
+      const outDays: { date: string; liters: number }[] = [];
+      const byZone = new Map<number, { liters: number; seconds: number }>();
+      for (const date of [...usage.keys()].sort()) {
+        if (date < first) continue;
+        let total = 0;
+        for (const [zone, u] of usage.get(date)!) {
+          total += u.liters;
+          const sum = byZone.get(zone) ?? { liters: 0, seconds: 0 };
+          byZone.set(zone, {
+            liters: sum.liters + u.liters,
+            seconds: sum.seconds + u.seconds,
+          });
+        }
+        outDays.push({ date, liters: Math.round(total * 10) / 10 });
+      }
+      return {
+        days: outDays,
+        zones: [...byZone]
+          .sort(([a], [b]) => a - b)
+          .map(([zone, u]) => ({
+            zone,
+            liters: Math.round(u.liters * 10) / 10,
+            seconds: u.seconds,
+          })),
+      };
     },
     "device.reboot": () => {
       if (running) stopZone(running.zone);

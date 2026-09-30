@@ -41,6 +41,14 @@ export type Program = {
   steps: { zone: number; seconds: number }[];
 };
 
+/** Board usage log (usage.read): litres per local day and per zone. */
+export type Usage = {
+  /** "YYYY-MM-DD", oldest first; only days with use. */
+  days: { date: string; liters: number }[];
+  /** Totals for the period by zone id; only zones with use. */
+  zones: { zone: number; liters: number; seconds: number }[];
+};
+
 export type ProgramState = {
   program: number;
   state: "started" | "step" | "finished" | "skipped";
@@ -107,6 +115,7 @@ export type Commands = {
   "rain.delay": [{ hours: number }, { until: Epoch | null }];
   "device.rename": [{ name: string }, Empty];
   "device.reboot": [Empty, Empty];
+  "usage.read": [{ days: number }, Usage];
   "sensors.read": [Empty, Sensors];
   "log.level": [
     { level: "error" | "warn" | "info" | "debug" | "trace" },
