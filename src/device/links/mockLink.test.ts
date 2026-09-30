@@ -88,7 +88,10 @@ describe("mock board", () => {
     const seen: string[] = [];
     client.on("wifi.state", (w) => seen.push(w.state));
     await ask(
-      client.request("wifi.set", { ssid: "Greenhouse-AP", password: "wrong" }),
+      client.request("wifi.set", {
+        ssid: "Greenhouse-AP",
+        password: "wrong-password",
+      }),
     );
     await vi.advanceTimersByTimeAsync(1_500);
     expect(seen).toEqual(["connecting", "failed"]);

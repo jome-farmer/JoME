@@ -154,6 +154,26 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     if (lastFactory.current) await connect(lastFactory.current);
   }, [connect]);
 
+  const rename = useCallback(
+    async (name: string) => {
+      const { client, info, linkKind } = snap;
+      if (!client || !info || !linkKind) throw new Error("Not connected");
+      await client.request("device.rename", { name });
+      const known = (await getKnownDevices()).find(
+        (d) => d.serial === info.serial,
+      );
+      await rememberDevice({
+        serial: info.serial,
+        name,
+        lastLink: linkKind,
+        bleDeviceId: known?.bleDeviceId,
+        lastSeen: Date.now(),
+      });
+      setSnap((s) => (s.info ? { ...s, info: { ...s.info, name } } : s));
+    },
+    [snap],
+  );
+
   const disconnect = useCallback(
     async ({ forget = false } = {}) => {
       const serial = snap.info?.serial;
@@ -187,6 +207,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectWebSerial,
       connectAndroidUsb,
       setBaudRate,
+      rename,
       retry,
       disconnect,
     }),
@@ -197,6 +218,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectWebSerial,
       connectAndroidUsb,
       setBaudRate,
+      rename,
       retry,
       disconnect,
     ],

@@ -146,11 +146,10 @@ export function createMockLink(): Link {
       wifi = { state: "connecting", ssid };
       setTimeout(() => event("wifi.state", wifi), 0);
       setTimeout(() => {
-        // The demo's only wrong password is "wrong", so the failure path can be tried.
-        wifi =
-          a.password === "wrong"
-            ? { state: "failed", ssid, reason: "Wrong password" }
-            : { state: "connected", ssid, ip: "192.168.1.42" };
+        // Passwords starting with "wrong" fail (e.g. "wrong-password", long enough to pass validation).
+        wifi = String(a.password).startsWith("wrong")
+          ? { state: "failed", ssid, reason: "Wrong password" }
+          : { state: "connected", ssid, ip: "192.168.1.42" };
         log(
           wifi.state === "connected" ? "I" : "W",
           "wifi",

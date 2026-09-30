@@ -13,6 +13,8 @@ import { DeviceScreen } from "../features/device/DeviceScreen";
 import { TerminalScreen } from "../features/terminal/TerminalScreen";
 import { WelcomeScreen } from "../features/onboarding/WelcomeScreen";
 import { ConnectScreen } from "../features/onboarding/ConnectScreen";
+import { WifiScreen } from "../features/onboarding/WifiScreen";
+import { NameScreen } from "../features/onboarding/NameScreen";
 
 const UiGallery = lazy(() => import("./UiGallery"));
 
@@ -31,6 +33,8 @@ export function App() {
           </Route>
           <Route path="welcome" element={<WelcomeScreen />} />
           <Route path="connect" element={<ConnectScreen />} />
+          <Route path="setup/wifi" element={<WifiScreen />} />
+          <Route path="setup/name" element={<NameScreen />} />
           <Route path="device/terminal" element={<TerminalScreen />} />
           <Route
             path="ui"

@@ -27,6 +27,8 @@ export type DeviceContextValue = {
   setBaudRate(baudRate: number): Promise<void>;
   /** Reconnect with the same kind of link as last time. */
   retry(): Promise<void>;
+  /** Rename the controller on the board, and update `info` and known devices to match. */
+  rename(name: string): Promise<void>;
   /** `forget` also removes it from known devices, so it won't reconnect on next launch. */
   disconnect(options?: { forget?: boolean }): Promise<void>;
 };
