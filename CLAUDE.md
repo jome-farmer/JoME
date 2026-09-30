@@ -10,8 +10,9 @@ desktop bench tool in Chrome.
 ## Current state
 
 - **Phase 0 (design) is done.** Implementation follows [docs/roadmap.md](docs/roadmap.md).
-- `src/` is still the old prototype (PrimeReact, mock data). Don't extend it.
-  Replace it screen by screen with the target architecture.
+- `src/` follows the target architecture: `app/` shell with 5 tabs, `ui/`
+  components (see `/ui`), and placeholder screens in `features/` that are
+  replaced issue by issue.
 - Open questions that block Phase 1 are listed at the end of the roadmap.
 
 ## Read before changing things
