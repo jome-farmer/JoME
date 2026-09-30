@@ -45,6 +45,7 @@ src/
   app/
     App.tsx               router (all routes) + providers
     TabLayout.tsx         bottom tab bar shell
+    ConnectionBanner.tsx  connecting / lost / demo bar above the tabs
     UiGallery.tsx         /ui: living reference of every ui/ component
   ui/                     design system: token-driven, no business logic
     base.css              imports design/tokens.css + bundled fonts
@@ -60,7 +61,9 @@ src/
     lineCodec.ts          bytes → lines; protocol messages vs log lines; 16 KB line cap
     client.ts             DeviceClient: typed request/response + events
     types.ts              Zone, Program, Status… (mirrors device-protocol.md)
-    DeviceProvider.tsx    React context: connection state + client
+    handshake.ts          hello + protocol version check + time.set
+    DeviceContext.ts      context type + useDevice()
+    DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
   features/
     onboarding/           Welcome → Connect → Wi‑Fi → Name
     home/                 status hero, quick actions
@@ -109,8 +112,14 @@ On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
   connect(link: Link): Promise<void>, disconnect(): Promise<void> }
 ```
 
-On an unexpected close it moves to `lost` and retries BLE with backoff (1 s,
-2 s, 5 s, then every 10 s) while the app is in the foreground.
+On an unexpected close it moves to `lost` and the banner offers *Retry*.
+`connect` takes a link **factory**, so *Retry* re-creates the same kind of link.
+Automatic BLE reconnect with backoff (1 s, 2 s, 5 s, then every 10 s, while
+the app is in the foreground) arrives with the BLE link (#11).
+
+On launch the provider reconnects to the most recent known device
+(`lib/storage.ts`). *Exit demo* also forgets the demo device, so the next
+launch starts disconnected.
 
 ### Which links appear on which platform
 

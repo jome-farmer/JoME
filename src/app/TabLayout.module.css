@@ -3,6 +3,9 @@
   flex-direction: column;
   height: 100%;
 }
+.layout:has([data-banner]) .content {
+  --screen-top-inset: 0px;
+}
 .content {
   flex: 1;
   min-height: 0;
