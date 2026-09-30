@@ -55,4 +55,5 @@ branches merged into `develop`.
    backend. Do we add JoME accounts, or use per-device tokens? Remote control over
    the internet depends on the same answer.
 5. **Agent API.** See the open questions in [assistant.md](assistant.md#open-questions-for-the-agent-team).
-6. ~~**Minimum OS versions.**~~ Resolved: iOS 15+ and Android 7 (API 24)+, Capacitor 8's defaults.
+6. ~~**Minimum OS versions.**~~ Resolved: iOS 15+ and Android 8 (API 26)+. Android was raised from Capacitor 8's
+   default of 24 in #16 for the QR scanner.

@@ -51,7 +51,7 @@ Vitest. The framework choice is explained in
 ## Getting started
 
 Requirements: Node 22+, and Xcode 16+ (iOS) or Android Studio + JDK 21 (Android).
-The app supports iOS 15+ and Android 7 (API 24)+.
+The app supports iOS 15+ and Android 8 (API 26)+.
 
 ```bash
 npm install

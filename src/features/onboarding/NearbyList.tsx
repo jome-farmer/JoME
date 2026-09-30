@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bluetooth } from "lucide-react";
 import { scanForJoME, type FoundDevice } from "../../device/links/bleLink";
 import { List, ListRow } from "../../ui/ListRow";
@@ -6,10 +6,29 @@ import { StatusPill } from "../../ui/StatusPill";
 import { SignalBars } from "./SignalBars";
 import styles from "./Onboarding.module.css";
 
-/** Native only: live BLE scan for JoME boards, strongest signal first. Scans while mounted. */
-export function NearbyList({ onPick }: { onPick: (deviceId: string) => void }) {
+/**
+ * Native only: live BLE scan for JoME boards, strongest signal first. Scans while mounted.
+ * `lookFor` (an advertised name from a QR label) picks that board automatically once it's seen.
+ */
+export function NearbyList({
+  onPick,
+  lookFor,
+}: {
+  onPick: (deviceId: string) => void;
+  lookFor?: string;
+}) {
   const [found, setFound] = useState<Record<string, FoundDevice>>({});
   const [error, setError] = useState<string>();
+  const picked = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!lookFor || picked.current === lookFor) return;
+    const match = Object.values(found).find((d) => d.name === lookFor);
+    if (match) {
+      picked.current = lookFor;
+      onPick(match.deviceId);
+    }
+  }, [found, lookFor, onPick]);
 
   useEffect(() => {
     let stop: (() => Promise<void>) | undefined;

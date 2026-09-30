@@ -4,6 +4,8 @@
 <dict>
   <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>JoME uses the camera to scan the QR code on your controller’s label.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>JoME uses Bluetooth to set up and control your irrigation controller.</string>
 	<key>CFBundleDevelopmentRegion</key>

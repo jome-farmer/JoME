@@ -13,7 +13,9 @@ list into the release PR and tick each item.
 
 - [ ] Scan finds `JoME-XXXX` within 5 s
 - [ ] The system pairing dialog appears on first connect. The right passkey pairs. A wrong one shows a clear error in the app.
-- [ ] QR scan pre-selects the device and shows its passkey (phones)
+- [ ] QR scan finds the device, shows its passkey large, and connects (phones)
+- [ ] Scanning a non-JoME QR code shows "That QR code isn't a JoME label"
+- [ ] With the board powered off, a scan gives up after 20 s with a clear message
 - [ ] `hello` info appears on the Device tab
 - [ ] Zone run, stop and stop-all reach the board. The water ring counts down.
 - [ ] Turning the board off shows "Connection lost. Reconnecting…". Turning it
