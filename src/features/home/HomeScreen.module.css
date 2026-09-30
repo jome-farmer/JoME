@@ -59,6 +59,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Live flow: blue only while water is actually flowing. */
+.flowRate {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.flowRate.flowing {
+  color: var(--flow);
+}
+
 /* Quick actions */
 .quick {
   display: grid;

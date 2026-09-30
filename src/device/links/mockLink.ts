@@ -79,6 +79,9 @@ export function createMockLink(): Link {
   let rainDelayUntil: number | null = null;
   let clockSet = false;
   let running: { zone: number; remaining: number; total: number } | null = null;
+  // Flow sensor: litres since "boot", advanced whenever it's read.
+  let litres = 0;
+  let litresAt = Date.now();
 
   const emit = (text: string) => {
     if (!open) return;
@@ -306,10 +309,19 @@ export function createMockLink(): Link {
       setTimeout(() => close(new Error("JoME restarted")), 300);
       return {};
     },
-    "sensors.read": () => ({
-      temperatureC:
-        Math.round((27 + Math.sin(Date.now() / 600_000) * 2) * 10) / 10,
-    }),
+    "sensors.read": () => {
+      const t = Date.now();
+      const flowLpm = running
+        ? Math.round((11.5 + Math.sin(t / 7000) * 0.8) * 10) / 10
+        : 0;
+      litres += (flowLpm * (t - litresAt)) / 60_000;
+      litresAt = t;
+      return {
+        temperatureC: Math.round((27 + Math.sin(t / 600_000) * 2) * 10) / 10,
+        flowLpm,
+        totalLiters: Math.round(litres * 10) / 10,
+      };
+    },
     "log.level": (a) => {
       if (
         !["error", "warn", "info", "debug", "trace"].includes(String(a.level))

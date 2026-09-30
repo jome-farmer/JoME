@@ -14,6 +14,11 @@ export function formatTemperature(celsius: number | null): string {
   return celsius === null ? "— °C" : `${celsius.toFixed(1)} °C`;
 }
 
+/** Flow → "12.4 L/min". */
+export function formatFlow(lpm: number): string {
+  return `${lpm.toFixed(1)} L/min`;
+}
+
 /** Seconds → countdown clock "6:42", or "1:05:00" past an hour. */
 export function formatClock(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));

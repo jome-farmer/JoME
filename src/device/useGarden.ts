@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DeviceClient } from "./client";
-import { useDevice } from "./DeviceContext";
-import type { Program, Status, Zone } from "./types";
+import { supports, useDevice } from "./DeviceContext";
+import type { Program, Sensors, Status, Zone } from "./types";
 
 export type GardenZone = Zone;
 
@@ -101,6 +101,21 @@ export function useGarden(client: DeviceClient | undefined) {
     ];
     return () => offs.forEach((off) => off());
   }, [client, refresh, applyStatus]);
+
+  // Sensors: flow matters while watering (every 2 s), temperature changes slowly (every minute).
+  const canSense = supports(info, "sensors.read");
+  const [sensors, setSensors] = useState<Sensors>();
+  const watering = run !== null;
+  useEffect(() => {
+    if (!client || !canSense) return;
+    const read = () =>
+      client.request("sensors.read", {}).then(setSensors, () => {
+        // Keep the last reading; the next tick tries again.
+      });
+    void read();
+    const id = setInterval(read, watering ? 2000 : 60_000);
+    return () => clearInterval(id);
+  }, [client, canSense, watering]);
 
   // One tick a second keeps the ring and the timeline moving between board reports.
   useEffect(() => {
@@ -220,6 +235,8 @@ export function useGarden(client: DeviceClient | undefined) {
     run,
     remaining,
     now,
+    /** Latest sensors.read; undefined until read or when the board has no sensors. */
+    sensors: canSense ? sensors : undefined,
     error,
     refresh,
     runZone,

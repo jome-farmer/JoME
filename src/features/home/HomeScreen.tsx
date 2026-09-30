@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bluetooth,
@@ -15,7 +15,12 @@ import {
 } from "lucide-react";
 import { supports, useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
-import { formatDuration, formatTemperature, whenLabel } from "../../lib/format";
+import {
+  formatDuration,
+  formatFlow,
+  formatTemperature,
+  whenLabel,
+} from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
@@ -74,12 +79,21 @@ export function HomeScreen() {
 function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
   const { client, info } = useDevice();
   const navigate = useNavigate();
-  const { status, zones, programs, run, remaining, now, error, refresh } =
-    useGarden(client);
+  const {
+    status,
+    zones,
+    programs,
+    run,
+    remaining,
+    now,
+    sensors,
+    error,
+    refresh,
+  } = useGarden(client);
   const [rainOpen, setRainOpen] = useState(false);
   const [busy, setBusy] = useState<"stop" | "stopAll">();
   const [actionError, setActionError] = useState<string>();
-  const temperature = useTemperature();
+  const temperature = sensors?.temperatureC;
 
   const date = new Date(now);
   const today = todayRuns(programs, date);
@@ -157,6 +171,13 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
                     ? `${startedBy} · step ${run.step ?? "?"}`
                     : "Started by hand"}
                 </span>
+                {sensors?.flowLpm !== undefined && (
+                  <span
+                    className={`${styles.flowRate} ${sensors.flowLpm > 0 ? styles.flowing : ""}`}
+                  >
+                    {formatFlow(sensors.flowLpm)}
+                  </span>
+                )}
               </div>
             </div>
             <Button
@@ -326,23 +347,4 @@ function QuickAction({
       {label}
     </button>
   );
-}
-
-/** Board temperature from sensors.read, on load and every minute; undefined until read or when the board has no sensor. */
-function useTemperature(): number | null | undefined {
-  const { client, info } = useDevice();
-  const canRead = supports(info, "sensors.read");
-  const [celsius, setCelsius] = useState<number | null>();
-  useEffect(() => {
-    if (!client || !canRead) return;
-    const read = () =>
-      client.request("sensors.read", {}).then(
-        (s) => setCelsius(s.temperatureC),
-        () => {}, // keep the last reading; the next minute tries again
-      );
-    void read();
-    const timer = setInterval(read, 60_000);
-    return () => clearInterval(timer);
-  }, [client, canRead]);
-  return canRead ? celsius : undefined;
 }

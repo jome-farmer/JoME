@@ -4,7 +4,7 @@ import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
 import type { Zone } from "../../device/types";
-import { formatClock, formatDuration } from "../../lib/format";
+import { formatClock, formatDuration, formatFlow } from "../../lib/format";
 import { remainingFraction } from "../../lib/math";
 import { Button } from "../../ui/Button";
 import { EmptyState } from "../../ui/EmptyState";
@@ -44,7 +44,7 @@ export function ZonesScreen() {
 function Connected() {
   const { client } = useDevice();
   const garden = useGarden(client);
-  const { zones, run, remaining } = garden;
+  const { zones, run, remaining, sensors } = garden;
   const [open, setOpen] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState<number>();
@@ -118,9 +118,13 @@ function Connected() {
                 <span className={styles.name}>{z.name}</span>
                 <span className={styles.meta}>
                   {running ? (
-                    <StatusPill tone="flow" icon={Droplet}>
-                      {formatClock(remaining)} left
-                    </StatusPill>
+                    <>
+                      <StatusPill tone="flow" icon={Droplet}>
+                        {formatClock(remaining)} left
+                      </StatusPill>
+                      {sensors?.flowLpm !== undefined &&
+                        formatFlow(sensors.flowLpm)}
+                    </>
                   ) : z.enabled ? (
                     <>
                       <StatusPill tone="idle">Idle</StatusPill>

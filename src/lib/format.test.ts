@@ -2,9 +2,18 @@ import { describe, expect, it } from "vitest";
 import {
   formatClock,
   formatDuration,
+  formatFlow,
   formatTemperature,
   whenLabel,
 } from "./format";
+
+describe("formatFlow", () => {
+  it.each([
+    [12.4, "12.4 L/min"],
+    [0, "0.0 L/min"],
+    [3, "3.0 L/min"],
+  ])("%s → %s", (lpm, text) => expect(formatFlow(lpm)).toBe(text));
+});
 
 describe("formatTemperature", () => {
   it.each([
