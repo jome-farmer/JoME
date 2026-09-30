@@ -64,3 +64,23 @@ npx cap open ios     # / android
 Gitflow: `main` (releases, tagged), `develop` (integration), `feature/*`,
 `release/*`, `hotfix/*`. Branch features off `develop`. Use Conventional
 Commits. Never commit directly to `main` or `develop`.
+
+## Task workflow (issues → PRs)
+
+All work is tracked as GitHub issues, grouped into milestones by roadmap
+phase: https://github.com/jome-farmer/JoME/issues
+
+1. **Pick** the next open issue, in number order within the earliest open
+   milestone. Skip issues labelled `blocked`.
+2. **Assign** it to the maintainer: `gh issue edit <N> --add-assignee @me`.
+3. **Branch** from an up-to-date `develop`: `feature/<N>-<short-slug>`.
+4. **Implement** only that issue's scope. Tick its checklist. Update
+   `docs/` or `design/` if behaviour or look changes.
+5. **Open a PR** into `develop` with `Closes #<N>` in the body, and a short
+   what, why and how-tested.
+6. **Stop.** The maintainer reviews and merges. Never merge your own PR.
+   Start the next issue only from an updated `develop` after the merge, or
+   choose an issue that doesn't depend on the open PR.
+
+New work found along the way becomes a new issue, not scope creep in the
+current PR.
