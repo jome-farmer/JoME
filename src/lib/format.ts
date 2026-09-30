@@ -9,6 +9,12 @@ export function formatDuration(seconds: number): string {
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
+/** Litres → "812 L", "4.5 L" under 10, "1,240 L". */
+export function formatLiters(liters: number): string {
+  const n = liters < 10 ? Math.round(liters * 10) / 10 : Math.round(liters);
+  return `${n.toLocaleString("en-US")} L`;
+}
+
 /** Board temperature → "28.5 °C", or "— °C" when the sensor has no reading. */
 export function formatTemperature(celsius: number | null): string {
   return celsius === null ? "— °C" : `${celsius.toFixed(1)} °C`;

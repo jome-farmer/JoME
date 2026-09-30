@@ -30,6 +30,7 @@ import { WaterRing } from "../../ui/WaterRing";
 import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { greeting, todayRuns } from "./today";
 import { WeatherCard } from "./WeatherCard";
+import { UsageCard } from "./UsageCard";
 import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
 import { errorText } from "../../device/errors";
@@ -259,6 +260,8 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
           disabled={!run || busy === "stopAll"}
         />
       </div>
+
+      {client && supports(info, "usage.read") && <UsageCard client={client} />}
 
       {info && <WeatherCard serial={info.serial} />}
 
