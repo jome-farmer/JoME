@@ -71,6 +71,7 @@ Live reference: run the app and open **`/ui`** (also on https://app.jome-farmer.
 | `WaterRing` | The signature element. A circular progress ring in `--flow` showing time left, with the minutes figure large in its centre. It animates smoothly each second. |
 | `Sheet` | Bottom sheet for zone actions and editors. Drag handle, 24 px top radius. |
 | `ConnectionBanner` | Slim bar above every tab: `Connecting to …` (warn, pulsing dot), `Connection lost · Retry` or `Couldn't connect … · Retry` (danger), `Demo mode · simulated controller · Exit demo` (neutral). It is never a modal. |
+| `TextField` | Label, 48 px input, optional hint or error under it. Focus shows a leaf-green border and a soft ring. Passwords get a show/hide button. The font is 16 px, so iOS doesn't zoom in. |
 | `EmptyState` | Illustration (logo mascot), one sentence, one action. |
 | `TabBar` | 5 tabs: Home, Zones, **JoME** (assistant, centre, mascot icon), Schedule, Device. Icon and label always shown. The active tab is a leaf-coloured pill. |
 | `ChatMessage` | User messages are right-aligned leaf bubbles. Assistant messages are full-width text on the ground, with no bubble, so long answers read like a page. Text streams in. |
@@ -88,7 +89,7 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | 1 | **Welcome** | Mascot, "Hi, I'm JoME / your gardener", *Get started*. Shown on first launch only. |
 | 2 | **Connect** | Choose how to reach the board: *Scan the label* (primary, phones only; the app finds that board, shows its pairing code large, and checks the serial after connecting), list of nearby `JoME-XXXX` devices with signal strength, *Use USB cable* (Android and desktop only), *Try demo*. Pairing uses the **system** dialog. When the passkey is known from the QR code, the app shows it large so it's easy to type. |
 | 3 | **Wi‑Fi** | Networks come from the board's own scan (`wifi.scan`), with signal bars and a lock icon. Password field. Live status: connecting, connected (IP), or failed with a reason. *Skip for now* is allowed. |
-| 4 | **Name** | Name the garden or device. Success. Lands on Home. |
+| 4 | **Name** | Name the garden (up to 32 characters, stored on the board with `device.rename`). *Start gardening* lands on Home. |
 | 5 | **Home** | Header: device name and link status. **Hero:** WaterRing for the running zone (*Front lawn · 7 min left · Stop*). When nothing runs, the hero shows the next scheduled run instead. Quick actions: *Run a zone*, *Rain delay*, *Stop all*. Below: today's runs as a timeline. |
 | 6 | **Zones** | Summary line "2 of 6 zones running". Zone cards: name, state pill, default duration, big round **Run** button. A running card fills with a water-level tint. Tapping a card opens the Zone sheet: duration stepper, Run, enable switch, rename. |
 | 7 | **Assistant — start** | Mascot greeting with one live insight from the agent (for example, tonight's rain forecast). Context chip showing which garden it's looking at. Four suggestion chips. Composer. Offline state: *The assistant needs internet. Your garden keeps running on schedule.* |

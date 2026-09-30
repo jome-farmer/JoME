@@ -65,8 +65,7 @@ export function ConnectScreen() {
       setPairing(null);
       return;
     }
-    // ponytail: goes straight Home; the Wi‑Fi and Name steps slot in here with #17.
-    navigate("/", { replace: true });
+    navigate("/setup/wifi", { replace: true });
   }, [device, pairing, navigate]);
 
   // Found and tried, but the connection failed: the provider's error is shown instead.
