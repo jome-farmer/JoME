@@ -46,6 +46,7 @@ src/
     App.tsx               router (all routes) + providers
     TabLayout.tsx         bottom tab bar shell
     ConnectionBanner.tsx  connecting / lost / demo bar above the tabs
+    FirstRunRedirect.tsx  "/" → /welcome when no controller is known
     UiGallery.tsx         /ui: living reference of every ui/ component
   ui/                     design system: token-driven, no business logic
     base.css              imports design/tokens.css + bundled fonts
@@ -65,7 +66,7 @@ src/
     DeviceContext.ts      context type + useDevice()
     DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
   features/
-    onboarding/           Welcome → Connect → Wi‑Fi → Name
+    onboarding/           Welcome → Connect (BLE scan or browser chooser, USB, demo) → Wi‑Fi → Name
     home/                 status hero, quick actions
     zones/                zone list, zone sheet (manual run, edit)
     schedule/             programs list + editor
@@ -150,8 +151,10 @@ launch starts disconnected.
 /device/terminal         full screen, outside the tab layout
 ```
 
-The first launch goes to `/welcome`. After that the app opens on the Home tab
-and reconnects to the last device.
+On launch at `/` with no known controller, `FirstRunRedirect` goes to
+`/welcome`. Deep links such as `/ui` are left alone. After that the app opens
+on the Home tab and reconnects to the last device. The connect choices live
+only on `/connect`; Home and Device link to it.
 
 ## Errors
 
