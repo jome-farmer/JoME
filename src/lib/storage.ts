@@ -37,3 +37,12 @@ export async function forgetDevice(serial: string): Promise<void> {
   const rest = (await getKnownDevices()).filter((d) => d.serial !== serial);
   await Preferences.set({ key: KEY, value: JSON.stringify(rest) });
 }
+
+/** Small yes/no settings, e.g. whether the assistant's data notice was accepted. */
+export async function getFlag(key: string): Promise<boolean> {
+  return (await Preferences.get({ key })).value === "1";
+}
+
+export async function setFlag(key: string, on: boolean): Promise<void> {
+  await Preferences.set({ key, value: on ? "1" : "0" });
+}
