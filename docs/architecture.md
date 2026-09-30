@@ -47,6 +47,7 @@ src/
     TabLayout.tsx         bottom tab bar shell
     ConnectionBanner.tsx  connecting / lost / demo bar above the tabs
     FirstRunRedirect.tsx  "/" → /welcome when no controller is known
+    Splash.tsx            animated launch splash, once per cold start; hides the native splash
     UiGallery.tsx         /ui: living reference of every ui/ component
   ui/                     design system: token-driven, no business logic
     base.css              imports design/tokens.css + bundled fonts
