@@ -67,7 +67,7 @@ src/
     handshake.ts          hello + protocol version check + time.set
     DeviceContext.ts      context type + useDevice()
     DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
-    useGarden.ts          live status, zones, programs, running zone + zone actions (Home, Zones)
+    useGarden.ts          live status, zones, programs, running zone + zone/program actions (Home, Zones, Schedule)
   features/
     onboarding/           Welcome → Connect (BLE scan or browser chooser, USB, demo) → Wi‑Fi → Name
     home/                 status hero, quick actions

@@ -31,7 +31,9 @@ export function Button({
     .filter(Boolean)
     .join(" ");
   return (
+    // type="button" unless told otherwise: a bare <button> in a <form> would submit it.
     <button
+      type="button"
       className={cls}
       disabled={disabled || loading}
       aria-busy={loading || undefined}

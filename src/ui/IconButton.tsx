@@ -17,7 +17,9 @@ export function IconButton({
   ...rest
 }: Props) {
   return (
+    // type="button": icon buttons never submit a form they sit in.
     <button
+      type="button"
       className={[styles.btn, styles[variant], className]
         .filter(Boolean)
         .join(" ")}
