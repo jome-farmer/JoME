@@ -86,11 +86,8 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
     status?.rainDelayUntil && status.rainDelayUntil * 1000 > now
       ? status.rainDelayUntil
       : null;
-  const startedBy = run
-    ? today.find(
-        (r) =>
-          r.state === "now" && r.program.steps.some((s) => s.zone === run.zone),
-      )?.program.name
+  const startedBy = run?.program
+    ? programs.find((p) => p.id === run.program)?.name
     : undefined;
 
   const act = async (kind: "stop" | "stopAll") => {
@@ -138,7 +135,9 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
                 <b className={styles.big}>{zoneName(run.zone)}</b>
                 <span className={styles.meta}>
                   Zone {run.zone} ·{" "}
-                  {startedBy ? `${startedBy} program` : "Started by hand"}
+                  {startedBy
+                    ? `${startedBy} · step ${run.step ?? "?"}`
+                    : "Started by hand"}
                 </span>
               </div>
             </div>
