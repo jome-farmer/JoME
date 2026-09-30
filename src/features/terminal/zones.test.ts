@@ -12,10 +12,10 @@ describe("formatZones", () => {
           defaultSeconds: 600,
           valve: 3,
         },
-        { zone: 2, name: "Pots", enabled: false, defaultSeconds: 90 },
+        { zone: 2, name: "Pots", enabled: false, defaultSeconds: 90, valve: 2 },
       ]),
     ).toBe(
-      "Zones:\n1. Front lawn · on · 10 min · valve 3\n2. Pots · off · 2 min",
+      "Zones:\n1. Front lawn · on · 10 min · valve 3\n2. Pots · off · 2 min · valve 2",
     );
   });
 

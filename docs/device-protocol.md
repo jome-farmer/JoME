@@ -41,10 +41,9 @@ same interface. Features never touch a link directly. They go through
   times requests out (5 s, `wifi.scan` 15 s).
 - `handshake.ts` runs on every connect: `hello` (refuses other `proto`), then
   `time.set` with the phone's clock and IANA zone.
-- Feature-detect with `hello.cmds` (optional: older boards omit it) rather
-  than the firmware version. `supports(info, cmd)` in `DeviceContext.ts` does
-  this, and screens hide actions the board doesn't have (Wi‑Fi, rain delay,
-  restart).
+- Feature-detect optional actions with the required `hello.cmds` list rather
+  than the firmware version. The connection refuses a board missing the app's
+  baseline commands, and screens hide optional actions it does not list.
 - Messages over **1024 bytes** are refused in the app with `BAD_REQUEST`,
   because the board drops them without answering (protocol §2).
 - People see the app's own words for each error `code` (`device/errors.ts`),
@@ -52,24 +51,8 @@ same interface. Features never touch a link directly. They go through
 - `restart()` in `DeviceProvider` sends `device.reboot` and reconnects once the
   board is back. Bluetooth does this through its normal automatic reconnect.
 
-## Zones and valves
-
-The protocol plans separate zones and valves (SHamBE#19). Firmware v1 has fixed
-zones `1..zoneCount`, where zone N is valve N. `useGarden` picks the mode from
-`hello.cmds` so the screens work the same on both:
-
-| | Board lists `zone.create` | Firmware v1 (fixed zones) |
-|---|---|---|
-| Zones shown | all | only zones in use: on, or renamed |
-| Free valve | not used by any zone | zone that's off and still named `Zone N` |
-| Add zone | `zone.create` | `zone.update` that names it and turns it on |
-| Delete zone | `zone.delete` | remove it from programs, then turn it off and reset the name |
-| Change valve | `zone.update {valve}` | not offered |
-
 ## Wi‑Fi
 
-- Firmware v1 sends `wifi.state: connecting` without `ssid`, so the Wi‑Fi
-  screen remembers which network it asked to join (SHamBE#21 adds it).
 - Failure `reason`s are ESP-IDF codes. `wifiFailureText` says what they mean:
   `AUTH_FAIL` and the handshake timeouts mean a wrong password, and
   `NO_AP_FOUND` means the board can't see the network.
@@ -82,9 +65,7 @@ zones `1..zoneCount`, where zone N is valve N. `useGarden` picks the mode from
 and limits as the real one. Keep it in step with the protocol repo when either
 changes.
 
-- `createMockLink()` has zones and valves (the planned model). The Demo mode
-  uses it. `createMockLink({ valves: false })` behaves like firmware v1, and
-  the tests use it for the fixed-zone mode.
+- `createMockLink()` implements the current v1 zones-and-valves model.
 - Like the real board: no next run and no rain delay until `time.set`
   (`CLOCK_NOT_SET`), `device.reboot` drops the link, and Wi‑Fi failures use
   ESP-IDF reasons.

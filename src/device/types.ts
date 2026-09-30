@@ -13,21 +13,18 @@ export type Hello = {
   serial: string;
   name: string;
   zoneCount: number;
-  /** Valve outputs on this board (e.g. 8 or 16). Older boards may omit it. */
-  valveCount?: number;
-  /** Every command this firmware accepts. Older boards may omit it. */
-  cmds?: string[];
+  /** Valve outputs on this board (e.g. 8 or 16). */
+  valveCount: number;
+  /** Every command this firmware accepts. */
+  cmds: string[];
 };
 
 export type Zone = {
   /** Id the board assigns. */
   zone: number;
   name: string;
-  /**
-   * Valve output this zone drives, 1 … valveCount. One zone per valve.
-   * Planned (SHamBE#19): firmware v1 omits it, and the zone number is the valve.
-   */
-  valve?: number;
+  /** Valve output this zone drives, 1 … valveCount. One zone per valve. */
+  valve: number;
   enabled: boolean;
   defaultSeconds: number;
 };
@@ -63,11 +60,11 @@ export type WifiState = {
 export type Status = {
   wifi: WifiState;
   rainDelayUntil: Epoch | null;
-  /** Seconds. `total` is the length of this run (optional; older boards may omit it). */
+  /** Seconds. `total` is the length of this run. */
   running: {
     zone: number;
     remaining: number;
-    total?: number;
+    total: number;
     program?: number;
     step?: number;
   }[];

@@ -13,6 +13,7 @@ describe("terminalBanner", () => {
           name: "Garden",
           zoneCount: 6,
           valveCount: 8,
+          cmds: [],
         },
         "ble",
       ),
