@@ -14,15 +14,7 @@ import {
  * Used for Demo mode, development without hardware, and tests.
  * Like the real controller, it runs one zone at a time.
  */
-type MockOptions = {
-  /**
-   * true (default): zones and valves are separate, as planned in SHamBE#19.
-   * false: firmware v1, fixed zones 1..15 where zone N is valve N.
-   */
-  valves?: boolean;
-};
-
-export function createMockLink({ valves = true }: MockOptions = {}): Link {
+export function createMockLink(): Link {
   const decoder = new LineDecoder();
   const dataSubs = new Set<(b: Uint8Array) => void>();
   const closeSubs = new Set<(e?: Error) => void>();
@@ -40,25 +32,7 @@ export function createMockLink({ valves = true }: MockOptions = {}): Link {
     { name: "Pots", valve: 7, enabled: true, defaultSeconds: 480 },
     { name: "Pool side", valve: 6, enabled: false, defaultSeconds: 600 },
   ];
-  const zones: Zone[] = valves
-    ? DEMO.map((z, i) => ({ ...z, zone: i + 1 }))
-    : // Firmware v1: 15 fixed zones, "Zone N" and off until the user sets them up.
-      Array.from({ length: 15 }, (_, i) => {
-        const demo = DEMO[i];
-        return demo
-          ? {
-              zone: i + 1,
-              name: demo.name,
-              enabled: demo.enabled,
-              defaultSeconds: demo.defaultSeconds,
-            }
-          : {
-              zone: i + 1,
-              name: `Zone ${i + 1}`,
-              enabled: false,
-              defaultSeconds: 600,
-            };
-      });
+  const zones: Zone[] = DEMO.map((z, i) => ({ ...z, zone: i + 1 }));
   const programs: Program[] = [
     {
       id: 1,
@@ -212,7 +186,7 @@ export function createMockLink({ valves = true }: MockOptions = {}): Link {
       serial: "JM-DEMO-0001",
       name,
       zoneCount: zones.length,
-      ...(valves && { valveCount: VALVES }),
+      valveCount: VALVES,
       cmds: Object.keys(handlers).sort(),
     }),
     "time.set": () => {
@@ -250,8 +224,7 @@ export function createMockLink({ valves = true }: MockOptions = {}): Link {
       if (typeof a.defaultSeconds === "number")
         z.defaultSeconds = a.defaultSeconds;
       // v1 boards ignore unknown fields (protocol §2), valve included.
-      if (valves && a.valve !== undefined)
-        z.valve = checkValve(a.valve, z.zone);
+      if (a.valve !== undefined) z.valve = checkValve(a.valve, z.zone);
       return {};
     },
     "zone.create": (a) => {
@@ -290,7 +263,7 @@ export function createMockLink({ valves = true }: MockOptions = {}): Link {
       if (running && running.zone !== z.zone)
         throw new Fail("ZONE_BUSY", `Zone ${running.zone} is running`);
       running = { zone: z.zone, remaining: seconds, total: seconds };
-      log("I", "valve", `${z.valve ?? z.zone} OPEN (zone ${z.zone})`);
+      log("I", "valve", `${z.valve} OPEN (zone ${z.zone})`);
       event("zone.state", {
         zone: z.zone,
         state: "watering",
@@ -348,12 +321,6 @@ export function createMockLink({ valves = true }: MockOptions = {}): Link {
       return {};
     },
   };
-
-  // Firmware v1 has neither (they arrive with SHamBE#19), so hello.cmds doesn't list them.
-  if (!valves) {
-    delete handlers["zone.create"];
-    delete handlers["zone.delete"];
-  }
 
   const handleLine = (line: ReturnType<LineDecoder["push"]>[number]) => {
     if (line.kind === "log") {

@@ -12,8 +12,8 @@ afterEach(() => {
 });
 
 /** Opens a demo board. Like every real connect, it sets the clock unless told not to. */
-async function connected({ valves = true, setClock = true } = {}) {
-  const link = createMockLink({ valves });
+async function connected({ setClock = true } = {}) {
+  const link = createMockLink();
   await link.open();
   const client = new DeviceClient(link);
   /** Resolve a request while fake time moves past the board's reply latency. */
@@ -243,23 +243,6 @@ describe("mock board", () => {
     await check;
     // Clearing a delay never needs the clock.
     await ask(client.request("rain.delay", { hours: 0 }));
-  });
-
-  it("behaves like firmware v1 when valves are off: 15 fixed zones, no create/delete", async () => {
-    const { client, ask } = await connected({ valves: false });
-    const hello = await ask(client.request("hello", {}));
-    expect(hello.zoneCount).toBe(15);
-    expect(hello.valveCount).toBeUndefined();
-    expect(hello.cmds).not.toContain("zone.create");
-    const { zones } = await ask(client.request("zones.list", {}));
-    expect(zones).toHaveLength(15);
-    expect(zones[6]).toEqual({
-      zone: 7,
-      name: "Zone 7",
-      enabled: false,
-      defaultSeconds: 600,
-    });
-    expect(zones.some((z) => "valve" in z)).toBe(false);
   });
 
   it("restarts: stops watering, replies, then drops the link with an error", async () => {

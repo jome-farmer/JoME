@@ -1,6 +1,23 @@
 import { DeviceError, type DeviceClient } from "./client";
 import { PROTOCOL_VERSION, type Hello } from "./types";
 
+const REQUIRED_COMMANDS = [
+  "hello",
+  "time.set",
+  "status",
+  "zones.list",
+  "programs.list",
+];
+
+export function validateCapabilities(hello: Hello): void {
+  const missing = REQUIRED_COMMANDS.filter((cmd) => !hello.cmds.includes(cmd));
+  if (missing.length)
+    throw new DeviceError(
+      "BAD_REQUEST",
+      `This JoME firmware is incomplete (${missing.join(", ")}). Update it before connecting.`,
+    );
+}
+
 /** Runs on every connect: identify the board, refuse other protocol versions, set its clock. */
 export async function handshake(
   client: DeviceClient,
@@ -15,6 +32,7 @@ export async function handshake(
         : "This JoME has older firmware. Update it before connecting.",
     );
   }
+  validateCapabilities(hello);
   await client.request("time.set", {
     epoch: Math.floor(now.getTime() / 1000),
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,

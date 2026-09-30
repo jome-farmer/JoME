@@ -45,8 +45,7 @@ export function useDevice(): DeviceContextValue {
 
 /**
  * Whether the connected board accepts a command (protocol §3 hello.cmds).
- * Boards that don't report cmds predate it and are assumed to support v1.
  */
 export function supports(info: Hello | undefined, cmd: string): boolean {
-  return info?.cmds ? info.cmds.includes(cmd) : true;
+  return info?.cmds.includes(cmd) ?? false;
 }
