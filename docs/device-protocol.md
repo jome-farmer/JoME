@@ -25,7 +25,8 @@ same interface. Features never touch a link directly. They go through
 | Demo board          | `links/mockLink.ts`       | everywhere (Demo mode, tests) |
 
 - **iOS has no USB serial** (MFi). Hide USB options there.
-- **BLE writes** are split into `MTU − 3` byte chunks. Android requests the
+- **BLE writes** are split into `MTU − 3` byte chunks, at most 512 bytes (the
+  longest attribute value; Android drops longer ones). Android requests the
   largest MTU. iOS negotiates its own. Web Bluetooth can't read the MTU, so it
   uses 20 bytes. Writes use _with response_, so the board can't silently drop
   a chunk.
