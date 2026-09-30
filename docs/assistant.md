@@ -77,7 +77,7 @@ isn't listed here.
 | `stop_all` | `stop.all` | stop | — |
 | `run_zone` | `zone.run` | **act** | zone exists and is enabled, 1–60 min |
 | `set_rain_delay` | `rain.delay` | **act** | 0–168 h |
-| `update_zone` | `zone.update` | **act** | name up to 32 chars, default 1–60 min |
+| `update_zone` | `zone.update` | **act** | name up to 32 chars, default 1–60 min, valve free and in range |
 | `save_program` | `program.save` | **act** | ≤ 16 steps, each 1–60 min, valid days and time |
 | `delete_program` | `program.delete` | **act** | — |
 
@@ -89,6 +89,15 @@ Tiers:
   diff for program changes, and *Cancel* / *Confirm* buttons. If the user
   declines, the app returns `USER_DECLINED`. A card left alone for 2 minutes
   expires and returns `TIMEOUT`.
+
+## Where this lives in the app
+
+`src/features/assistant/tools.ts` is the safety boundary: the tool allow-list,
+the tiers and the limits above, with tests for every refusal. `useChat.ts` runs
+read and stop tools on their own and holds act tools behind an action card.
+Until the real agent is connected (#22), a scripted **preview agent** speaks
+the same contract so the screens can be used. It's labelled *Preview* in the
+UI and uses only the controller's own data.
 
 ## App-side rules
 
