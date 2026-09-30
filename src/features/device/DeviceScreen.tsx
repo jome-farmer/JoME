@@ -9,12 +9,13 @@ import {
   LogOut,
   Play,
   Plug,
+  RotateCcw,
   SquareTerminal,
   SunMoon,
   Trash2,
   Wifi,
 } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { supports, useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { useGarden } from "../../device/useGarden";
 import { whenLabel } from "../../lib/format";
@@ -27,6 +28,7 @@ import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { Screen } from "../../ui/Screen";
 import { Sheet } from "../../ui/Sheet";
 import styles from "./DeviceScreen.module.css";
+import { errorText } from "../../device/errors";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },
@@ -74,12 +76,15 @@ export function DeviceScreen() {
 }
 
 function Connected() {
-  const { info, linkKind, client, disconnect } = useDevice();
+  const { info, linkKind, client, disconnect, restart } = useDevice();
   const navigate = useNavigate();
   const garden = useGarden(client);
   const [theme, setTheme] = useState<Theme>("system");
   const [sheet, setSheet] = useState<"rain" | "theme">();
   const [confirmForget, setConfirmForget] = useState(false);
+  const [confirmRestart, setConfirmRestart] = useState(false);
+  const [restarting, setRestarting] = useState(false);
+  const [actionError, setActionError] = useState<string>();
 
   useEffect(() => {
     void loadTheme().then(setTheme);
@@ -125,24 +130,28 @@ function Connected() {
       </Card>
 
       <List>
-        <ListRow
-          icon={Wifi}
-          title="Wi‑Fi"
-          trailing={
-            wifi?.state === "connected"
-              ? wifi.ssid
-              : wifi
-                ? "Not connected"
-                : "…"
-          }
-          onClick={() => navigate("/device/wifi")}
-        />
-        <ListRow
-          icon={CloudRain}
-          title="Rain delay"
-          trailing={rainUntil ? `Until ${whenLabel(rainUntil, now)}` : "Off"}
-          onClick={() => setSheet("rain")}
-        />
+        {supports(info, "wifi.set") && (
+          <ListRow
+            icon={Wifi}
+            title="Wi‑Fi"
+            trailing={
+              wifi?.state === "connected"
+                ? wifi.ssid
+                : wifi
+                  ? "Not connected"
+                  : "…"
+            }
+            onClick={() => navigate("/device/wifi")}
+          />
+        )}
+        {supports(info, "rain.delay") && (
+          <ListRow
+            icon={CloudRain}
+            title="Rain delay"
+            trailing={rainUntil ? `Until ${whenLabel(rainUntil, now)}` : "Off"}
+            onClick={() => setSheet("rain")}
+          />
+        )}
         <ListRow
           icon={SunMoon}
           title="Appearance"
@@ -162,6 +171,14 @@ function Connected() {
           title="Connection"
           trailing={LINK[linkKind].label}
         />
+        {supports(info, "device.reboot") && (
+          <ListRow
+            icon={RotateCcw}
+            title="Restart controller"
+            trailing={restarting ? "Restarting…" : undefined}
+            onClick={() => setConfirmRestart(true)}
+          />
+        )}
         <ListRow
           icon={LogOut}
           title={demo ? "Exit demo" : "Disconnect"}
@@ -176,6 +193,51 @@ function Connected() {
           />
         )}
       </List>
+
+      {confirmRestart && (
+        <div
+          className={styles.confirm}
+          role="alertdialog"
+          aria-label="Restart controller"
+        >
+          <p>
+            <b>Restart {info.name}?</b> Any watering stops. The app reconnects
+            on its own in a few seconds, and your zones and programs stay as
+            they are.
+          </p>
+          <div className={styles.confirmActions}>
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmRestart(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              icon={RotateCcw}
+              loading={restarting}
+              onClick={async () => {
+                setRestarting(true);
+                setActionError(undefined);
+                try {
+                  await restart();
+                } catch (e) {
+                  setActionError(`Couldn't restart JoME. ${errorText(e)}`);
+                } finally {
+                  setRestarting(false);
+                  setConfirmRestart(false);
+                }
+              }}
+            >
+              Restart
+            </Button>
+          </div>
+        </div>
+      )}
+      {actionError && (
+        <p className={styles.confirm} role="alert">
+          {actionError}
+        </p>
+      )}
 
       {confirmForget && (
         <div
@@ -211,7 +273,10 @@ function Connected() {
         onClose={() => setSheet(undefined)}
         until={rainUntil}
         onSet={async (hours) => {
-          await client.request("rain.delay", { hours });
+          // The sheet lives in ui/ and can't see device errors, so hand it plain words.
+          await client.request("rain.delay", { hours }).catch((e: unknown) => {
+            throw new Error(errorText(e));
+          });
           await garden.refresh();
         }}
       />

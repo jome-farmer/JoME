@@ -9,6 +9,7 @@ import type {
   ToolCall,
   ToolResult,
 } from "./types";
+import { errorText } from "../../device/errors";
 
 export type CardState =
   "pending" | "running" | "done" | "declined" | "failed" | "expired";
@@ -58,7 +59,7 @@ export function useChat(
   agent: AgentSession,
   client: DeviceClient | undefined,
   context: () => AgentContext,
-  data: { zones: Zone[]; programs: Program[] },
+  data: { zones: Zone[]; programs: Program[]; canMoveValve?: boolean },
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
@@ -121,7 +122,8 @@ export function useChat(
         agent.toolResult(call.callId, { ok: true, data });
       } catch (e) {
         const error = errorOf(e);
-        setCard(id, { state: "failed", message: error.message });
+        // People see the app's words; the agent gets the code and the board's message.
+        setCard(id, { state: "failed", message: errorText(e) });
         agent.toolResult(call.callId, { ok: false, error });
       }
     },

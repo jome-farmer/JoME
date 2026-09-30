@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { Zone } from "../../device/types";
-import { firstFreeValve, valveCountOf, valveOptions } from "./valves";
+import type { GardenZone } from "../../device/useGarden";
+import { firstFreeValve, valveOptions } from "./valves";
 
-const zone = (zone: number, valve: number, name = `Z${zone}`): Zone => ({
+const zone = (zone: number, valve: number, name = `Z${zone}`): GardenZone => ({
   zone,
   name,
   valve,
@@ -31,13 +31,5 @@ describe("valveOptions", () => {
   it("finds the first free valve, or none", () => {
     expect(firstFreeValve(valveOptions(4, zones))).toBe(2);
     expect(firstFreeValve(valveOptions(1, zones))).toBeUndefined();
-  });
-});
-
-describe("valveCountOf", () => {
-  it("uses the board's count, else 8 or the highest valve in use", () => {
-    expect(valveCountOf(16, zones)).toBe(16);
-    expect(valveCountOf(undefined, zones)).toBe(8);
-    expect(valveCountOf(undefined, [zone(1, 12)])).toBe(12);
   });
 });

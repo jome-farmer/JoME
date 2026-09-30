@@ -10,6 +10,7 @@ import { TextField } from "../../ui/TextField";
 import { ValvePicker } from "./ValvePicker";
 import type { ValveOption } from "./valves";
 import styles from "./ZonesScreen.module.css";
+import { errorText } from "../../device/errors";
 
 const MAX_MIN = 60; // App-side limit, same as the assistant's (docs/assistant.md).
 const MAX_NAME = 32;
@@ -24,6 +25,8 @@ type Props = {
   onDelete: () => Promise<void>;
   /** Valves for the picker; this zone's own valve counts as free. */
   valves: ValveOption[];
+  /** Fixed-zone boards (firmware v1) can't move a zone to another valve. */
+  canMoveValve: boolean;
 };
 
 /** Everything about one zone: run it for a chosen time, turn it on/off, rename, set its default. */
@@ -36,6 +39,7 @@ export function ZoneSheet({
   onUpdate,
   onDelete,
   valves,
+  canMoveValve,
 }: Props) {
   const [minutes, setMinutes] = useState(
     Math.min(MAX_MIN, Math.max(1, Math.round(zone.defaultSeconds / 60))),
@@ -53,7 +57,7 @@ export function ZoneSheet({
       await fn();
       if (close) onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(undefined);
     }
@@ -163,14 +167,16 @@ export function ZoneSheet({
       <div className={styles.fieldGroup}>
         <div className={styles.settingRow}>
           <span>
-            <b>Valve {zone.valve}</b>
+            <b>Valve {zone.valve ?? zone.zone}</b>
             <span className={styles.muted}>
               The terminal on the controller this zone is wired to.
             </span>
           </span>
-          <Button variant="secondary" onClick={() => setPickValve((p) => !p)}>
-            {pickValve ? "Done" : "Change"}
-          </Button>
+          {canMoveValve && (
+            <Button variant="secondary" onClick={() => setPickValve((p) => !p)}>
+              {pickValve ? "Done" : "Change"}
+            </Button>
+          )}
         </div>
         {pickValve && (
           <ValvePicker

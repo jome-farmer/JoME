@@ -27,6 +27,8 @@ export type DeviceContextValue = {
   setBaudRate(baudRate: number): Promise<void>;
   /** Reconnect with the same kind of link as last time. */
   retry(): Promise<void>;
+  /** device.reboot, then reconnect once the board is back (protocol §3). */
+  restart(): Promise<void>;
   /** Rename the controller on the board, and update `info` and known devices to match. */
   rename(name: string): Promise<void>;
   /** `forget` also removes it from known devices, so it won't reconnect on next launch. */
@@ -39,4 +41,12 @@ export function useDevice(): DeviceContextValue {
   const value = useContext(DeviceContext);
   if (!value) throw new Error("useDevice must be used inside <DeviceProvider>");
   return value;
+}
+
+/**
+ * Whether the connected board accepts a command (protocol §3 hello.cmds).
+ * Boards that don't report cmds predate it and are assumed to support v1.
+ */
+export function supports(info: Hello | undefined, cmd: string): boolean {
+  return info?.cmds ? info.cmds.includes(cmd) : true;
 }

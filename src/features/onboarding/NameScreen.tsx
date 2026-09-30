@@ -6,6 +6,7 @@ import { Button } from "../../ui/Button";
 import { TextField } from "../../ui/TextField";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
+import { errorText } from "../../device/errors";
 
 const MAX = 32; // Longest name the board stores (jome-farmer/protocol §7).
 
@@ -30,9 +31,7 @@ export function NameScreen() {
       if (trimmed !== info.name) await rename(trimmed);
       navigate("/", { replace: true });
     } catch (err) {
-      setError(
-        `Couldn't save the name. ${err instanceof Error ? err.message : String(err)}`,
-      );
+      setError(`Couldn't save the name. ${errorText(err)}`);
       setSaving(false);
     }
   };

@@ -11,6 +11,7 @@ import { useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { appendCapped, clock, toPlainText, type TermLine } from "./lines";
 import styles from "./TerminalScreen.module.css";
+import { errorText } from "../../device/errors";
 
 const BAUD_RATES = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600];
 const LINK_LABEL: Record<LinkKind, string> = {
@@ -67,7 +68,7 @@ export function TerminalScreen() {
     if (!client || !input) return;
     setSendError(undefined);
     client.writeRaw(input).catch((err: unknown) => {
-      setSendError(err instanceof Error ? err.message : String(err));
+      setSendError(errorText(err));
     });
     setInput("");
     stick.current = true;

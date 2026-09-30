@@ -21,7 +21,7 @@ type Snapshot = Pick<
   DeviceContextValue,
   "state" | "info" | "client" | "linkKind" | "baudRate" | "error"
 >;
-type Active = { link: Link; client: DeviceClient };
+type Active = { link: Link; client: DeviceClient; offClose: () => void };
 
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
@@ -35,6 +35,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     const current = active.current;
     active.current = null; // Before close(), so its onClose isn't treated as a drop.
     if (!current) return;
+    current.offClose();
     current.client.dispose();
     await current.link.close().catch(() => {});
   }, []);
@@ -52,10 +53,11 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       try {
         await link.open();
         const client = new DeviceClient(link);
-        active.current = { link, client };
-        link.onClose((err) => {
+        // The demo reuses one link across reconnects, so this handler must go when the connection does.
+        const offClose = link.onClose((err) => {
           if (active.current?.link !== link) return; // We closed it on purpose.
           active.current = null;
+          offClose();
           client.dispose();
           setSnap((s) => ({
             state: err ? "lost" : "idle",
@@ -64,6 +66,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
             error: err && "The connection to JoME was lost.",
           }));
         });
+        active.current = { link, client, offClose };
         const info = await handshake(client);
         await rememberDevice({
           serial: info.serial,
@@ -101,7 +104,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [teardown],
   );
 
-  const connectDemo = useCallback(() => connect(createMockLink), [connect]);
+  // One demo board per session, like a real board that keeps its settings across
+  // reconnects and restarts. Exit demo (forget) starts the next demo fresh.
+  const demoLink = useRef<Link | null>(null);
+  const connectDemo = useCallback(
+    () => connect(() => (demoLink.current ??= createMockLink())),
+    [connect],
+  );
   const connectBle = useCallback(
     (deviceId: string) => connect(() => createBleLink(deviceId)),
     [connect],
@@ -174,14 +183,27 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [snap],
   );
 
+  const restart = useCallback(async () => {
+    const current = active.current;
+    const factory = lastFactory.current;
+    if (!current || !factory) throw new Error("Not connected");
+    const kind = current.link.kind;
+    await current.client.request("device.reboot", {});
+    // Bluetooth reconnects on its own with backoff; other links need a nudge once the board has booted.
+    if (kind === "ble") return;
+    await new Promise((r) => setTimeout(r, 3000));
+    await connect(factory, { reconnecting: true });
+  }, [connect]);
+
   const disconnect = useCallback(
     async ({ forget = false } = {}) => {
       const serial = snap.info?.serial;
       await teardown();
+      if (forget && snap.linkKind === "mock") demoLink.current = null;
       if (forget && serial) await forgetDevice(serial);
       setSnap({ state: "idle" });
     },
-    [teardown, snap.info?.serial],
+    [teardown, snap.info?.serial, snap.linkKind],
   );
 
   // Returning user: reconnect to the last device (USB reconnect arrives with #13).
@@ -207,6 +229,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectWebSerial,
       connectAndroidUsb,
       setBaudRate,
+      restart,
       rename,
       retry,
       disconnect,
@@ -218,6 +241,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectWebSerial,
       connectAndroidUsb,
       setBaudRate,
+      restart,
       rename,
       retry,
       disconnect,

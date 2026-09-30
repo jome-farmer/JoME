@@ -14,7 +14,15 @@ import {
  * Used for Demo mode, development without hardware, and tests.
  * Like the real controller, it runs one zone at a time.
  */
-export function createMockLink(): Link {
+type MockOptions = {
+  /**
+   * true (default): zones and valves are separate, as planned in SHamBE#19.
+   * false: firmware v1, fixed zones 1..15 where zone N is valve N.
+   */
+  valves?: boolean;
+};
+
+export function createMockLink({ valves = true }: MockOptions = {}): Link {
   const decoder = new LineDecoder();
   const dataSubs = new Set<(b: Uint8Array) => void>();
   const closeSubs = new Set<(e?: Error) => void>();
@@ -24,44 +32,33 @@ export function createMockLink(): Link {
 
   let name = "Demo garden";
   const VALVES = 8;
-  const zones: Zone[] = [
-    {
-      zone: 1,
-      name: "Front lawn",
-      valve: 1,
-      enabled: true,
-      defaultSeconds: 1200,
-    },
-    {
-      zone: 2,
-      name: "Backyard hedge",
-      valve: 2,
-      enabled: true,
-      defaultSeconds: 900,
-    },
-    {
-      zone: 3,
-      name: "Vegetable beds",
-      valve: 5,
-      enabled: true,
-      defaultSeconds: 600,
-    },
-    {
-      zone: 4,
-      name: "Fruit trees",
-      valve: 4,
-      enabled: true,
-      defaultSeconds: 2400,
-    },
-    { zone: 5, name: "Pots", valve: 7, enabled: true, defaultSeconds: 480 },
-    {
-      zone: 6,
-      name: "Pool side",
-      valve: 6,
-      enabled: false,
-      defaultSeconds: 600,
-    },
+  const DEMO: Omit<Zone, "zone">[] = [
+    { name: "Front lawn", valve: 1, enabled: true, defaultSeconds: 1200 },
+    { name: "Backyard hedge", valve: 2, enabled: true, defaultSeconds: 900 },
+    { name: "Vegetable beds", valve: 5, enabled: true, defaultSeconds: 600 },
+    { name: "Fruit trees", valve: 4, enabled: true, defaultSeconds: 2400 },
+    { name: "Pots", valve: 7, enabled: true, defaultSeconds: 480 },
+    { name: "Pool side", valve: 6, enabled: false, defaultSeconds: 600 },
   ];
+  const zones: Zone[] = valves
+    ? DEMO.map((z, i) => ({ ...z, zone: i + 1 }))
+    : // Firmware v1: 15 fixed zones, "Zone N" and off until the user sets them up.
+      Array.from({ length: 15 }, (_, i) => {
+        const demo = DEMO[i];
+        return demo
+          ? {
+              zone: i + 1,
+              name: demo.name,
+              enabled: demo.enabled,
+              defaultSeconds: demo.defaultSeconds,
+            }
+          : {
+              zone: i + 1,
+              name: `Zone ${i + 1}`,
+              enabled: false,
+              defaultSeconds: 600,
+            };
+      });
   const programs: Program[] = [
     {
       id: 1,
@@ -106,6 +103,7 @@ export function createMockLink(): Link {
     ip: "192.168.1.42",
   };
   let rainDelayUntil: number | null = null;
+  let clockSet = false;
   let running: { zone: number; remaining: number; total: number } | null = null;
 
   const emit = (text: string) => {
@@ -155,13 +153,15 @@ export function createMockLink(): Link {
     wifi,
     rainDelayUntil,
     running: running ? [{ ...running }] : [],
-    nextRun: nextRun(),
+    // Without the time the board can't schedule (protocol §3 time.set).
+    nextRun: clockSet ? nextRun() : null,
   });
 
   const stopZone = (zone: number) => {
     if (running?.zone !== zone) return;
     running = null;
-    const valve = zones.find((z) => z.zone === zone)?.valve;
+    const z = zones.find((x) => x.zone === zone);
+    const valve = z?.valve ?? zone;
     log("I", "valve", `${valve} CLOSED (zone ${zone})`);
     event("zone.state", { zone, state: "idle" });
   };
@@ -212,20 +212,23 @@ export function createMockLink(): Link {
       serial: "JM-DEMO-0001",
       name,
       zoneCount: zones.length,
-      valveCount: VALVES,
+      ...(valves && { valveCount: VALVES }),
       cmds: Object.keys(handlers).sort(),
     }),
-    "time.set": () => ({}),
+    "time.set": () => {
+      clockSet = true;
+      return {};
+    },
     status,
     "wifi.scan": () => ({ networks }),
     "wifi.set": (a) => {
       const ssid = String(a.ssid ?? "");
-      wifi = { state: "connecting", ssid };
+      wifi = { state: "connecting" }; // firmware v1 sends no ssid here
       setTimeout(() => event("wifi.state", wifi), 0);
       setTimeout(() => {
         // Passwords starting with "wrong" fail (e.g. "wrong-password", long enough to pass validation).
         wifi = String(a.password).startsWith("wrong")
-          ? { state: "failed", ssid, reason: "Wrong password" }
+          ? { state: "failed", ssid, reason: "AUTH_FAIL" }
           : { state: "connected", ssid, ip: "192.168.1.42" };
         log(
           wifi.state === "connected" ? "I" : "W",
@@ -246,7 +249,9 @@ export function createMockLink(): Link {
       }
       if (typeof a.defaultSeconds === "number")
         z.defaultSeconds = a.defaultSeconds;
-      if (a.valve !== undefined) z.valve = checkValve(a.valve, z.zone);
+      // v1 boards ignore unknown fields (protocol §2), valve included.
+      if (valves && a.valve !== undefined)
+        z.valve = checkValve(a.valve, z.zone);
       return {};
     },
     "zone.create": (a) => {
@@ -285,7 +290,7 @@ export function createMockLink(): Link {
       if (running && running.zone !== z.zone)
         throw new Fail("ZONE_BUSY", `Zone ${running.zone} is running`);
       running = { zone: z.zone, remaining: seconds, total: seconds };
-      log("I", "valve", `${z.valve} OPEN (zone ${z.zone})`);
+      log("I", "valve", `${z.valve ?? z.zone} OPEN (zone ${z.zone})`);
       event("zone.state", {
         zone: z.zone,
         state: "watering",
@@ -316,14 +321,39 @@ export function createMockLink(): Link {
     },
     "rain.delay": (a) => {
       const hours = Number(a.hours);
+      if (hours > 0 && !clockSet)
+        throw new Fail("CLOCK_NOT_SET", "Clock not set; send time.set first");
       rainDelayUntil = hours > 0 ? now() + hours * 3600 : null;
       return { until: rainDelayUntil };
+    },
+    "device.reboot": () => {
+      if (running) stopZone(running.zone);
+      log("W", "jome", "restarting");
+      // Reply first, then drop the link like the real board (protocol §3 device.reboot).
+      setTimeout(() => close(new Error("JoME restarted")), 300);
+      return {};
+    },
+    "log.level": (a) => {
+      if (
+        !["error", "warn", "info", "debug", "trace"].includes(String(a.level))
+      )
+        throw new Fail(
+          "BAD_REQUEST",
+          "level must be error, warn, info, debug or trace",
+        );
+      return {};
     },
     "device.rename": (a) => {
       name = String(a.name ?? name).slice(0, 32);
       return {};
     },
   };
+
+  // Firmware v1 has neither (they arrive with SHamBE#19), so hello.cmds doesn't list them.
+  if (!valves) {
+    delete handlers["zone.create"];
+    delete handlers["zone.delete"];
+  }
 
   const handleLine = (line: ReturnType<LineDecoder["push"]>[number]) => {
     if (line.kind === "log") {

@@ -30,7 +30,12 @@ const programs: Program[] = [
     steps: [{ zone: 3, seconds: 600 }],
   },
 ];
-const ctx = { zones, programs, now: new Date(2026, 8, 30, 18, 0) };
+const ctx = {
+  zones,
+  programs,
+  now: new Date(2026, 8, 30, 18, 0),
+  canMoveValve: true,
+};
 const plan = (name: string, args: Record<string, unknown> = {}) =>
   planTool(name, args, ctx);
 
@@ -97,6 +102,22 @@ describe("refusals", () => {
       "BAD_REQUEST",
     ],
     ["a taken valve", "update_zone", { zone: 1, valve: 5 }, "VALVE_IN_USE"],
+  ])("refuses %s", (_, name, args, code) => {
+    const p = plan(name as string, args as Record<string, unknown>);
+    expect(p.ok).toBe(false);
+    if (!p.ok) expect(p.code).toBe(code);
+  });
+
+  it("refuses a valve change on boards that can't move zones (firmware v1)", () => {
+    const p = planTool(
+      "update_zone",
+      { zone: 1, valve: 2 },
+      { ...ctx, canMoveValve: false },
+    );
+    expect(p.ok ? p.tier : p.code).toBe("UNKNOWN_CMD");
+  });
+
+  it.each([
     ["an empty zone update", "update_zone", { zone: 1 }, "BAD_REQUEST"],
     [
       "a program with 17 steps",

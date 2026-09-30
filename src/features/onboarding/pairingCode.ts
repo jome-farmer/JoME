@@ -22,7 +22,10 @@ export function parsePairingCode(text: string): PairingCode | null {
     : null;
 }
 
-/** The BLE name a board advertises: `JoME-` + the last 4 characters of its serial. */
+/**
+ * The BLE name a board advertises: `JoME-` + the last 4 characters of its serial.
+ * Compare it case-insensitively: labels are upper case, today's serials (`shambe-a1b2c3`) aren't.
+ */
 export function advertisedName(serial: string): string {
   return `JoME-${serial.replace(/-/g, "").slice(-4)}`;
 }

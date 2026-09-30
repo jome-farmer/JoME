@@ -20,6 +20,7 @@ import {
   totalSeconds,
 } from "./program";
 import styles from "./Schedule.module.css";
+import { errorText } from "../../device/errors";
 
 /** Full-screen editor at /schedule/new and /schedule/:id: name, days, start time, zones in order. */
 export function ProgramEditor() {
@@ -70,7 +71,7 @@ export function ProgramEditor() {
       await garden.saveProgram({ ...draft, name: draft.name.trim() });
       navigate("/schedule", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(errorText(err));
       setBusy(undefined);
     }
   };
@@ -82,7 +83,7 @@ export function ProgramEditor() {
       await garden.deleteProgram(draft.id);
       navigate("/schedule", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(errorText(err));
       setBusy(undefined);
     }
   };

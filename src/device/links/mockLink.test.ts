@@ -11,8 +11,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-async function connected() {
-  const link = createMockLink();
+/** Opens a demo board. Like every real connect, it sets the clock unless told not to. */
+async function connected({ valves = true, setClock = true } = {}) {
+  const link = createMockLink({ valves });
   await link.open();
   const client = new DeviceClient(link);
   /** Resolve a request while fake time moves past the board's reply latency. */
@@ -20,6 +21,13 @@ async function connected() {
     await vi.advanceTimersByTimeAsync(100);
     return p;
   };
+  if (setClock)
+    await ask(
+      client.request("time.set", {
+        epoch: Math.floor(Date.now() / 1000),
+        tz: "UTC",
+      }),
+    );
   return { link, client, ask };
 }
 
@@ -224,6 +232,44 @@ describe("mock board", () => {
     const { nextRun } = await ask(client.request("status", {}));
     expect(nextRun?.name).toBe("Evening");
     expect(new Date(nextRun!.at * 1000).getHours()).toBe(18);
+  });
+
+  it("without the time: no next run, and rain delay needs the clock", async () => {
+    const { client, ask } = await connected({ setClock: false });
+    expect((await ask(client.request("status", {}))).nextRun).toBeNull();
+    const rain = client.request("rain.delay", { hours: 24 });
+    const check = expect(rain).rejects.toMatchObject({ code: "CLOCK_NOT_SET" });
+    await vi.advanceTimersByTimeAsync(100);
+    await check;
+    // Clearing a delay never needs the clock.
+    await ask(client.request("rain.delay", { hours: 0 }));
+  });
+
+  it("behaves like firmware v1 when valves are off: 15 fixed zones, no create/delete", async () => {
+    const { client, ask } = await connected({ valves: false });
+    const hello = await ask(client.request("hello", {}));
+    expect(hello.zoneCount).toBe(15);
+    expect(hello.valveCount).toBeUndefined();
+    expect(hello.cmds).not.toContain("zone.create");
+    const { zones } = await ask(client.request("zones.list", {}));
+    expect(zones).toHaveLength(15);
+    expect(zones[6]).toEqual({
+      zone: 7,
+      name: "Zone 7",
+      enabled: false,
+      defaultSeconds: 600,
+    });
+    expect(zones.some((z) => "valve" in z)).toBe(false);
+  });
+
+  it("restarts: stops watering, replies, then drops the link with an error", async () => {
+    const { link, client, ask } = await connected();
+    const closes: (Error | undefined)[] = [];
+    link.onClose((e) => closes.push(e));
+    await ask(client.request("zone.run", { zone: 1, seconds: 60 }));
+    await ask(client.request("device.reboot", {}));
+    await vi.advanceTimersByTimeAsync(300);
+    expect(closes.map((e) => e?.message)).toEqual(["JoME restarted"]);
   });
 
   it("stops talking after close", async () => {

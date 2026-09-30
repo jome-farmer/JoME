@@ -23,7 +23,9 @@ export function NearbyList({
 
   useEffect(() => {
     if (!lookFor || picked.current === lookFor) return;
-    const match = Object.values(found).find((d) => d.name === lookFor);
+    const match = Object.values(found).find(
+      (d) => d.name.toLowerCase() === lookFor.toLowerCase(),
+    );
     if (match) {
       picked.current = lookFor;
       onPick(match.deviceId);
