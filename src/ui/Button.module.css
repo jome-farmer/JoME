@@ -1,0 +1,72 @@
+.btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: var(--tap);
+  padding-inline: var(--s-5);
+  border: 0;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  font-size: var(--text-md);
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lg {
+  min-height: 56px;
+  font-size: 17px;
+}
+.block {
+  display: grid;
+  width: 100%;
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.secondary {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.ghost {
+  background: transparent;
+  color: var(--ink-2);
+}
+.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.label[data-hidden] {
+  visibility: hidden;
+}
+
+.spinner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-inline-end-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

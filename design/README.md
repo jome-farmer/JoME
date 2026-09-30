@@ -57,6 +57,8 @@ lives on the Device tab.
 
 ## Components (`src/ui/`)
 
+Live reference: run the app and open **`/ui`** (also on https://app.jome-farmer.ir/ui) for every component in light and dark.
+
 | Component | Notes |
 |---|---|
 | `Button` | Variants: `primary` (leaf), `secondary` (surface-2), `ghost`, `danger`. Sizes: `md` 48 px, `lg` 56 px. Optional leading icon. Loading state keeps its width. |

@@ -1,0 +1,73 @@
+.list {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 56px;
+  padding: 14px var(--s-4);
+  border: 0;
+  background: transparent;
+  text-align: start;
+}
+.row + .row {
+  border-block-start: 1px solid var(--line);
+}
+button.row {
+  cursor: pointer;
+}
+button.row:active {
+  background: var(--surface-2);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--primary);
+}
+.text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-weight: 600;
+  font-size: 15px;
+}
+.subtitle {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.trailing {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+.chev {
+  color: var(--ink-3);
+  flex: none;
+}
+/* Chevrons point "forward", which is left in RTL. */
+:dir(rtl) .chev {
+  transform: scaleX(-1);
+}
+
+.danger,
+.danger .icon {
+  color: var(--danger);
+}
+.danger .icon {
+  background: var(--danger-soft);
+}
