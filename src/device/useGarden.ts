@@ -32,6 +32,10 @@ export type Run = {
   /** Seconds left when last reported by the board. */
   remaining: number;
   total: number;
+  /** Present when the board scheduler, rather than zone.run, started it. */
+  program?: number;
+  /** One-based step in `program`; present with program. */
+  step?: number;
   /** Date.now() of that report, so we can count down smoothly in between. */
   at: number;
 };
@@ -87,7 +91,14 @@ export function useGarden(client: DeviceClient | undefined) {
     if (!r) return setRun(null);
     const total = r.total ?? firstSeen.current.get(r.zone) ?? r.remaining;
     firstSeen.current.set(r.zone, total);
-    setRun({ zone: r.zone, remaining: r.remaining, total, at: Date.now() });
+    setRun({
+      zone: r.zone,
+      remaining: r.remaining,
+      total,
+      program: r.program,
+      step: r.step,
+      at: Date.now(),
+    });
   }, []);
 
   const refresh = useCallback(async () => {
@@ -128,6 +139,14 @@ export function useGarden(client: DeviceClient | undefined) {
           // The next run may have moved on; ask once rather than guess.
           void client.request("status", {}).then(applyStatus, () => {});
         }
+      }),
+      client.on("program.state", (e) => {
+        const { zone, step } = e;
+        if (e.state !== "step" || zone === undefined || step === undefined)
+          return;
+        setRun((r) =>
+          r?.zone === zone ? { ...r, program: e.program, step } : r,
+        );
       }),
     ];
     return () => offs.forEach((off) => off());

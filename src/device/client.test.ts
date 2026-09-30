@@ -116,6 +116,17 @@ describe("DeviceClient", () => {
     expect(seen).toEqual([{ zone: 3, state: "watering", remaining: 600 }]);
   });
 
+  it("delivers typed program progress events", () => {
+    const f = fakeLink();
+    const client = new DeviceClient(f.link);
+    const seen: unknown[] = [];
+    client.on("program.state", (d) => seen.push(d));
+    f.feed(
+      '{"evt":"program.state","data":{"program":2,"state":"step","step":1,"zone":3}}\n',
+    );
+    expect(seen).toEqual([{ program: 2, state: "step", step: 1, zone: 3 }]);
+  });
+
   it("reports every rx and tx line for the terminal", async () => {
     const f = fakeLink();
     const client = new DeviceClient(f.link);

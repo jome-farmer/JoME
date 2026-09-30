@@ -44,6 +44,15 @@ export type Program = {
   steps: { zone: number; seconds: number }[];
 };
 
+export type ProgramState = {
+  program: number;
+  state: "started" | "step" | "finished" | "skipped";
+  at?: Epoch;
+  step?: number;
+  zone?: number;
+  reason?: "RAIN_DELAY" | "BUSY" | "CANCELLED";
+};
+
 export type WifiState = {
   state: "disconnected" | "connecting" | "connected" | "failed";
   ssid?: string;
@@ -55,7 +64,13 @@ export type Status = {
   wifi: WifiState;
   rainDelayUntil: Epoch | null;
   /** Seconds. `total` is the length of this run (optional; older boards may omit it). */
-  running: { zone: number; remaining: number; total?: number }[];
+  running: {
+    zone: number;
+    remaining: number;
+    total?: number;
+    program?: number;
+    step?: number;
+  }[];
   nextRun: { program: number; name: string; at: Epoch } | null;
 };
 
@@ -104,6 +119,7 @@ export type Events = {
     total?: number;
   };
   "wifi.state": WifiState;
+  "program.state": ProgramState;
   status: Status;
 };
 export type EventName = keyof Events;
