@@ -11,6 +11,8 @@ import { DeviceClient } from "./client";
 import { DeviceContext, type DeviceContextValue } from "./DeviceContext";
 import { handshake } from "./handshake";
 import type { Link } from "./link";
+import { reconnectDelay } from "./backoff";
+import { canScanInApp, createBleLink } from "./links/bleLink";
 import { createMockLink } from "./links/mockLink";
 
 type Snapshot = Pick<
@@ -36,7 +38,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const connect = useCallback(
-    async (factory: () => Link) => {
+    async (factory: () => Link, { reconnecting = false } = {}) => {
       await teardown();
       lastFactory.current = factory;
       const link = factory();
@@ -65,23 +67,52 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
           serial: info.serial,
           name: info.name,
           lastLink: link.kind,
+          bleDeviceId: link.kind === "ble" ? link.peerId : undefined,
           lastSeen: Date.now(),
         });
         setSnap({ state: "ready", info, client, linkKind: link.kind });
       } catch (e) {
         await teardown();
         await link.close().catch(() => {});
-        setSnap({
-          state: "idle",
-          linkKind: link.kind,
-          error: `Couldn't connect to JoME. ${message(e)}`,
-        });
+        setSnap((s) =>
+          reconnecting
+            ? {
+                state: "lost",
+                info: s.info,
+                linkKind: link.kind,
+                error: s.error,
+              }
+            : {
+                state: "idle",
+                linkKind: link.kind,
+                error: `Couldn't connect to JoME. ${message(e)}`,
+              },
+        );
       }
     },
     [teardown],
   );
 
   const connectDemo = useCallback(() => connect(createMockLink), [connect]);
+  const connectBle = useCallback(
+    (deviceId: string) => connect(() => createBleLink(deviceId)),
+    [connect],
+  );
+
+  // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
+  const attempts = useRef(0);
+  useEffect(() => {
+    if (snap.state === "ready") attempts.current = 0;
+    const factory = lastFactory.current;
+    if (snap.state !== "lost" || snap.linkKind !== "ble" || !factory) return;
+    const timer = setTimeout(() => {
+      // In the background: check again later without using up an attempt.
+      if (document.hidden) return setSnap((s) => ({ ...s }));
+      attempts.current += 1;
+      void connect(factory, { reconnecting: true });
+    }, reconnectDelay(attempts.current));
+    return () => clearTimeout(timer);
+  }, [snap, connect]);
 
   const retry = useCallback(async () => {
     if (lastFactory.current) await connect(lastFactory.current);
@@ -97,21 +128,24 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [teardown, snap.info?.serial],
   );
 
-  // Returning user: reconnect to the last device. Only the demo can reconnect until BLE/USB land (#11, #13).
+  // Returning user: reconnect to the last device (USB reconnect arrives with #13).
   const started = useRef(false);
   useEffect(() => {
     if (started.current) return; // StrictMode runs effects twice in development.
     started.current = true;
     getKnownDevices().then(([last]) => {
       if (last?.lastLink === "mock") void connectDemo();
+      // Browsers need a user gesture before connecting, so only native apps reconnect on launch.
+      else if (last?.lastLink === "ble" && last.bleDeviceId && canScanInApp())
+        void connectBle(last.bleDeviceId);
     });
-  }, [connectDemo]);
+  }, [connectDemo, connectBle]);
 
   useEffect(() => () => void teardown(), [teardown]);
 
   const value = useMemo<DeviceContextValue>(
-    () => ({ ...snap, connectDemo, retry, disconnect }),
-    [snap, connectDemo, retry, disconnect],
+    () => ({ ...snap, connectDemo, connectBle, retry, disconnect }),
+    [snap, connectDemo, connectBle, retry, disconnect],
   );
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>

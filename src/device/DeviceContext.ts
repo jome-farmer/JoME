@@ -15,6 +15,8 @@ export type DeviceContextValue = {
   /** Plain-language reason for the last failed connect or unexpected drop. */
   error?: string;
   connectDemo(): Promise<void>;
+  /** deviceId from scanForJoME / pickJoME. */
+  connectBle(deviceId: string): Promise<void>;
   /** Reconnect with the same kind of link as last time. */
   retry(): Promise<void>;
   /** `forget` also removes it from known devices, so it won't reconnect on next launch. */

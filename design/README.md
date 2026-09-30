@@ -86,7 +86,7 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | # | Screen | Purpose and key content |
 |---|---|---|
 | 1 | **Welcome** | Mascot, "Hi, I'm JoME / your gardener", *Get started*. Shown on first launch only. |
-| 2 | **Connect** | Choose how to reach the board: *Scan QR code* (primary), list of nearby `JoME-XXXX` devices with signal strength, *Use USB cable* (Android and desktop only), *Try demo*. Passkey entry opens in a sheet. |
+| 2 | **Connect** | Choose how to reach the board: *Scan QR code* (primary), list of nearby `JoME-XXXX` devices with signal strength, *Use USB cable* (Android and desktop only), *Try demo*. Pairing uses the **system** dialog. When the passkey is known from the QR code, the app shows it large so it's easy to type. |
 | 3 | **Wi‑Fi** | Networks come from the board's own scan (`wifi.scan`), with signal bars and a lock icon. Password field. Live status: connecting, connected (IP), or failed with a reason. *Skip for now* is allowed. |
 | 4 | **Name** | Name the garden or device. Success. Lands on Home. |
 | 5 | **Home** | Header: device name and link status. **Hero:** WaterRing for the running zone (*Front lawn · 7 min left · Stop*). When nothing runs, the hero shows the next scheduled run instead. Quick actions: *Run a zone*, *Rain delay*, *Stop all*. Below: today's runs as a timeline. |
@@ -100,8 +100,8 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 ## Flows
 
 ```
-First run:  Welcome → Connect ─┬─ QR → pair (passkey from QR) ─┐
-                               ├─ pick device → passkey sheet ──┼→ Wi‑Fi → Name → Home
+First run:  Welcome → Connect ─┬─ QR → pair (passkey shown) ───┐
+                               ├─ pick device → system pairing ─┼→ Wi‑Fi → Name → Home
                                ├─ USB (Android/desktop) ────────┘
                                └─ Try demo → Home (mock board, "Demo mode" banner with Exit demo)
 Returning:  launch → Home (auto-reconnect to last device; banner while reconnecting)

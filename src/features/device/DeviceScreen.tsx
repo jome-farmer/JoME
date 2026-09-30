@@ -6,6 +6,7 @@ import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { List, ListRow } from "../../ui/ListRow";
 import { Screen } from "../../ui/Screen";
+import { BleConnect } from "./BleConnect";
 import styles from "./DeviceScreen.module.css";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
@@ -24,13 +25,16 @@ export function DeviceScreen() {
         <EmptyState
           title="No controller connected"
           action={
-            <Button
-              icon={Play}
-              onClick={connectDemo}
-              loading={state === "connecting"}
-            >
-              Try the demo
-            </Button>
+            <div className={styles.actions}>
+              <BleConnect />
+              <Button
+                icon={Play}
+                onClick={connectDemo}
+                loading={state === "connecting" && linkKind === "mock"}
+              >
+                Try the demo
+              </Button>
+            </div>
           }
         >
           Controller settings, Wi‑Fi and the serial terminal live here.

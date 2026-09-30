@@ -12,12 +12,13 @@ list into the release PR and tick each item.
 ## BLE (all three)
 
 - [ ] Scan finds `JoME-XXXX` within 5 s
-- [ ] Pairing with the passkey succeeds. A wrong passkey shows a clear error.
-- [ ] QR scan pre-selects the device and passkey (phones)
+- [ ] The system pairing dialog appears on first connect. The right passkey pairs. A wrong one shows a clear error in the app.
+- [ ] QR scan pre-selects the device and shows its passkey (phones)
 - [ ] `hello` info appears on the Device tab
 - [ ] Zone run, stop and stop-all reach the board. The water ring counts down.
-- [ ] Turning the board off shows the "Connection lost" banner. Turning it on
-      again reconnects on its own.
+- [ ] Turning the board off shows "Connection lost. Reconnecting…". Turning it
+      on again reconnects on its own (retries at 1 s, 2 s, 5 s, then every 10 s).
+- [ ] Relaunching the app reconnects to the last controller (phones)
 - [ ] The terminal shows firmware log lines over BLE
 
 ## USB serial (Android OTG, desktop)
