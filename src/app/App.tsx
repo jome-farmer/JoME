@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "../ui/base.css";
 import { DeviceProvider } from "../device/DeviceProvider";
 import { FirstRunRedirect } from "./FirstRunRedirect";
+import { Splash } from "./Splash";
 import { TabLayout } from "./TabLayout";
 import { HomeScreen } from "../features/home/HomeScreen";
 import { ZonesScreen } from "../features/zones/ZonesScreen";
@@ -42,6 +43,7 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <Splash />
     </DeviceProvider>
   );
 }

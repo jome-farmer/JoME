@@ -49,6 +49,7 @@
   /* Shape */
   --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-full: 999px;
   --tap: 48px;          /* min touch target */
+  --wordmark: #0f5a34;  /* logo wordmark letters (horizontal.svg) */
   --knob: #ffffff;      /* switch knob, white in both themes like native switches */
   /* Serial terminal: always dark, in both themes. tx is amber because blue means water. */
   --console-bg: #08140e;
@@ -76,6 +77,7 @@
     --warn: #f4b942; --warn-soft: #33290f;
     --danger: #ef6a5a; --danger-soft: #3a1a15;
     --ok: #4ce08a; --ok-soft: #123822;
+    --wordmark: #e6f0ea;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
     color-scheme: dark;
   }
@@ -89,6 +91,7 @@
   --danger: #ef6a5a; --danger-soft: #3a1a15;
   --ok: #4ce08a; --ok-soft: #123822;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
+  --wordmark: #e6f0ea;
   color-scheme: dark;
 }
 
