@@ -11,6 +11,8 @@ export const NUS = {
 const NAME_PREFIX = "JoME-";
 /** BLE's minimum ATT payload (MTU 23 − 3). Used on the web, where the MTU can't be read. */
 const MIN_CHUNK = 20;
+/** Longest attribute value BLE allows (Core spec Vol 3 Part F 3.2.9), whatever the MTU. */
+const MAX_CHUNK = 512;
 
 export type FoundDevice = { deviceId: string; name: string; rssi?: number };
 
@@ -96,10 +98,8 @@ export function createBleLink(deviceId: string): Link {
       state = "open";
       try {
         if (Capacitor.isNativePlatform()) {
-          chunkSize = Math.max(
-            MIN_CHUNK,
-            (await BleClient.getMtu(deviceId)) - 3,
-          );
+          const mtu = await BleClient.getMtu(deviceId);
+          chunkSize = Math.min(MAX_CHUNK, Math.max(MIN_CHUNK, mtu - 3));
         }
         await BleClient.startNotifications(deviceId, NUS.service, NUS.tx, (v) =>
           dataSubs.forEach((cb) =>
