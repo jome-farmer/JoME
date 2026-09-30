@@ -1,0 +1,87 @@
+/*
+ * JoME design tokens — single source of truth.
+ * Used by design/mockups.html and imported by src/ui/tokens.css.
+ * Palette derives from the logo (public/logo/symbol.svg).
+ * Layout: calm off-white ground, one hero surface per screen, water blue only means "water is flowing".
+ */
+:root {
+  /* Brand */
+  --forest: #0f3d2b;   /* logo outline / ink */
+  --leaf: #14703f;     /* primary action */
+  --sprout: #2fa860;
+  --mint: #8fdca8;
+  --water: #1e88e5;    /* active watering, flow */
+  --sun: #f4b942;      /* schedule, rain delay, caution */
+
+  /* Semantic — light */
+  --bg: #f4f7f5;
+  --surface: #ffffff;
+  --surface-2: #eaf0ec;
+  --line: #d5e0da;
+  --ink: #0f3d2b;
+  --ink-2: #4a6457;
+  --ink-3: #7d9488;
+  --primary: var(--leaf);
+  --on-primary: #ffffff;
+  --flow: var(--water);
+  --flow-soft: #e3f0fc;
+  --warn: #b7791f;      /* text-safe sun */
+  --warn-soft: #fdf3dc;
+  --danger: #c8402f;
+  --danger-soft: #fbe6e3;
+  --ok: var(--leaf);
+  --ok-soft: #e1f3e7;
+  --shadow: 0 1px 2px rgb(15 61 43 / 0.06), 0 8px 24px rgb(15 61 43 / 0.08);
+
+  /* Type */
+  --font-ui: "Manrope", "Vazirmatn", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-xs: 0.75rem;   /* 12 caption, labels */
+  --text-sm: 0.875rem;  /* 14 secondary */
+  --text-md: 1rem;      /* 16 body */
+  --text-lg: 1.25rem;   /* 20 card title */
+  --text-xl: 1.75rem;   /* 28 screen title */
+  --text-2xl: 2.5rem;   /* 40 hero figure */
+
+  /* Space (4pt grid) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px;
+
+  /* Shape */
+  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-full: 999px;
+  --tap: 48px;          /* min touch target */
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 150ms; --dur: 250ms;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1811; --surface: #11241a; --surface-2: #183123; --line: #24402f;
+    --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #6f8a7b;
+    --primary: #2fa860; --on-primary: #06140d;
+    --flow: #4aa3f0; --flow-soft: #0f2a40;
+    --warn: #f4b942; --warn-soft: #33290f;
+    --danger: #ef6a5a; --danger-soft: #3a1a15;
+    --ok: #4ce08a; --ok-soft: #123822;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1811; --surface: #11241a; --surface-2: #183123; --line: #24402f;
+  --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #6f8a7b;
+  --primary: #2fa860; --on-primary: #06140d;
+  --flow: #4aa3f0; --flow-soft: #0f2a40;
+  --warn: #f4b942; --warn-soft: #33290f;
+  --danger: #ef6a5a; --danger-soft: #3a1a15;
+  --ok: #4ce08a; --ok-soft: #123822;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur: 0ms; }
+}

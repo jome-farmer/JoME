@@ -26,7 +26,7 @@ JoME helps you maintain optimal water conditions for your plants through:
 
 ## Technical Stack
 
-- React 18
+- React 19
 - TypeScript
 - Vite
 - ESLint for code quality
@@ -67,4 +67,6 @@ npx cap open android
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting pull requests.
+
+Architecture, device protocol and roadmap live in [docs/](docs/README.md); the design system and screen mockups in [design/](design/README.md).
