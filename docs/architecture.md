@@ -57,7 +57,7 @@ src/
       webSerialLink.ts    desktop Chrome/Edge
       androidUsbLink.ts   bridge to the local UsbSerial Capacitor plugin
       mockLink.ts         simulated board (dev, tests, demo mode)
-    lineCodec.ts          bytes → lines; classifies protocol messages vs log lines
+    lineCodec.ts          bytes → lines; protocol messages vs log lines; 16 KB line cap
     client.ts             DeviceClient: typed request/response + events
     types.ts              Zone, Program, Status… (mirrors device-protocol.md)
     DeviceProvider.tsx    React context: connection state + client
@@ -98,7 +98,8 @@ export interface Link {
 
 - `request<T>(cmd, args, timeoutMs?) → Promise<T>` matches responses by `id`.
 - `on(evt, cb)` subscribes to events.
-- `onLog(cb)` receives non-protocol lines. The terminal uses it.
+- `onLine(cb)` receives every line sent or received (`rx`/`tx`, protocol or log).
+  The terminal uses it and can hide protocol lines.
 - `writeRaw(text)` lets the terminal send typed input unchanged.
 
 On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
