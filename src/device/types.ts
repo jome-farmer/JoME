@@ -1,4 +1,5 @@
-// Mirrors docs/device-protocol.md (proto v1). Change both in the same PR.
+// Mirrors https://github.com/jome-farmer/protocol (proto v1). Change it there first
+// (see "Changing the protocol"), then here.
 
 export const PROTOCOL_VERSION = 1;
 
@@ -14,6 +15,8 @@ export type Hello = {
   zoneCount: number;
   /** Valve outputs on this board (e.g. 8 or 16). Older boards may omit it. */
   valveCount?: number;
+  /** Every command this firmware accepts. Older boards may omit it. */
+  cmds?: string[];
 };
 
 export type Zone = {
@@ -76,6 +79,11 @@ export type Commands = {
   "program.delete": [{ id: number }, Empty];
   "rain.delay": [{ hours: number }, { until: Epoch | null }];
   "device.rename": [{ name: string }, Empty];
+  "device.reboot": [Empty, Empty];
+  "log.level": [
+    { level: "error" | "warn" | "info" | "debug" | "trace" },
+    Empty,
+  ];
 };
 export type Command = keyof Commands;
 export type Args<C extends Command> = Commands[C][0];
@@ -101,6 +109,8 @@ export type ErrorCode =
   | "NOT_FOUND"
   | "WIFI_FAILED"
   | "VALVE_IN_USE"
+  | "ZONE_DISABLED"
+  | "CLOCK_NOT_SET"
   | "INTERNAL"
   // Raised by the app, not the board:
   | "TIMEOUT"

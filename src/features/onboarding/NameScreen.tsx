@@ -7,7 +7,7 @@ import { TextField } from "../../ui/TextField";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
 
-const MAX = 32; // Longest name the board stores (device-protocol.md).
+const MAX = 32; // Longest name the board stores (jome-farmer/protocol §7).
 
 /** Setup step 4: name the garden. The name is stored on the board. */
 export function NameScreen() {

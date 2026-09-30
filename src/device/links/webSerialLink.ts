@@ -1,6 +1,6 @@
 import type { Link } from "../link";
 
-/** docs/device-protocol.md §1: the board UART runs 115200 8N1 by default. */
+/** jome-farmer/protocol §1: the board UART runs 115200 8N1 by default. */
 export const DEFAULT_BAUD = 115_200;
 
 /** Desktop Chrome and Edge. Not on phones or in Firefox/Safari. */

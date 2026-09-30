@@ -35,7 +35,7 @@ type Pending = {
   timer: ReturnType<typeof setTimeout>;
 };
 
-/** Typed request/response and events over any Link (device-protocol.md §3). */
+/** Typed request/response and events over any Link (jome-farmer/protocol §2). */
 export class DeviceClient {
   private decoder = new LineDecoder();
   private nextId = 1;

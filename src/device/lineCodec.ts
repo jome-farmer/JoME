@@ -6,7 +6,7 @@ export type Line =
 /** Longest line kept before it's flushed as a log line, so a board without newlines can't grow memory forever. */
 export const MAX_LINE = 16 * 1024;
 
-/** Splits a byte stream into lines (device-protocol.md §2). Handles chunks cut mid-line and mid-UTF-8 character. */
+/** Splits a byte stream into lines (jome-farmer/protocol §2). Handles chunks cut mid-line and mid-UTF-8 character. */
 export class LineDecoder {
   private decoder = new TextDecoder("utf-8");
   private buffer = "";
