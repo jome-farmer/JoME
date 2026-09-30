@@ -6,6 +6,7 @@
 | [architecture.md](architecture.md) | Layers, folders, device layer, state, testing |
 | [device-protocol.md](device-protocol.md) | App ↔ board contract: BLE NUS, USB serial, JSON lines |
 | [assistant.md](assistant.md) | App ↔ AI agent contract: streaming chat, device tools, safety tiers |
+| [deployment.md](deployment.md) | Web deploy to app.jome-farmer.ir, mobile releases |
 | [testing-hardware.md](testing-hardware.md) | Manual release checklist on real hardware |
 | [adr/](adr/) | Architecture Decision Records |
 | [../design/](../design/README.md) | Design system, screens, mockups |

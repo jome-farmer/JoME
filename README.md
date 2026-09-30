@@ -35,6 +35,8 @@ and ask the **JoME AI assistant** what your garden needs.
 
 ## Status
 
+🌐 **Web app:** https://app.jome-farmer.ir (latest `develop` build).
+
 🚧 **The app is being rebuilt.** The design phase is done: see the
 [screen mockups](design/mockups.html) and the [roadmap](docs/roadmap.md).
 The code in `src/` is the old prototype and is being replaced phase by phase.
