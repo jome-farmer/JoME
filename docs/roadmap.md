@@ -14,7 +14,7 @@ branches merged into `develop`.
 
 ## Phase 1 — Foundation
 
-- Upgrade Capacitor, add `android/` and `ios/` projects, and set the final `appId`
+- Upgrade Capacitor, add `android/` and `ios/` projects, with `appId` `ir.jomefarmer.jome`
 - Remove PrimeReact, PrimeIcons and Font Awesome. Add the `ui/` components from
   the design system.
 - Set up the app shell: routes, tab layout, `DeviceProvider`, `mockLink`, Demo mode
@@ -47,8 +47,7 @@ branches merged into `develop`.
 
 ## Open questions (need answers before Phase 1)
 
-1. **App ID.** It is currently `com.alinaderiparizi.jome`. It cannot change
-   after the first store release. Should it be something like `ir.jomefarmer.app`?
+1. ~~**App ID.**~~ Resolved: `ir.jomefarmer.jome` ([ADR 0003](adr/0003-app-id.md)).
 2. **Languages.** Is Persian (RTL) needed for 1.0? The CSS is RTL-ready either way.
 3. **Board MCU and firmware owner.** Is it ESP32? Who implements the protocol on
    the firmware side?
