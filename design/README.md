@@ -97,6 +97,24 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | 10 | **Device** | Device card (name, serial in mono, firmware, link type). Rows: Wi‑Fi, Rain delay, Appearance (theme), **Serial terminal**, Forget device. |
 | 11 | **Terminal** | Opens from Device, full screen with no tab bar. The console is dark in both themes. Firmware logs are plain, board protocol lines are mint (←), and lines the app sends are **amber** (→); blue is reserved for water. Chips: link (Bluetooth, USB with a baud selector, or Demo), *Protocol* and *Timestamps* toggles, *Clear*. Copy is in the header. The input bar sends text as typed. It follows new output unless you scroll up, and keeps the last 2,000 lines. |
 
+## Motion: launch splash
+
+Prototype: [splash.html](splash.html). It plays once per cold start and lasts about 1.6 s.
+
+| Time | What happens |
+|---|---|
+| 0.00 s | Handoff from the static native launch screen (iOS only allows a static one). The logo sits in the same spot, so there's no jump. |
+| 0.08 s | The eyes blink awake. |
+| 0.22 s | A water drop falls onto the leaf. |
+| 0.56 s | It lands: the sprout bounces, and two `--flow` ripples spread out. |
+| 0.62 s | The wordmark draws itself, letter by letter (its letters are strokes). |
+| 1.30 s | Zoom through and fade into the app. |
+
+- It uses the real logo SVG. Existing parts are only grouped so they can move; no shape is changed.
+- It never delays the app: it runs for a fixed time while the app loads underneath.
+- With reduced motion on, nothing moves: the logo holds for 0.4 s and fades out.
+- In dark mode the wordmark's green letters switch to `--ink` so they stay readable. The "o" stays water blue.
+
 ## Flows
 
 ```
