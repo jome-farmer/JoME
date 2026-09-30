@@ -7,6 +7,7 @@ import { EmptyState } from "../../ui/EmptyState";
 import { List, ListRow } from "../../ui/ListRow";
 import { Screen } from "../../ui/Screen";
 import { BleConnect } from "./BleConnect";
+import { UsbConnect } from "./UsbConnect";
 import styles from "./DeviceScreen.module.css";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
@@ -27,6 +28,7 @@ export function DeviceScreen() {
           action={
             <div className={styles.actions}>
               <BleConnect />
+              <UsbConnect />
               <Button
                 icon={Play}
                 onClick={connectDemo}
