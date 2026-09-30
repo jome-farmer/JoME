@@ -1,0 +1,122 @@
+# JoME design system
+
+Visual mockups: open [mockups.html](mockups.html) in a browser.
+Tokens: [tokens.css](tokens.css) is the only place colours, type, spacing and
+motion are defined. The app imports it and never hard-codes values.
+
+## Who and where
+
+The person is a home gardener, a small-farm owner or an installer, standing
+**outdoors**, often in bright sun, sometimes with wet or gloved hands. They
+open the app to answer three questions:
+
+1. Is my garden being watered as planned?
+2. Water this zone now, or stop.
+3. Change when things run.
+
+4. What should I do? Ask JoME. The assistant knows plants, weather and this
+   garden, and it can act on the system once the user confirms.
+
+Everything else, like Wi‑Fi, firmware and the terminal, is occasional and
+lives on the Device tab.
+
+## Principles
+
+1. **Status first.** Each screen opens with the one thing that matters right
+   now. On Home that is what is running and what runs next.
+2. **Water blue means water is flowing.** `--flow` is used only for active
+   watering: the water ring, running zone cards, the flow icon. Seeing blue
+   anywhere means a valve is open. Primary actions use `--primary` (leaf green).
+3. **Calm and premium.** Off-white ground, one raised hero surface per screen,
+   generous spacing, no gradients, no decorative borders. Shadows mark only
+   objects you can tap or drag.
+4. **Big and forgiving.** Touch targets are at least 48 px. Destructive or
+   long-running actions such as *Stop all* and *Rain delay* are one tap and
+   can be undone. Nothing hides behind a long-press.
+5. **Readable in sunlight.** Body text is at least AA contrast (4.5:1) in both
+   themes. Status never relies on colour alone: every state also has an icon
+   and a word.
+6. **The assistant proposes, the person decides.** Anything the assistant
+   would do that starts water or changes the plan appears as an action card
+   with a plain summary and *Confirm*. Stopping water is the only action it
+   takes by itself. Its answers show their sources.
+7. **RTL-ready.** Use CSS logical properties only (`margin-inline-start`,
+   `inset-inline-end`). Icons that point a direction flip in RTL. This keeps
+   Persian a translation job, not a redesign.
+
+## Foundations
+
+| Token group | Values |
+|---|---|
+| Colour | Brand: forest, leaf, sprout, mint, water, sun (from the logo). Semantic: `bg`, `surface`, `surface-2`, `line`, `ink`/`ink-2`/`ink-3`, `primary`, `flow`, `warn`, `danger`, `ok` (+ `-soft` fills) |
+| Type | **Manrope** for UI (Vazirmatn fallback for Persian). **JetBrains Mono** for the terminal and serial numbers. Scale: 12 / 14 / 16 / 20 / 28 / 40. Durations and times use `tabular-nums`. |
+| Space | 4 pt grid: 4, 8, 12, 16, 20, 24, 32. Screen gutter 20. |
+| Radius | 10 (inputs, chips), 16 (cards), 24 (sheets, hero), full (pills, round buttons) |
+| Motion | 150 ms micro, 250 ms screen/sheet, `--ease`. Off when reduce-motion is set. |
+| Dark mode | Follows the system, plus a manual override on the Device tab. Colours are re-tuned for dark, not inverted. |
+
+## Components (`src/ui/`)
+
+| Component | Notes |
+|---|---|
+| `Button` | Variants: `primary` (leaf), `secondary` (surface-2), `ghost`, `danger`. Sizes: `md` 48 px, `lg` 56 px. Optional leading icon. Loading state keeps its width. |
+| `IconButton` | 44 px round, always has an `aria-label` |
+| `Card` | `surface` fill with `--shadow`. Use it only for the hero and tappable items. |
+| `ListRow` | Icon, title, optional subtitle, trailing value or chevron. Divided by `--line`. |
+| `Switch` | 52×32. Leaf when on. Haptic tick on change. |
+| `Stepper` | − value + for durations. Tap and hold repeats. Value in tabular numerals. |
+| `StatusPill` | Icon + word, soft fill: `Watering` (flow), `Idle` (surface-2), `Off` (ink-3), `Offline` (danger), `Rain delay` (warn). |
+| `WaterRing` | The signature element. A circular progress ring in `--flow` showing time left, with the minutes figure large in its centre. It animates smoothly each second. |
+| `Sheet` | Bottom sheet for zone actions and editors. Drag handle, 24 px top radius. |
+| `ConnectionBanner` | Slim bar under the header: `Reconnecting…` (warn) / `Connection lost · Retry` (danger). |
+| `EmptyState` | Illustration (logo mascot), one sentence, one action. |
+| `TabBar` | 5 tabs: Home, Zones, **JoME** (assistant, centre, mascot icon), Schedule, Device. Icon and label always shown. The active tab is a leaf-coloured pill. |
+| `ChatMessage` | User messages are right-aligned leaf bubbles. Assistant messages are full-width text on the ground, with no bubble, so long answers read like a page. Text streams in. |
+| `ActionCard` | The assistant's proposed device action: icon, one-line summary, a detail line (zone, duration, until-time, or before→after for programs), then *Cancel* and *Confirm*. After a decision it collapses to a result line: `Done` (ok), `Declined` (ink-3), or `Failed` + reason (danger). A running action uses `--flow`. |
+| `SourceChip` | Small chip under an answer: publisher and title of an agriculture data source. Tapping it opens the details. |
+| `ToolTrace` | A quiet single line with a check icon: *Checked zones and programs*. Read tools only. |
+| `Composer` | Pill input, 48 px, send button. Suggestion chips appear above it when the chat is empty. |
+
+Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
+
+## Screens
+
+| # | Screen | Purpose and key content |
+|---|---|---|
+| 1 | **Welcome** | Mascot, "Hi, I'm JoME / your gardener", *Get started*. Shown on first launch only. |
+| 2 | **Connect** | Choose how to reach the board: *Scan QR code* (primary), list of nearby `JoME-XXXX` devices with signal strength, *Use USB cable* (Android and desktop only), *Try demo*. Passkey entry opens in a sheet. |
+| 3 | **Wi‑Fi** | Networks come from the board's own scan (`wifi.scan`), with signal bars and a lock icon. Password field. Live status: connecting, connected (IP), or failed with a reason. *Skip for now* is allowed. |
+| 4 | **Name** | Name the garden or device. Success. Lands on Home. |
+| 5 | **Home** | Header: device name and link status. **Hero:** WaterRing for the running zone (*Front lawn · 7 min left · Stop*). When nothing runs, the hero shows the next scheduled run instead. Quick actions: *Run a zone*, *Rain delay*, *Stop all*. Below: today's runs as a timeline. |
+| 6 | **Zones** | Summary line "2 of 6 zones running". Zone cards: name, state pill, default duration, big round **Run** button. A running card fills with a water-level tint. Tapping a card opens the Zone sheet: duration stepper, Run, enable switch, rename. |
+| 7 | **Assistant — start** | Mascot greeting with one live insight from the agent (for example, tonight's rain forecast). Context chip showing which garden it's looking at. Four suggestion chips. Composer. Offline state: *The assistant needs internet. Your garden keeps running on schedule.* |
+| 8 | **Assistant — chat** | The conversation. Tool traces, source chips and action cards appear in the flow, in the order they happened. A header menu has *New chat*. |
+| 9 | **Schedule** | Programs as cards: name, days (7 day-chips), start time, total duration, enable switch. The editor is a full-screen sheet with days, start time and an ordered list of zone steps. |
+| 10 | **Device** | Device card (name, serial in mono, firmware, link type). Rows: Wi‑Fi, Rain delay, Appearance (theme), **Serial terminal**, Forget device. |
+| 11 | **Terminal** | Dark mono console, even in light theme. Log lines in `ink-2`, protocol JSON dimmed (toggle *Show protocol*). Input bar with Send. Link chip (BLE/USB). Baud selector for USB only. Clear and Copy buttons. |
+
+## Flows
+
+```
+First run:  Welcome → Connect ─┬─ QR → pair (passkey from QR) ─┐
+                               ├─ pick device → passkey sheet ──┼→ Wi‑Fi → Name → Home
+                               ├─ USB (Android/desktop) ────────┘
+                               └─ Try demo → Home (mock board, "Demo" pill in header)
+Returning:  launch → Home (auto-reconnect to last device; banner while reconnecting)
+```
+
+## Copy
+
+- Say what happens: *Run 10 min*, *Stop watering*, *Delay 24 h*. Avoid *Submit* and *OK*.
+- Use the gardener's words: *zone*, *program*, *rain delay*, *watering*. Never
+  *valve index*, *GPIO* or *payload*.
+- Errors say what went wrong and what to do: *Couldn't reach JoME‑0001. Move
+  closer and tap Retry.*
+- Show durations as `7 min`, `1 h 20 min`. Show times in the phone's 12 h or 24 h setting.
+
+## Out of scope for 1.0
+
+User accounts and the Profile screen (unless the assistant needs accounts; see
+the roadmap), water-usage analytics, soil moisture charts, assistant voice
+input and photo diagnosis. Each waits on a data source or an answer from the
+agent team.

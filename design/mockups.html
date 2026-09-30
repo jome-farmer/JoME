@@ -1,0 +1,627 @@
+<title>JoME App Screens</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Layout: gallery of phone frames in flow order on a tinted ground; the phones use the app's own --bg. */
+:root {
+  --page: #e4ebe6;
+  --console-bg: #08140e;
+  --console-ink: #cfe3d7;
+  --console-dim: #5f7d6c;
+  --console-out: #8fdca8;
+  --console-in: #7cc0f5;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #050d09; } }
+:root[data-theme="dark"] { --page: #050d09; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-ui); font-size: var(--text-md); padding-inline: 16px; padding-block: 40px 64px; }
+.wrap { max-width: 1440px; margin-inline: auto; display: grid; gap: 40px; }
+
+header.intro { display: grid; gap: var(--s-4); max-width: 68ch; }
+.intro h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+.intro h1 span { color: var(--flow); }
+.intro p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+.swatches { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.sw { display: flex; align-items: center; gap: var(--s-2); font-size: var(--text-xs); color: var(--ink-2); }
+.sw i { width: 22px; height: 22px; border-radius: var(--r-full); border: 1px solid var(--line); }
+
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 48px 32px; justify-items: center; }
+figure { margin: 0; display: grid; gap: var(--s-4); width: min(320px, 100%); }
+figcaption { display: grid; gap: 2px; padding-inline: var(--s-2); }
+figcaption b { font-size: var(--text-sm); }
+figcaption b em { font-style: normal; color: var(--ink-3); font-weight: 500; margin-inline-end: 6px; font-variant-numeric: tabular-nums; }
+figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1.5; }
+
+/* Phone */
+.phone { width: 100%; height: 660px; background: var(--bg); border-radius: 40px; border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.sbar { display: flex; justify-content: space-between; padding: 14px 26px 6px; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.screen { flex: 1; min-height: 0; overflow: hidden; padding: var(--s-2) var(--s-5) var(--s-5); display: flex; flex-direction: column; gap: var(--s-4); }
+.title { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.02em; margin: 0; line-height: 1.15; }
+.sub { font-size: var(--text-sm); color: var(--ink-2); margin: 0; line-height: 1.5; }
+.label { font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.row { display: flex; align-items: center; gap: var(--s-3); }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); }
+
+.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.i.sm { width: 16px; height: 16px; }
+.i.fill { fill: currentColor; stroke: none; }
+
+.btn { height: var(--tap); border-radius: var(--r-md); border: 0; font: 700 var(--text-md) var(--font-ui); display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); padding-inline: var(--s-5); cursor: pointer; transition: transform var(--dur-fast) var(--ease); }
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible, .iconbtn:focus-visible { outline: 3px solid var(--flow); outline-offset: 2px; }
+.btn.lg { height: 56px; width: 100%; font-size: 17px; }
+.btn.primary { background: var(--primary); color: var(--on-primary); }
+.btn.secondary { background: var(--surface-2); color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink-2); }
+.btn.danger { background: var(--danger-soft); color: var(--danger); }
+.iconbtn { width: 44px; height: 44px; border-radius: var(--r-full); border: 0; background: var(--surface); color: var(--ink); display: grid; place-items: center; box-shadow: var(--shadow); cursor: pointer; }
+
+.card { background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); padding: var(--s-4); }
+.list { background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); overflow: hidden; }
+.li { display: flex; align-items: center; gap: var(--s-3); padding: 14px var(--s-4); min-height: 56px; }
+.li + .li { border-top: 1px solid var(--line); }
+.li .t { font-weight: 600; font-size: 15px; }
+.li .d { font-size: var(--text-xs); color: var(--ink-2); margin-top: 2px; }
+.li .v { font-size: var(--text-sm); color: var(--ink-2); }
+.li .chev { color: var(--ink-3); }
+.ico-tile { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--surface-2); color: var(--primary); display: grid; place-items: center; flex: none; }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding-inline: 10px; border-radius: var(--r-full); font-size: var(--text-xs); font-weight: 700; white-space: nowrap; }
+.pill.flow { background: var(--flow-soft); color: var(--flow); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.idle { background: var(--surface-2); color: var(--ink-2); }
+.pill.off { background: transparent; color: var(--ink-3); border: 1px solid var(--line); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pulse { animation: pulse 1.6s var(--ease) infinite; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+.switch { width: 52px; height: 32px; border-radius: var(--r-full); background: var(--line); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; inset-block-start: 3px; inset-inline-start: 3px; width: 26px; height: 26px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); }
+.switch.on { background: var(--primary); }
+.switch.on::after { inset-inline-start: 23px; }
+
+.steps { display: flex; gap: 6px; justify-content: center; }
+.steps i { width: 6px; height: 6px; border-radius: var(--r-full); background: var(--line); }
+.steps i.on { width: 20px; background: var(--primary); }
+
+.tabbar { display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px 10px 22px; background: var(--surface); border-top: 1px solid var(--line); }
+.tab { display: grid; justify-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.tab .ic { width: 52px; height: 30px; border-radius: var(--r-full); display: grid; place-items: center; }
+.tab.on { color: var(--ink); }
+.tab.on .ic { background: var(--ok-soft); color: var(--primary); }
+
+/* Welcome */
+.welcome { justify-content: space-between; text-align: center; padding-block-end: var(--s-8); }
+.hero-mascot { display: grid; justify-items: center; gap: var(--s-5); }
+.mascot-bg { width: 184px; height: 184px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; }
+.mascot-bg svg { width: 136px; }
+.welcome h2 { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; margin: 0; }
+.welcome h2 + p { margin: 4px 0 0; font-size: 18px; color: var(--primary); font-weight: 600; }
+
+/* Water ring */
+.ring { position: relative; width: 132px; height: 132px; flex: none; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { stroke: var(--flow-soft); }
+.ring .prog { stroke: var(--flow); transition: stroke-dashoffset 1s linear; }
+.ring .c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring .c b { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.ring .c span { font-size: var(--text-xs); color: var(--ink-2); font-weight: 600; }
+.hero { border-radius: var(--r-lg); padding: var(--s-5); display: grid; gap: var(--s-4); }
+
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); }
+.qa { background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); padding: 14px 8px; display: grid; justify-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 700; text-align: center; }
+.qa .i { color: var(--primary); }
+.qa.stop .i { color: var(--danger); }
+.qa.rain .i { color: var(--warn); }
+
+.tl { display: grid; gap: 0; }
+.tl-row { display: grid; grid-template-columns: 44px 14px 1fr auto; align-items: center; gap: var(--s-2); padding-block: 9px; font-size: var(--text-sm); }
+.tl-row time { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.tl-row .node { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); background: var(--bg); }
+.tl-row.done .node { background: var(--primary); border-color: var(--primary); }
+.tl-row.now .node { background: var(--flow); border-color: var(--flow); box-shadow: 0 0 0 4px var(--flow-soft); }
+.tl-row .meta { font-size: var(--text-xs); color: var(--ink-3); }
+
+/* Zones */
+.zone { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); padding: 14px var(--s-4); display: flex; align-items: center; gap: var(--s-3); }
+.zone .water { position: absolute; inset-inline: 0; inset-block-end: 0; height: 67%; background: var(--flow-soft); }
+.zone > *:not(.water) { position: relative; }
+.zone .zn { font-size: var(--text-xs); font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.zone .t { font-weight: 700; font-size: 16px; }
+.zone .meta { display: flex; align-items: center; gap: var(--s-2); margin-top: 6px; font-size: var(--text-xs); color: var(--ink-2); }
+.run { width: 48px; height: 48px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); flex: none; }
+.run.stop { background: var(--flow); color: #fff; }
+.zone.disabled { box-shadow: none; background: transparent; border: 1px dashed var(--line); }
+.zone.disabled .t { color: var(--ink-3); }
+
+/* Schedule */
+.prog { display: grid; gap: var(--s-3); }
+.days { display: flex; gap: 5px; }
+.days i { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; background: var(--surface-2); color: var(--ink-3); }
+.days i.on { background: var(--primary); color: var(--on-primary); }
+.prog.paused { opacity: 0.6; }
+.prog .when { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+/* Wi-Fi */
+.field { display: grid; gap: 6px; }
+.field label { font-size: var(--text-sm); font-weight: 600; }
+.input { height: var(--tap); border-radius: var(--r-sm); border: 1.5px solid var(--primary); background: var(--surface); display: flex; align-items: center; gap: var(--s-2); padding-inline: var(--s-3); font-size: 18px; letter-spacing: 0.15em; color: var(--ink); }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+.bars i { width: 3px; border-radius: 1px; background: var(--line); }
+.bars i:nth-child(1) { height: 25%; } .bars i:nth-child(2) { height: 50%; } .bars i:nth-child(3) { height: 75%; } .bars i:nth-child(4) { height: 100%; }
+.bars.s4 i, .bars.s3 i:nth-child(-n+3), .bars.s2 i:nth-child(-n+2) { background: var(--primary); }
+.li.sel { background: var(--ok-soft); }
+.note { font-size: var(--text-xs); color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+
+/* Connect */
+.qr-cta { background: var(--forest); color: #fff; border-radius: var(--r-lg); padding: var(--s-5); display: flex; align-items: center; gap: var(--s-4); }
+.qr-cta .qbox { width: 52px; height: 52px; border-radius: var(--r-sm); background: rgb(255 255 255 / 0.12); display: grid; place-items: center; color: var(--mint); flex: none; }
+.qr-cta b { font-size: 17px; display: block; }
+.qr-cta span { font-size: var(--text-xs); color: var(--mint); }
+.searching { display: flex; align-items: center; gap: 6px; font-size: var(--text-xs); color: var(--flow); font-weight: 600; }
+
+/* Device */
+.devcard { display: flex; gap: var(--s-4); align-items: center; }
+.devcard .m { width: 64px; height: 64px; border-radius: var(--r-md); background: var(--surface-2); display: grid; place-items: center; flex: none; }
+.devcard .m svg { width: 50px; }
+.kv { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); border-top: 1px solid var(--line); padding-top: var(--s-3); }
+.kv div { display: grid; gap: 2px; }
+.kv span { font-size: var(--text-xs); color: var(--ink-3); }
+.kv b { font-size: var(--text-sm); }
+.danger-text { color: var(--danger); }
+
+/* Terminal */
+.term { background: var(--console-bg); }
+.term .sbar { color: var(--console-ink); }
+.term .screen { color: var(--console-ink); gap: var(--s-3); }
+.term .title { font-size: var(--text-lg); color: var(--console-ink); }
+.term .iconbtn { background: rgb(255 255 255 / 0.06); color: var(--console-ink); box-shadow: none; }
+.console { flex: 1; min-height: 0; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.65; overflow: hidden; display: grid; align-content: start; gap: 1px; }
+.console p { margin: 0; word-break: break-all; }
+.console .tx { color: var(--console-in); }
+.console .rx { color: var(--console-out); }
+.console .ts { color: var(--console-dim); margin-inline-end: 6px; }
+.tchip { display: inline-flex; gap: 6px; align-items: center; height: 28px; padding-inline: 10px; border-radius: var(--r-full); background: rgb(255 255 255 / 0.08); font-size: var(--text-xs); font-weight: 600; font-family: var(--font-mono); }
+.tchip.on { background: rgb(143 220 168 / 0.16); color: var(--console-out); }
+.tinput { display: flex; gap: var(--s-2); }
+.tinput .f { flex: 1; min-width: 0; height: var(--tap); border-radius: var(--r-sm); background: rgb(255 255 255 / 0.06); display: flex; align-items: center; padding-inline: var(--s-3); font-family: var(--font-mono); font-size: var(--text-sm); color: var(--console-ink); }
+.tinput .f::before { content: "›"; color: var(--console-out); margin-inline-end: 8px; }
+.caret { display: inline-block; width: 7px; height: 16px; background: var(--console-out); margin-inline-start: 2px; animation: pulse 1s steps(1) infinite; }
+
+
+/* Assistant */
+.tabbar { grid-template-columns: repeat(5, 1fr); padding-inline: 4px; }
+.tab .ic { width: 48px; }
+.tab .ic svg.m { width: 26px; height: 26px; }
+.ctx { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px; border-radius: var(--r-full); background: var(--surface-2); font-size: var(--text-xs); font-weight: 600; color: var(--ink-2); }
+.ai-id { display: flex; align-items: center; gap: var(--s-3); }
+.ai-id .av { width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; flex: none; }
+.ai-id .av svg { width: 32px; }
+.insight { display: grid; gap: var(--s-2); }
+.insight .row .i { color: var(--warn); }
+.insight p { margin: 0; font-size: var(--text-sm); line-height: 1.5; color: var(--ink-2); }
+.insight p b { color: var(--ink); }
+.sugg { display: grid; gap: var(--s-2); }
+.sugg span { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 11px 14px; font-size: var(--text-sm); font-weight: 600; }
+.composer { display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); background: var(--surface); border-radius: var(--r-full); box-shadow: var(--shadow); padding-block: 4px; padding-inline: 18px 4px; margin-top: auto; flex: none; }
+.composer .ph { flex: 1; min-width: 0; color: var(--ink-3); font-size: 15px; }
+.send { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; flex: none; }
+.chat { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s-3); }
+.msg-user { align-self: flex-end; max-width: 82%; background: var(--primary); color: var(--on-primary); padding: 10px 14px; border-radius: 18px 18px 4px 18px; font-size: var(--text-sm); line-height: 1.45; }
+.msg-ai { display: grid; gap: var(--s-2); font-size: var(--text-sm); line-height: 1.55; }
+.msg-ai p { margin: 0; }
+.trace { display: flex; align-items: center; gap: 6px; font-size: var(--text-xs); color: var(--ink-3); }
+.src { display: flex; flex-wrap: wrap; gap: 6px; }
+.src span { display: inline-flex; align-items: center; height: 24px; padding-inline: 9px; border-radius: var(--r-full); background: var(--surface-2); color: var(--ink-2); font-size: 11px; font-weight: 600; }
+.action { background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); border: 1.5px solid var(--line); padding: 14px; display: grid; gap: var(--s-3); }
+.action .tile { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--warn-soft); color: var(--warn); display: grid; place-items: center; flex: none; }
+.action b { font-size: 15px; display: block; }
+.action .d { font-size: var(--text-xs); color: var(--ink-2); margin-top: 2px; }
+.action .btns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+.btn.sm { height: 40px; font-size: var(--text-sm); padding-inline: var(--s-3); }
+.done-line { display: flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 700; color: var(--ok); }
+
+@media (prefers-reduced-motion: reduce) { .pulse, .caret { animation: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" rx="2.5"/></symbol>
+  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/></symbol>
+  <symbol id="i-bt" viewBox="0 0 24 24"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></symbol>
+  <symbol id="i-usb" viewBox="0 0 24 24"><circle cx="10" cy="7" r="1"/><circle cx="4" cy="20" r="1"/><path d="M4.7 19.3 19 5"/><path d="m21 3-3 1 2 2Z"/><path d="M9.26 7.68 5 12l2 5"/><path d="m10 14 5 2 3.5-3.5"/><path d="m18 12 1-1 1 1-1 1Z"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3M21 21v.01M12 7v3a2 2 0 0 1-2 2H7M3 12h.01M12 3h.01M12 16v.01M16 12h1M21 12v.01M12 21v-1"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01M2 8.82a15 15 0 0 1 20 0M5 12.86a10 10 0 0 1 14 0M8.5 16.43a5 5 0 0 1 7 0"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <!-- verbatim copy of public/logo/symbol.svg; do not edit here -->
+  <symbol id="i-mascot" viewBox="0 0 256 256"><defs><clipPath id="f"><rect x="58" y="100" width="140" height="126" rx="40"/></clipPath></defs>
+<rect x="30" y="140" width="24" height="52" rx="12" fill="#1E88E5"/><rect x="202" y="140" width="24" height="52" rx="12" fill="#1E88E5"/>
+<rect x="58" y="100" width="140" height="126" rx="40" fill="#F4F7F5"/>
+<rect x="58" y="100" width="140" height="40" fill="#D5E0DA" clip-path="url(#f)"/>
+<rect x="58" y="100" width="140" height="126" rx="40" fill="none" stroke="#0F3D2B" stroke-width="9"/>
+<rect x="80" y="136" width="96" height="58" rx="26" fill="#0F3D2B"/>
+<ellipse cx="106" cy="165" rx="9" ry="13" fill="#4CE08A"/><ellipse cx="150" cy="165" rx="9" ry="13" fill="#4CE08A"/>
+<circle cx="110" cy="158" r="3.5" fill="#fff"/><circle cx="154" cy="158" r="3.5" fill="#fff"/>
+<path d="M108 208Q128 222 148 208" stroke="#0F3D2B" stroke-width="9" stroke-linecap="round" fill="none"/>
+<path d="M128 46V64" stroke="#0F3D2B" stroke-width="8" stroke-linecap="round"/>
+<path d="M128 52C128 28 146 18 170 20C170 44 152 56 128 52Z" fill="#2FA860"/>
+<path d="M128 56C128 40 116 32 98 34C98 50 112 60 128 56Z" fill="#8FDCA8"/>
+<path d="M70 112C70 76 98 62 128 62C158 62 186 76 186 112Z" fill="#F4B942" stroke="#0F3D2B" stroke-width="9" stroke-linejoin="round"/>
+<path d="M71 84H185L186 112H70Z" fill="#14703F"/>
+
+<ellipse cx="128" cy="114" rx="108" ry="16" fill="#F4B942" stroke="#0F3D2B" stroke-width="9"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="label">JoME · design v1 · for review</span>
+    <h1>Your garden, <span>watered on time</span>.</h1>
+    <p>These are the ten core screens of the redesigned JoME app, in first-run order. Water blue appears only while a valve is open. Leaf green marks what you can do. The JoME assistant suggests, and you confirm. Everything else stays quiet. Every colour and size comes from <code>design/tokens.css</code>. Switch your system to dark mode to see the dark theme.</p>
+    <div class="swatches" aria-label="Palette">
+      <span class="sw"><i style="background:var(--forest)"></i>Forest · ink</span>
+      <span class="sw"><i style="background:var(--leaf)"></i>Leaf · actions</span>
+      <span class="sw"><i style="background:var(--water)"></i>Water · flowing</span>
+      <span class="sw"><i style="background:var(--sun)"></i>Sun · schedule, delay</span>
+      <span class="sw"><i style="background:var(--mint)"></i>Mint</span>
+      <span class="sw"><i style="background:var(--bg)"></i>Ground</span>
+    </div>
+  </header>
+
+  <section class="gallery">
+
+    <!-- 1 Welcome -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="screen welcome">
+          <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
+          <div class="hero-mascot">
+            <div class="mascot-bg"><svg viewBox="0 0 256 256" role="img" aria-label="JoME mascot"><use href="#i-mascot"/></svg></div>
+            <div>
+              <h2>Hi, I'm JoME</h2>
+              <p>your gardener</p>
+            </div>
+            <p class="sub" style="max-width:24ch">I keep every zone watered on schedule, even when you're away.</p>
+          </div>
+          <div style="display:grid;gap:8px">
+            <button class="btn primary lg">Get started</button>
+            <button class="btn ghost">Try the demo</button>
+          </div>
+        </div>
+      </div>
+      <figcaption><b><em>1</em>Welcome</b><span>First launch only. Uses the mascot from the new logo instead of a generic sprout icon.</span></figcaption>
+    </figure>
+
+    <!-- 2 Connect -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="row between"><button class="iconbtn" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><div class="steps"><i></i><i class="on"></i><i></i><i></i></div><span style="width:44px"></span></div>
+          <div><h3 class="title">Connect your JoME</h3><p class="sub">Hold your phone within a few metres of the controller.</p></div>
+          <div class="qr-cta">
+            <div class="qbox"><svg class="i" style="width:28px;height:28px"><use href="#i-qr"/></svg></div>
+            <div><b>Scan the label</b><span>Pairs automatically with the code</span></div>
+          </div>
+          <div class="row between"><span class="label">Nearby</span><span class="searching"><span class="dot pulse"></span>Searching</span></div>
+          <div class="list">
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-bt"/></svg></div><div class="grow"><div class="t mono">JoME-0001</div><div class="d">Strong signal</div></div><div class="bars s4"><i></i><i></i><i></i><i></i></div></div>
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-bt"/></svg></div><div class="grow"><div class="t mono">JoME-0417</div><div class="d">Weak signal</div></div><div class="bars s2"><i></i><i></i><i></i><i></i></div></div>
+          </div>
+          <div class="list">
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-usb"/></svg></div><div class="grow"><div class="t">Use a USB cable</div><div class="d">Android and computer · not on iPhone</div></div><svg class="i chev"><use href="#i-chev"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <figcaption><b><em>2</em>Connect</b><span>QR first (serial + passkey). BLE list as fallback. The USB row is hidden on iOS.</span></figcaption>
+    </figure>
+
+    <!-- 3 Wi-Fi -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>9:42</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="row between"><button class="iconbtn" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><div class="steps"><i></i><i></i><i class="on"></i><i></i></div><span style="width:44px"></span></div>
+          <div><h3 class="title">Put JoME on Wi‑Fi</h3><p class="sub">JoME found these networks from where it's installed.</p></div>
+          <div class="list">
+            <div class="li sel"><svg class="i" style="color:var(--primary)"><use href="#i-check"/></svg><div class="grow t">Baharestan-Home</div><svg class="i sm" style="color:var(--ink-3)"><use href="#i-lock"/></svg><div class="bars s4"><i></i><i></i><i></i><i></i></div></div>
+            <div class="li"><span style="width:22px"></span><div class="grow t">Greenhouse-AP</div><svg class="i sm" style="color:var(--ink-3)"><use href="#i-lock"/></svg><div class="bars s3"><i></i><i></i><i></i><i></i></div></div>
+            <div class="li"><span style="width:22px"></span><div class="grow t">Neighbours_Guest</div><div class="bars s2"><i></i><i></i><i></i><i></i></div></div>
+          </div>
+          <div class="field"><label for="pw">Password</label><div class="input" id="pw"><svg class="i sm" style="color:var(--ink-3)"><use href="#i-lock"/></svg>••••••••••</div></div>
+          <p class="note"><svg class="i sm"><use href="#i-wifi"/></svg>JoME joins 2.4 GHz networks only.</p>
+          <div style="margin-top:auto;display:grid;gap:4px">
+            <span class="pill flow" style="justify-self:center"><span class="dot pulse"></span>Connecting to Baharestan-Home…</span>
+            <button class="btn primary lg">Join network</button>
+            <button class="btn ghost">Skip for now</button>
+          </div>
+        </div>
+      </div>
+      <figcaption><b><em>3</em>Wi‑Fi</b><span>The list comes from the board's own scan, so the signal shown is what the controller sees in the garden.</span></figcaption>
+    </figure>
+
+    <!-- 4 Home -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:11</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="row between">
+            <div><span class="label">Good evening</span><h3 class="title">Front garden</h3></div>
+            <span class="pill ok"><svg class="i sm"><use href="#i-bt"/></svg>Connected</span>
+          </div>
+          <div class="card hero">
+            <div class="row" style="gap:var(--s-4)">
+              <div class="ring">
+                <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="prog" id="ringProg" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="107.8"/></svg>
+                <div class="c"><b id="ringTime">6:42</b><span>min left</span></div>
+              </div>
+              <div class="grow" style="display:grid;gap:6px">
+                <span class="pill flow" style="justify-self:start"><svg class="i sm fill"><use href="#i-drop"/></svg>Watering</span>
+                <b style="font-size:var(--text-lg);line-height:1.2">Vegetable beds</b>
+                <span class="sub" style="font-size:var(--text-xs)">Zone 3 · Evening program</span>
+              </div>
+            </div>
+            <button class="btn danger" style="width:100%"><svg class="i sm fill"><use href="#i-stop"/></svg>Stop watering</button>
+          </div>
+          <div class="quick">
+            <div class="qa"><svg class="i fill"><use href="#i-play"/></svg>Run a zone</div>
+            <div class="qa rain"><svg class="i"><use href="#i-rain"/></svg>Rain delay</div>
+            <div class="qa stop"><svg class="i fill"><use href="#i-stop"/></svg>Stop all</div>
+          </div>
+          <div>
+            <span class="label">Today</span>
+            <div class="tl">
+              <div class="tl-row done"><time>06:00</time><span class="node"></span><span>Morning · Front lawn</span><span class="meta">20 min</span></div>
+              <div class="tl-row now"><time>18:00</time><span class="node"></span><span><b>Evening</b> · 3 zones</span><span class="meta" style="color:var(--flow)">Now</span></div>
+              <div class="tl-row"><time>21:30</time><span class="node"></span><span>Drip · Pots</span><span class="meta">8 min</span></div>
+            </div>
+          </div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab on"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>4</em>Home</b><span>The water ring is the signature element. When nothing runs, the hero shows the next scheduled run instead.</span></figcaption>
+    </figure>
+
+    <!-- 5 Zones -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:11</span><span>●●● ▮</span></div>
+        <div class="screen" style="gap:var(--s-3)">
+          <div><h3 class="title">Zones</h3><p class="sub">1 running · 4 idle · 1 off</p></div>
+          <div class="zone">
+            <div class="water"></div>
+            <div class="grow"><span class="zn">ZONE 3</span><div class="t">Vegetable beds</div><div class="meta"><span class="pill flow"><svg class="i sm fill"><use href="#i-drop"/></svg><span class="num">6:42</span> left</span></div></div>
+            <button class="run stop" aria-label="Stop Vegetable beds"><svg class="i fill"><use href="#i-stop"/></svg></button>
+          </div>
+          <div class="zone">
+            <div class="grow"><span class="zn">ZONE 1</span><div class="t">Front lawn</div><div class="meta"><span class="pill idle">Idle</span><span class="num">20 min</span></div></div>
+            <button class="run" aria-label="Run Front lawn"><svg class="i fill"><use href="#i-play"/></svg></button>
+          </div>
+          <div class="zone">
+            <div class="grow"><span class="zn">ZONE 2</span><div class="t">Backyard hedge</div><div class="meta"><span class="pill idle">Idle</span><span class="num">15 min</span></div></div>
+            <button class="run" aria-label="Run Backyard hedge"><svg class="i fill"><use href="#i-play"/></svg></button>
+          </div>
+          <div class="zone">
+            <div class="grow"><span class="zn">ZONE 4</span><div class="t">Fruit trees</div><div class="meta"><span class="pill idle">Idle</span><span class="num">40 min</span></div></div>
+            <button class="run" aria-label="Run Fruit trees"><svg class="i fill"><use href="#i-play"/></svg></button>
+          </div>
+          <div class="zone disabled">
+            <div class="grow"><span class="zn">ZONE 6</span><div class="t">Pool side</div><div class="meta"><span class="pill off">Off</span></div></div>
+          </div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab on"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>5</em>Zones</b><span>A running zone fills with water to show the share of time done. One big button runs or stops. Tapping a card opens its sheet for duration, rename and enable.</span></figcaption>
+    </figure>
+
+
+    <!-- Assistant start -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:14</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="row between">
+            <div class="ai-id"><div class="av"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></div><h3 class="title">Ask JoME</h3></div>
+            <button class="iconbtn" aria-label="New chat"><svg class="i"><use href="#i-plus"/></svg></button>
+          </div>
+          <span class="ctx" style="align-self:flex-start"><svg class="i sm"><use href="#i-sprout"/></svg>Looking at Front garden · 6 zones</span>
+          <div class="card insight">
+            <div class="row"><svg class="i"><use href="#i-rain"/></svg><span class="label">Tonight</span></div>
+            <p><b>About 6 mm of rain after 23:00.</b> Tomorrow's 06:00 Morning program may not be needed.</p>
+            <button class="btn secondary sm" style="justify-self:start">Ask what to do</button>
+          </div>
+          <div class="sugg">
+            <span class="label" style="border:0;background:none;padding:4px 0 0">Try asking</span>
+            <span>Should I water the lawn tomorrow?</span>
+            <span>Why are my tomato leaves turning yellow?</span>
+            <span>Make a summer schedule for the fruit trees</span>
+          </div>
+          <div class="composer"><span class="ph">Ask about your garden…</span><button class="send" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button></div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab on"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>6</em>Assistant</b><span>The agent opens with one live insight from its weather and crop data, plus questions it's good at. The context chip shows which garden it's looking at.</span></figcaption>
+    </figure>
+
+    <!-- Assistant chat -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:15</span><span>●●● ▮</span></div>
+        <div class="screen" style="gap:var(--s-3)">
+          <div class="row between">
+            <button class="iconbtn" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+            <span class="ctx">Front garden</span>
+            <button class="iconbtn" aria-label="New chat"><svg class="i"><use href="#i-plus"/></svg></button>
+          </div>
+          <div class="chat">
+            <div class="msg-user">Rain is coming tonight. What should I do?</div>
+            <div class="msg-ai">
+              <span class="trace"><svg class="i sm"><use href="#i-check"/></svg>Checked forecast, zones and programs</span>
+              <p>About <b>6 mm</b> is forecast after 23:00. That covers the lawn, hedge and fruit trees for a day, so I'd pause watering for <b>24 hours</b>.</p>
+              <p>The pots are under the roof and won't catch rain, so I'll leave <b>Drip pots</b> at 21:30.</p>
+              <div class="src"><span>Weather forecast · Tehran</span><span>Crop water guide · Lawn</span></div>
+            </div>
+            <div class="action">
+              <div class="row"><div class="tile"><svg class="i"><use href="#i-rain"/></svg></div><div class="grow"><b>Rain delay, 24 h</b><div class="d">Skips Morning and Evening until <span class="num">Thu 18:15</span>. Drip pots still run.</div></div></div>
+              <div class="btns"><button class="btn secondary sm">Cancel</button><button class="btn primary sm">Confirm</button></div>
+            </div>
+          </div>
+          <div class="composer"><span class="ph">Reply…</span><button class="send" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button></div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab on"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>7</em>Assistant chat</b><span>Answers cite their sources. Anything that changes the garden arrives as an action card. Nothing runs until you tap Confirm. Only stopping water happens without asking.</span></figcaption>
+    </figure>
+
+    <!-- 6 Schedule -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:12</span><span>●●● ▮</span></div>
+        <div class="screen" style="gap:var(--s-3)">
+          <div class="row between"><h3 class="title">Schedule</h3><button class="iconbtn" aria-label="New program"><svg class="i"><use href="#i-plus"/></svg></button></div>
+          <div class="card prog">
+            <div class="row between"><div><span class="label">Morning</span><div class="when">06:00</div></div><span class="switch on" role="switch" aria-checked="true" aria-label="Morning program"></span></div>
+            <div class="days"><i>S</i><i class="on">M</i><i>T</i><i class="on">W</i><i>T</i><i class="on">F</i><i>S</i></div>
+            <span class="sub">Front lawn → Backyard hedge → Fruit trees · <b class="num">1 h 15 min</b></span>
+          </div>
+          <div class="card prog">
+            <div class="row between"><div><span class="label">Evening</span><div class="when">18:00</div></div><span class="switch on" role="switch" aria-checked="true" aria-label="Evening program"></span></div>
+            <div class="days"><i class="on">S</i><i class="on">M</i><i class="on">T</i><i class="on">W</i><i class="on">T</i><i class="on">F</i><i class="on">S</i></div>
+            <span class="sub">3 zones · <b class="num">30 min</b> · running now</span>
+          </div>
+          <div class="card prog paused">
+            <div class="row between"><div><span class="label">Drip pots</span><div class="when">21:30</div></div><span class="switch" role="switch" aria-checked="false" aria-label="Drip pots program"></span></div>
+            <div class="days"><i>S</i><i>M</i><i class="on">T</i><i>W</i><i>T</i><i>F</i><i class="on">S</i></div>
+            <span class="sub">1 zone · <b class="num">8 min</b> · paused</span>
+          </div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab on"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>8</em>Schedule</b><span>Programs are stored and run on the board. The start time is the largest figure because it's what people scan for.</span></figcaption>
+    </figure>
+
+    <!-- 7 Device -->
+    <figure>
+      <div class="phone">
+        <div class="sbar"><span>18:12</span><span>●●● ▮</span></div>
+        <div class="screen" style="gap:var(--s-3)">
+          <h3 class="title">Device</h3>
+          <div class="card" style="display:grid;gap:var(--s-3)">
+            <div class="devcard">
+              <div class="m"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></div>
+              <div class="grow"><b style="font-size:var(--text-lg)">Front garden</b><div class="mono" style="font-size:var(--text-xs);color:var(--ink-2);margin-top:2px">JM-2024-0001</div></div>
+            </div>
+            <div class="kv">
+              <div><span>Firmware</span><b class="num">1.4.2 · latest</b></div>
+              <div><span>Link</span><b>Bluetooth · strong</b></div>
+            </div>
+          </div>
+          <div class="list">
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-wifi"/></svg></div><div class="grow t">Wi‑Fi</div><span class="v">Baharestan-Home</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-rain"/></svg></div><div class="grow t">Rain delay</div><span class="v">Off</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-sun"/></svg></div><div class="grow t">Appearance</div><span class="v">System</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+            <div class="li"><div class="ico-tile"><svg class="i"><use href="#i-term"/></svg></div><div class="grow t">Serial terminal</div><svg class="i chev"><use href="#i-chev"/></svg></div>
+          </div>
+          <div class="list"><div class="li danger-text"><svg class="i"><use href="#i-trash"/></svg><div class="grow t">Forget this device</div></div></div>
+        </div>
+        <nav class="tabbar">
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
+          <span class="tab on"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
+        </nav>
+      </div>
+      <figcaption><b><em>9</em>Device</b><span>Occasional settings in one place. This replaces the old Profile screen, since there are no accounts yet.</span></figcaption>
+    </figure>
+
+    <!-- 8 Terminal -->
+    <figure>
+      <div class="phone term">
+        <div class="sbar"><span>18:13</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="row between"><button class="iconbtn" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><h3 class="title">Serial terminal</h3><button class="iconbtn" aria-label="Copy log"><svg class="i"><use href="#i-copy"/></svg></button></div>
+          <div class="row" style="gap:6px;flex-wrap:wrap"><span class="tchip on"><svg class="i sm"><use href="#i-usb"/></svg>USB · 115200</span><span class="tchip on">Protocol ✓</span><span class="tchip">Timestamps</span><span class="tchip">Clear</span></div>
+          <div class="console" aria-label="Terminal output">
+            <p><span class="ts">18:05:01</span>I (1204) jome: boot fw=1.4.2 hw=B2</p>
+            <p><span class="ts">18:05:01</span>I (1210) wifi: connected ssid=Baharestan-Home</p>
+            <p><span class="ts">18:05:02</span>I (1388) ble: advertising JoME-0001</p>
+            <p><span class="ts">18:05:02</span>I (1402) sched: next Evening 18:00</p>
+            <p class="tx"><span class="ts">18:05:44</span>→ {"id":7,"cmd":"zone.run","args":{"zone":3,"seconds":600}}</p>
+            <p class="rx"><span class="ts">18:05:44</span>← {"id":7,"ok":true,"data":{}}</p>
+            <p><span class="ts">18:05:44</span>I (5521) valve: zone 3 OPEN</p>
+            <p class="rx"><span class="ts">18:05:44</span>← {"evt":"zone.state","data":{"zone":3,"state":"watering","remaining":600}}</p>
+            <p><span class="ts">18:07:10</span>W (9012) flow: pressure low 1.1 bar</p>
+          </div>
+          <div class="tinput"><div class="f">status<span class="caret"></span></div><button class="btn primary" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button></div>
+        </div>
+      </div>
+      <figcaption><b><em>10</em>Terminal</b><span>The same stream over USB or BLE, so it works on iPhone too. Firmware logs and app messages share the wire, and protocol lines can be hidden.</span></figcaption>
+    </figure>
+
+  </section>
+</div>
+
+<script>
+  // Tick the Home water ring so reviewers see the live countdown (10 min run).
+  (function () {
+    var total = 600, left = 402, C = 326.7;
+    var t = document.getElementById('ringTime'), p = document.getElementById('ringProg');
+    if (!t || !p) return;
+    setInterval(function () {
+      left = left > 0 ? left - 1 : total;
+      t.textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+      p.setAttribute('stroke-dashoffset', (C * (1 - left / total)).toFixed(1));
+    }, 1000);
+  })();
+</script>
