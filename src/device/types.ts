@@ -53,6 +53,10 @@ export type ProgramState = {
 export type Sensors = {
   /** Board LM35, 0.1 °C steps. null when out of range (sensor missing or broken). */
   temperatureC: number | null;
+  /** Water through the pump line, L/min (last second). Firmware without a flow sensor omits it. */
+  flowLpm?: number;
+  /** Litres through the sensor since the board booted. */
+  totalLiters?: number;
 };
 
 export type WifiState = {
