@@ -108,7 +108,7 @@ export interface Link {
 - `on(evt, cb)` subscribes to events.
 - `onLine(cb)` receives every line sent or received (`rx`/`tx`, protocol or log).
   The terminal uses it and can hide protocol lines.
-- `writeRaw(text)` lets the terminal send typed input unchanged.
+- The terminal parses its small, documented shell vocabulary locally and sends validated requests through `DeviceClient`; protocol traffic remains visible for diagnostics.
 
 On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
 
