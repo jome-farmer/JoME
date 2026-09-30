@@ -8,7 +8,8 @@ and [design/README.md](design/README.md) before your first PR.
 Requirements: Node 22 or newer, Xcode 16+ with an iOS simulator runtime (iOS),
 Android Studio + JDK 21 (Android).
 
-Supported devices: **iOS 15+** and **Android 7 (API 24)+**, which are Capacitor 8's defaults.
+Supported devices: **iOS 15+** and **Android 8 (API 26)+**. Android is raised from
+Capacitor's default of API 24 because the QR scanner plugin needs 26.
 
 ```bash
 npm install

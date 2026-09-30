@@ -133,8 +133,9 @@ TypeScript mirror of this section is `src/device/types.ts`.
 jome://pair?s=JM-2024-0001&k=483920
 ```
 
-`s` is the serial number, which the app uses to find the matching BLE
-advertisement. `k` is the BLE passkey, which the app shows large while the
+`s` is the serial number. The app looks for the advertisement named
+`JoME-<last 4 of serial>`, connects, and then checks that `hello.serial`
+equals `s`, because two boards can share the last four characters. `k` is the BLE passkey, which the app shows large while the
 system pairing dialog is open. Scanning the QR code is a shortcut. A user
 without a camera, or on desktop, picks the device from the scan list and reads
 the passkey from the label.

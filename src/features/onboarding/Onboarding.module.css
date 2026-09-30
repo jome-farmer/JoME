@@ -168,3 +168,48 @@
 .bars i.barOn {
   background: var(--primary);
 }
+
+/* QR card (mockup 2): the one dark surface on the screen, the fastest way in. */
+.qrCard {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-5);
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--forest);
+  color: var(--knob);
+  text-align: start;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.qrCard:active {
+  transform: scale(0.98);
+}
+.qrCard b {
+  display: block;
+  font-size: 17px;
+}
+.qrCard span span {
+  color: var(--mint);
+  font-size: var(--text-xs);
+}
+.qrIcon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--console-raised);
+  color: var(--mint);
+}
+.passkey {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
