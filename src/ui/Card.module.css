@@ -1,0 +1,10 @@
+.card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  padding: var(--s-4);
+}
+.hero {
+  border-radius: var(--r-lg);
+  padding: var(--s-5);
+}

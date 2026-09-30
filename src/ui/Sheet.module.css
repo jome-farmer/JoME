@@ -1,0 +1,46 @@
+.sheet {
+  position: fixed;
+  inset-block: auto 0;
+  inset-inline: 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.sheet[open] {
+  animation: rise var(--dur) var(--ease);
+}
+.sheet::backdrop {
+  background: rgb(6 20 13 / 0.45);
+}
+@keyframes rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.body {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-5)
+    calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+}
+.handle {
+  justify-self: center;
+  width: 40px;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: var(--line);
+}
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-weight: 800;
+}

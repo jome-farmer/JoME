@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDuration } from "./format";
+import { formatClock, formatDuration } from "./format";
 
 describe("formatDuration", () => {
   it.each([
@@ -14,5 +14,18 @@ describe("formatDuration", () => {
     [-5, "0 s"],
   ])("%i s → %s", (input, expected) => {
     expect(formatDuration(input)).toBe(expected);
+  });
+});
+
+describe("formatClock", () => {
+  it.each([
+    [402, "6:42"],
+    [59, "0:59"],
+    [0, "0:00"],
+    [3900, "1:05:00"],
+    [-3, "0:00"],
+    [9.9, "0:09"],
+  ])("%i s → %s", (input, expected) => {
+    expect(formatClock(input)).toBe(expected);
   });
 });

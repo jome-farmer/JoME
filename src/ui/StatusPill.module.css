@@ -1,0 +1,49 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding-inline: 10px;
+  border-radius: var(--r-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.flow {
+  background: var(--flow-soft);
+  color: var(--flow);
+}
+.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.idle {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.off {
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+}
+.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.6s var(--ease) infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}

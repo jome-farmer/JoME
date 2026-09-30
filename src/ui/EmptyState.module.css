@@ -1,0 +1,24 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding: var(--s-8) var(--s-5);
+  text-align: center;
+}
+.mascot {
+  width: 96px;
+  height: 96px;
+}
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  text-wrap: balance;
+}
+.text {
+  margin: 0;
+  max-width: 32ch;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
