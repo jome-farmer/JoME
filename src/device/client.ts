@@ -1,5 +1,5 @@
 import type { Link } from "./link";
-import { encodeLine, LineDecoder, type Line } from "./lineCodec";
+import { encodeLine, LineDecoder, MAX_LINE, type Line } from "./lineCodec";
 import type {
   Args,
   Command,
@@ -27,9 +27,14 @@ export type TrafficLine = {
 };
 
 /** Longest message line the board accepts, without the newline (protocol §2). */
-export const MAX_LINE_BYTES = 1024;
+export const MAX_LINE_BYTES = MAX_LINE;
 const DEFAULT_TIMEOUT = 5_000;
-const TIMEOUTS: Partial<Record<Command, number>> = { "wifi.scan": 15_000 };
+/** A full list reply is many BLE chunks, and waits behind other replies at startup. */
+const TIMEOUTS: Partial<Record<Command, number>> = {
+  "wifi.scan": 15_000,
+  "zones.list": 15_000,
+  "programs.list": 15_000,
+};
 
 type Pending = {
   resolve: (data: unknown) => void;

@@ -140,10 +140,19 @@ describe("DeviceClient", () => {
     ]);
   });
 
-  it("refuses a message over 1024 bytes instead of letting the board drop it", async () => {
+  it("sends a message over the old 1024-byte limit", async () => {
     const f = fakeLink();
     const client = new DeviceClient(f.link);
-    const huge = client.request("device.rename", { name: "x".repeat(1100) });
+    void client.request("device.rename", { name: "x".repeat(1100) });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(f.written).toHaveLength(1);
+  });
+
+  it("refuses a message over 16 KiB instead of letting the board drop it", async () => {
+    const f = fakeLink();
+    const client = new DeviceClient(f.link);
+    const huge = client.request("device.rename", { name: "x".repeat(17_000) });
     await expect(huge).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(f.written).toEqual([]);
   });
