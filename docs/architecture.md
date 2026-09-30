@@ -43,13 +43,13 @@ moves down a layer. `device/` has no React code except `DeviceProvider.tsx`.
 src/
   main.tsx
   app/
-    App.tsx               router + providers
-    routes.tsx
+    App.tsx               router (all routes) + providers
     TabLayout.tsx         bottom tab bar shell
+    UiGallery.tsx         /ui: living reference of every ui/ component
   ui/                     design system: token-driven, no business logic
-    tokens.css            imported from design/tokens.css
-    Button.tsx  Card.tsx  Switch.tsx  Sheet.tsx  Stepper.tsx
-    ListRow.tsx  StatusPill.tsx  WaterRing.tsx  EmptyState.tsx
+    base.css              imports design/tokens.css + bundled fonts
+    Screen.tsx  Button.tsx  IconButton.tsx  Card.tsx  Switch.tsx  Sheet.tsx
+    Stepper.tsx  ListRow.tsx  StatusPill.tsx  WaterRing.tsx  EmptyState.tsx
   device/
     link.ts               Link interface + LinkKind
     links/
