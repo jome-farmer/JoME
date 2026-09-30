@@ -54,7 +54,8 @@ desktop bench tool in Chrome.
 npm start            # dev server (web). Use Demo mode or desktop Chrome for BLE/USB
 npm run build        # type-check + production build to dist/
 npm run lint
-npm test             # vitest (from Phase 1)
+npm test             # vitest
+npm run format       # prettier (CI runs format:check)
 npx cap sync         # copy web build + plugins into native projects
 npx cap open ios     # / android
 ```
