@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">JoME</string>
+    <string name="title_activity_main">JoME</string>
+    <string name="package_name">ir.jomefarmer.jome</string>
+    <string name="custom_url_scheme">ir.jomefarmer.jome</string>
+</resources>

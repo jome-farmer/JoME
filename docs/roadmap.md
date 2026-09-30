@@ -14,7 +14,7 @@ branches merged into `develop`.
 
 ## Phase 1 — Foundation
 
-- Upgrade Capacitor, add `android/` and `ios/` projects, with `appId` `ir.jomefarmer.jome`
+- Upgrade to Capacitor 8, add `android/` and `ios/` projects, with `appId` `ir.jomefarmer.jome`
 - Remove PrimeReact, PrimeIcons and Font Awesome. Add the `ui/` components from
   the design system.
 - Set up the app shell: routes, tab layout, `DeviceProvider`, `mockLink`, Demo mode
@@ -55,4 +55,4 @@ branches merged into `develop`.
    backend. Do we add JoME accounts, or use per-device tokens? Remote control over
    the internet depends on the same answer.
 5. **Agent API.** See the open questions in [assistant.md](assistant.md#open-questions-for-the-agent-team).
-6. **Minimum OS versions.** Proposal: iOS 15+, Android 8 (API 26)+.
+6. ~~**Minimum OS versions.**~~ Resolved: iOS 15+ and Android 7 (API 24)+, Capacitor 8's defaults.
