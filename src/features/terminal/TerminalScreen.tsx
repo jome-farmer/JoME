@@ -15,6 +15,7 @@ import { errorText } from "../../device/errors";
 import { parseTerminalCommand } from "./commands";
 import { terminalBanner } from "./banner";
 import { formatWifiState } from "./status";
+import { formatZones } from "./zones";
 
 const BAUD_RATES = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600];
 const LINK_LABEL: Record<LinkKind, string> = {
@@ -108,6 +109,23 @@ export function TerminalScreen() {
                 dir: "rx",
                 kind: "log",
                 text: formatWifiState(status.wifi),
+                id: nextId.current++,
+                at: Date.now(),
+              },
+            ]),
+          );
+        },
+        (err: unknown) => setSendError(errorText(err)),
+      );
+    } else if (parsed.command.cmd === "zones.list") {
+      client.request("zones.list", {}).then(
+        ({ zones }) => {
+          setLines((ls) =>
+            appendCapped(ls, [
+              {
+                dir: "rx",
+                kind: "log",
+                text: formatZones(zones),
                 id: nextId.current++,
                 at: Date.now(),
               },
