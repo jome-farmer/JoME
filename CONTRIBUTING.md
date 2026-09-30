@@ -27,13 +27,28 @@ dev server in desktop Chrome or Edge. Web Bluetooth and Web Serial work there.
 3. **Check** with lint, tests, a build, and the relevant items of
    [docs/testing-hardware.md](docs/testing-hardware.md).
 
+## Issues and tasks
+
+Every change starts from a GitHub issue. Issues are grouped into milestones
+per [roadmap](docs/roadmap.md) phase and labelled by area (`area:ui`,
+`area:device`, `area:assistant`, `area:native`, `area:tooling`). `blocked`
+means the issue is waiting on an outside answer.
+
+1. Pick an open issue in the earliest open milestone and assign it to yourself.
+2. Create `feature/<issue-number>-<short-slug>` from an up-to-date `develop`,
+   for example `feature/9-protocol-core`.
+3. Open a PR into `develop` that contains `Closes #<issue-number>`.
+4. A maintainer reviews and merges. Authors don't merge their own PRs.
+
+Found something outside the issue's scope? Open a new issue for it.
+
 ## Branching (gitflow)
 
 | Branch | From | Merges into | Purpose |
 |---|---|---|---|
 | `main` | — | — | Released code only. Each merge is tagged `vX.Y.Z`. |
 | `develop` | `main` | — | Integration branch for the next release |
-| `feature/<short-name>` | `develop` | `develop` | New work, e.g. `feature/ble-link` |
+| `feature/<issue>-<short-name>` | `develop` | `develop` | New work, e.g. `feature/11-ble-link` |
 | `release/<X.Y.Z>` | `develop` | `main` **and** `develop` | Freeze, bump versions, fix bugs only |
 | `hotfix/<X.Y.Z>` | `main` | `main` **and** `develop` | Urgent fix to a released version |
 
