@@ -24,10 +24,16 @@ The board exposes a single bidirectional byte stream. The app sees it as a
 | TX (board → app) | `6E400003-B5A3-F393-E0A9-E50E24DCCA9E` | notify |
 
 - Advertised name: `JoME-<last 4 of serial>`, for example `JoME-0001`.
-- The app requests MTU 247 and splits writes to `MTU − 3` bytes.
+- The app splits writes to `MTU − 3` bytes. Android requests the largest MTU
+  automatically. iOS negotiates its own. Web Bluetooth can't read the MTU, so
+  it uses 20-byte writes.
+- Writes use *write with response*, so the board can't silently drop a chunk.
 - **Security:** Wi‑Fi credentials travel over this link, so the board requires
-  LE Secure Connections bonding with a 6-digit passkey. The passkey is printed
-  on the device label and encoded in its QR code (see §4).
+  LE Secure Connections bonding with a 6-digit passkey on its characteristics.
+  The passkey is printed on the device label and encoded in its QR code (see §4).
+  The **operating system** asks for it in its own pairing dialog the first time
+  the app touches the service. Apps can't fill in that dialog, so the app shows
+  the passkey (from the QR code) for the user to type.
 
 We chose NUS because it is the de-facto BLE "serial port". Generic BLE
 terminal apps (nRF Connect, Serial Bluetooth Terminal) can talk to the board
@@ -128,9 +134,10 @@ jome://pair?s=JM-2024-0001&k=483920
 ```
 
 `s` is the serial number, which the app uses to find the matching BLE
-advertisement. `k` is the BLE passkey. Scanning the QR code is a shortcut. A
-user without a camera, or on desktop, picks the device from the scan list and
-types the passkey.
+advertisement. `k` is the BLE passkey, which the app shows large while the
+system pairing dialog is open. Scanning the QR code is a shortcut. A user
+without a camera, or on desktop, picks the device from the scan list and reads
+the passkey from the label.
 
 ## Open questions for firmware
 

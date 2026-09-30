@@ -17,7 +17,9 @@ export function ConnectionBanner() {
   if (state === "lost" || (state === "idle" && error)) {
     return (
       <Bar tone="danger" action={{ label: "Retry", onClick: retry }}>
-        {error ?? `Connection to ${name} lost.`}
+        {state === "lost" && linkKind === "ble"
+          ? `Connection to ${name} lost. Reconnecting…`
+          : (error ?? `Connection to ${name} lost.`)}
       </Bar>
     );
   }

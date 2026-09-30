@@ -3,6 +3,8 @@ export type LinkKind = "ble" | "usb" | "mock";
 /** A bidirectional byte stream to the board. BLE, USB and Mock all implement it. */
 export interface Link {
   readonly kind: LinkKind;
+  /** Transport-specific id of the peer, e.g. the BLE device id, remembered for reconnecting. */
+  readonly peerId?: string;
   open(): Promise<void>;
   close(): Promise<void>;
   write(bytes: Uint8Array): Promise<void>;

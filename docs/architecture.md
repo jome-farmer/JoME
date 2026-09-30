@@ -54,7 +54,7 @@ src/
   device/
     link.ts               Link interface + LinkKind
     links/
-      bleLink.ts          @capacitor-community/bluetooth-le (native + Web Bluetooth)
+      bleLink.ts          @capacitor-community/bluetooth-le (native + Web Bluetooth); scan / browser chooser
       webSerialLink.ts    desktop Chrome/Edge
       androidUsbLink.ts   bridge to the local UsbSerial Capacitor plugin
       mockLink.ts         simulated board (dev, tests, demo mode)
@@ -114,11 +114,13 @@ On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
 
 On an unexpected close it moves to `lost` and the banner offers *Retry*.
 `connect` takes a link **factory**, so *Retry* re-creates the same kind of link.
-Automatic BLE reconnect with backoff (1 s, 2 s, 5 s, then every 10 s, while
-the app is in the foreground) arrives with the BLE link (#11).
+A dropped **BLE** link also reconnects automatically with backoff (1 s, 2 s,
+5 s, then every 10 s, `device/backoff.ts`). It only tries while the app is
+visible, and a manual disconnect stops it.
 
 On launch the provider reconnects to the most recent known device
-(`lib/storage.ts`). *Exit demo* also forgets the demo device, so the next
+(`lib/storage.ts`). Native apps reconnect to BLE devices by their saved
+`bleDeviceId`. Browsers can't, because Web Bluetooth needs a tap first. *Exit demo* also forgets the demo device, so the next
 launch starts disconnected.
 
 ### Which links appear on which platform
