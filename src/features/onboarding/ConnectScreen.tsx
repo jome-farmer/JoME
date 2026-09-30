@@ -57,7 +57,11 @@ export function ConnectScreen() {
   useEffect(() => {
     if (!started.current || device.state !== "ready") return;
     // Two boards can share the last 4 serial digits; make sure it's the one on the label.
-    if (pairing && device.info && device.info.serial !== pairing.serial) {
+    if (
+      pairing &&
+      device.info &&
+      device.info.serial.toLowerCase() !== pairing.serial.toLowerCase()
+    ) {
       void device.disconnect();
       setError(
         `That was ${device.info.serial}, but the label says ${pairing.serial}. Move closer to the right controller and scan again.`,

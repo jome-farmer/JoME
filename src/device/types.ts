@@ -23,8 +23,11 @@ export type Zone = {
   /** Id the board assigns. */
   zone: number;
   name: string;
-  /** Valve output this zone drives, 1 … valveCount. One zone per valve. */
-  valve: number;
+  /**
+   * Valve output this zone drives, 1 … valveCount. One zone per valve.
+   * Planned (SHamBE#19): firmware v1 omits it, and the zone number is the valve.
+   */
+  valve?: number;
   enabled: boolean;
   defaultSeconds: number;
 };
@@ -68,7 +71,10 @@ export type Commands = {
   "wifi.scan": [Empty, { networks: WifiNetwork[] }];
   "wifi.set": [{ ssid: string; password: string }, Empty];
   "zones.list": [Empty, { zones: Zone[] }];
-  "zone.create": [Omit<Zone, "zone" | "enabled">, { zone: number }];
+  "zone.create": [
+    { name: string; valve: number; defaultSeconds: number },
+    { zone: number },
+  ];
   "zone.update": [Partial<Omit<Zone, "zone">> & { zone: number }, Empty];
   "zone.delete": [{ zone: number }, Empty];
   "zone.run": [{ zone: number; seconds: number }, Empty];

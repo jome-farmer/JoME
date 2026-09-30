@@ -12,7 +12,7 @@ import {
   Square,
   type LucideIcon,
 } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { supports, useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { formatDuration, whenLabel } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -25,6 +25,7 @@ import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { greeting, todayRuns } from "./today";
 import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
+import { errorText } from "../../device/errors";
 
 const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },
@@ -69,7 +70,7 @@ export function HomeScreen() {
 }
 
 function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
-  const { client } = useDevice();
+  const { client, info } = useDevice();
   const navigate = useNavigate();
   const { status, zones, programs, run, remaining, now, error, refresh } =
     useGarden(client);
@@ -101,9 +102,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
         await client.request("zone.stop", { zone: run.zone });
       else await client.request("stop.all", {});
     } catch (e) {
-      setActionError(
-        `Couldn't stop the water. ${e instanceof Error ? e.message : String(e)}`,
-      );
+      setActionError(`Couldn't stop the water. ${errorText(e)}`);
     } finally {
       setBusy(undefined);
     }
@@ -212,6 +211,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
           tone="warn"
           label="Rain delay"
           onClick={() => setRainOpen(true)}
+          disabled={!supports(info, "rain.delay")}
         />
         <QuickAction
           icon={Square}
@@ -269,7 +269,12 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
           onClose={() => setRainOpen(false)}
           until={rainUntil}
           onSet={async (hours) => {
-            await client.request("rain.delay", { hours });
+            // The sheet lives in ui/ and can't see device errors, so hand it plain words.
+            await client
+              .request("rain.delay", { hours })
+              .catch((e: unknown) => {
+                throw new Error(errorText(e));
+              });
             await refresh();
           }}
         />

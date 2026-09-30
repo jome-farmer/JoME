@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
-import type { Zone } from "../../device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Sheet } from "../../ui/Sheet";
@@ -9,11 +8,16 @@ import { TextField } from "../../ui/TextField";
 import { ValvePicker } from "./ValvePicker";
 import { firstFreeValve, type ValveOption } from "./valves";
 import styles from "./ZonesScreen.module.css";
+import { errorText } from "../../device/errors";
 
 type Props = {
   options: ValveOption[];
   onClose: () => void;
-  onCreate: (zone: Omit<Zone, "zone" | "enabled">) => Promise<unknown>;
+  onCreate: (zone: {
+    name: string;
+    valve: number;
+    defaultSeconds: number;
+  }) => Promise<unknown>;
 };
 
 /** Mockup 5b: name the zone, pick the valve it's wired to, set its usual run time. */
@@ -36,7 +40,7 @@ export function AddZoneSheet({ options, onClose, onCreate }: Props) {
       await onCreate({ name: trimmed, valve, defaultSeconds: minutes * 60 });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(errorText(err));
       setSaving(false);
     }
   };

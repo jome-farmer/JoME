@@ -23,7 +23,13 @@ export type Plan =
     }
   | { ok: false; code: string; message: string };
 
-type Ctx = { zones: Zone[]; programs: Program[]; now: Date };
+type Ctx = {
+  zones: Zone[];
+  programs: Program[];
+  now: Date;
+  /** Only boards with zone.create (SHamBE#19) can move a zone to another valve. */
+  canMoveValve?: boolean;
+};
 
 const MAX_RUN_MIN = 60;
 const MAX_DELAY_H = 168;
@@ -95,7 +101,7 @@ const TOOLS: Record<string, Planner> = {
       tier: "act",
       water: true,
       summary: `Run ${z.name} for ${minutes(seconds)}`,
-      detail: `Valve ${z.valve}. You can stop it any time.`,
+      detail: `Valve ${z.valve ?? z.zone}. You can stop it any time.`,
       run: (c) => c.request("zone.run", { zone: z.zone, seconds }),
     };
   },
@@ -144,6 +150,11 @@ const TOOLS: Record<string, Planner> = {
       changes.push(a.enabled ? "turn on" : "turn off");
     }
     if (a.valve !== undefined) {
+      if (!ctx.canMoveValve)
+        throw new Refuse(
+          "UNKNOWN_CMD",
+          "This controller can't move a zone to another valve",
+        );
       const valve = int(a.valve, "Valve", 1, 64);
       const owner = ctx.zones.find(
         (x) => x.valve === valve && x.zone !== z.zone,
@@ -154,7 +165,7 @@ const TOOLS: Record<string, Planner> = {
           `Valve ${valve} is used by ${owner.name}`,
         );
       patch.valve = valve;
-      changes.push(`valve ${z.valve} → ${valve}`);
+      changes.push(`valve ${z.valve ?? z.zone} → ${valve}`);
     }
     if (!changes.length) throw bad("Nothing to change");
     return {

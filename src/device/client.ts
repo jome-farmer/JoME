@@ -26,6 +26,8 @@ export type TrafficLine = {
   text: string;
 };
 
+/** Longest message line the board accepts, without the newline (protocol §2). */
+export const MAX_LINE_BYTES = 1024;
 const DEFAULT_TIMEOUT = 5_000;
 const TIMEOUTS: Partial<Record<Command, number>> = { "wifi.scan": 15_000 };
 
@@ -81,7 +83,11 @@ export class DeviceClient {
     });
     this.send(JSON.stringify({ id, cmd, args })).catch((err: unknown) => {
       this.settle(id, (p) =>
-        p.reject(new DeviceError("LINK_CLOSED", String(err))),
+        p.reject(
+          err instanceof DeviceError
+            ? err
+            : new DeviceError("LINK_CLOSED", String(err)),
+        ),
       );
     });
     return result;
@@ -111,6 +117,15 @@ export class DeviceClient {
   }
 
   private send(text: string): Promise<void> {
+    // The board drops longer lines without answering (protocol §2), which would look like a timeout.
+    if (new TextEncoder().encode(text).length > MAX_LINE_BYTES) {
+      return Promise.reject(
+        new DeviceError(
+          "BAD_REQUEST",
+          `Message is over ${MAX_LINE_BYTES} bytes`,
+        ),
+      );
+    }
     this.emitLine({
       dir: "tx",
       kind: text.startsWith("{") ? "msg" : "log",

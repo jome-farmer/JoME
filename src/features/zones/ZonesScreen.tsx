@@ -12,9 +12,10 @@ import { Screen } from "../../ui/Screen";
 import { StatusPill } from "../../ui/StatusPill";
 import { zoneSummary } from "./summary";
 import { AddZoneSheet } from "./AddZoneSheet";
-import { valveCountOf, valveOptions } from "./valves";
+import { valveOptions } from "./valves";
 import { ZoneSheet } from "./ZoneSheet";
 import styles from "./ZonesScreen.module.css";
+import { errorText } from "../../device/errors";
 
 /** Mockup 5: every zone, what it's doing, one big button to run or stop it. */
 export function ZonesScreen() {
@@ -41,7 +42,7 @@ export function ZonesScreen() {
 }
 
 function Connected() {
-  const { client, info } = useDevice();
+  const { client } = useDevice();
   const garden = useGarden(client);
   const { zones, run, remaining } = garden;
   const [open, setOpen] = useState<number | null>(null);
@@ -56,14 +57,14 @@ function Connected() {
       if (run?.zone === z.zone) await garden.stopZone(z.zone);
       else await garden.runZone(z.zone, z.defaultSeconds);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(undefined);
     }
   };
 
   const sheetZone = zones.find((z) => z.zone === open);
-  const valveCount = valveCountOf(info?.valveCount, zones);
+  const { valveCount } = garden;
   const loaded = garden.status !== undefined;
 
   return (
@@ -184,6 +185,7 @@ function Connected() {
           onUpdate={(p) => garden.updateZone(sheetZone.zone, p)}
           onDelete={() => garden.deleteZone(sheetZone.zone)}
           valves={valveOptions(valveCount, zones, sheetZone.zone)}
+          canMoveValve={garden.canMoveValve}
         />
       )}
     </Screen>

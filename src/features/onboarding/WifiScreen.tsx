@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Lock, RefreshCw, Wifi } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
@@ -10,10 +16,9 @@ import { StatusPill } from "../../ui/StatusPill";
 import { TextField } from "../../ui/TextField";
 import { SignalBars } from "./SignalBars";
 import { StepDots } from "./StepDots";
-import { networkList, passwordProblem } from "./wifi";
+import { networkList, passwordProblem, wifiFailureText } from "./wifi";
 import styles from "./Onboarding.module.css";
-
-const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
+import { errorText } from "../../device/errors";
 
 /** Setup step 3 (mockup 3): put the board on Wi‑Fi. Networks come from the board's own scan. */
 /**
@@ -35,6 +40,8 @@ export function WifiScreen({
   const [password, setPassword] = useState("");
   const [touched, setTouched] = useState(false);
   const [join, setJoin] = useState<WifiState>();
+  // Firmware v1 sends "connecting" (and sometimes "failed") without an ssid, so remember what we asked for.
+  const asked = useRef<string | undefined>(undefined);
   const [error, setError] = useState<string>();
 
   const scan = useCallback(async () => {
@@ -45,7 +52,7 @@ export function WifiScreen({
       const { networks } = await client.request("wifi.scan", {});
       setNetworks(networkList(networks));
     } catch (e) {
-      setError(`JoME couldn't scan for networks. ${message(e)}`);
+      setError(`JoME couldn't scan for networks. ${errorText(e)}`);
     } finally {
       setScanning(false);
     }
@@ -59,7 +66,8 @@ export function WifiScreen({
     );
     void scan();
     // The outcome of wifi.set arrives as events.
-    return client.on("wifi.state", (w) => {
+    return client.on("wifi.state", (e) => {
+      const w = { ...e, ssid: e.ssid ?? asked.current };
       setJoin(w);
       if (w.state === "connected") setCurrent(w);
     });
@@ -77,6 +85,7 @@ export function WifiScreen({
     setTouched(true);
     if (!selected || problem) return;
     setError(undefined);
+    asked.current = selected.ssid;
     setJoin({ state: "connecting", ssid: selected.ssid });
     try {
       await client.request("wifi.set", {
@@ -85,7 +94,7 @@ export function WifiScreen({
       });
     } catch (err) {
       setJoin(undefined);
-      setError(`Couldn't send the network to JoME. ${message(err)}`);
+      setError(`Couldn't send the network to JoME. ${errorText(err)}`);
     }
   };
 
@@ -193,7 +202,7 @@ export function WifiScreen({
             {joined
               ? `Connected · ${join.ip ?? join.ssid}`
               : join.state === "failed"
-                ? `Couldn't join. ${join.reason ?? "Check the password and try again."}`
+                ? wifiFailureText(join.reason)
                 : `Connecting to ${join.ssid}…`}
           </StatusPill>
         )}

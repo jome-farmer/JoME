@@ -1,19 +1,11 @@
-import type { Zone } from "../../device/types";
+import type { GardenZone } from "../../device/useGarden";
 
 export type ValveOption = { valve: number; takenBy?: string };
-
-/** Boards that don't report valveCount: assume 8, or more if zones already use higher valves. */
-export function valveCountOf(
-  reported: number | undefined,
-  zones: Zone[],
-): number {
-  return reported ?? Math.max(8, ...zones.map((z) => z.valve));
-}
 
 /** Every valve 1…count, with the name of the zone using it. `self` doesn't count as taken. */
 export function valveOptions(
   count: number,
-  zones: Zone[],
+  zones: GardenZone[],
   self?: number,
 ): ValveOption[] {
   return Array.from({ length: count }, (_, i) => {

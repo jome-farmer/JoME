@@ -129,6 +129,14 @@ describe("DeviceClient", () => {
     ]);
   });
 
+  it("refuses a message over 1024 bytes instead of letting the board drop it", async () => {
+    const f = fakeLink();
+    const client = new DeviceClient(f.link);
+    const huge = client.request("device.rename", { name: "x".repeat(1100) });
+    await expect(huge).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(f.written).toEqual([]);
+  });
+
   it("writes one line at a time even if the link is slow", async () => {
     const f = fakeLink();
     const order: string[] = [];
