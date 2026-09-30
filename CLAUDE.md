@@ -25,6 +25,7 @@ desktop bench tool in Chrome.
 | Design principles, components, screens, copy | [design/README.md](design/README.md), [design/mockups.html](design/mockups.html) |
 | Colours, type, spacing, motion | [design/tokens.css](design/tokens.css) (never hard-code these) |
 | Branching, commits, PRs | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Web deploy (app.jome-farmer.ir, from `develop`) | [docs/deployment.md](docs/deployment.md) |
 
 ## Rules that are easy to get wrong
 
