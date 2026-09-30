@@ -14,6 +14,7 @@ import styles from "./TerminalScreen.module.css";
 import { errorText } from "../../device/errors";
 import { parseTerminalCommand } from "./commands";
 import { terminalBanner } from "./banner";
+import { formatWifiState } from "./status";
 
 const BAUD_RATES = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600];
 const LINK_LABEL: Record<LinkKind, string> = {
@@ -97,6 +98,23 @@ export function TerminalScreen() {
             at: Date.now(),
           },
         ]),
+      );
+    } else if (parsed.command.cmd === "status") {
+      client.request("status", {}).then(
+        (status) => {
+          setLines((ls) =>
+            appendCapped(ls, [
+              {
+                dir: "rx",
+                kind: "log",
+                text: formatWifiState(status.wifi),
+                id: nextId.current++,
+                at: Date.now(),
+              },
+            ]),
+          );
+        },
+        (err: unknown) => setSendError(errorText(err)),
       );
     } else {
       client
