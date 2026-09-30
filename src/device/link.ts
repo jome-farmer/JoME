@@ -5,6 +5,8 @@ export interface Link {
   readonly kind: LinkKind;
   /** Transport-specific id of the peer, e.g. the BLE device id, remembered for reconnecting. */
   readonly peerId?: string;
+  /** Serial links only: the UART speed in use. */
+  readonly baudRate?: number;
   open(): Promise<void>;
   close(): Promise<void>;
   write(bytes: Uint8Array): Promise<void>;

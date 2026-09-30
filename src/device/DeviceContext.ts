@@ -12,6 +12,8 @@ export type DeviceContextValue = {
   /** Set only when `ready`. */
   client?: DeviceClient;
   linkKind?: LinkKind;
+  /** USB links only. */
+  baudRate?: number;
   /** Plain-language reason for the last failed connect or unexpected drop. */
   error?: string;
   connectDemo(): Promise<void>;
@@ -21,6 +23,8 @@ export type DeviceContextValue = {
   connectWebSerial(port: SerialPort, baudRate?: number): Promise<void>;
   /** Android app: a deviceId from listUsbSerial(). */
   connectAndroidUsb(deviceId: number, baudRate?: number): Promise<void>;
+  /** USB links only: reconnect the same port at another speed. */
+  setBaudRate(baudRate: number): Promise<void>;
   /** Reconnect with the same kind of link as last time. */
   retry(): Promise<void>;
   /** `forget` also removes it from known devices, so it won't reconnect on next launch. */

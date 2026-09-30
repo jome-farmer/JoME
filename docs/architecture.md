@@ -71,7 +71,7 @@ src/
     schedule/             programs list + editor
     assistant/            chat, action cards, tool runner (device tools → DeviceClient)
     device/               device info, link, firmware, rain delay
-    terminal/             serial terminal (any link)
+    terminal/             serial terminal (any link): /device/terminal, 2000-line buffer, baud selector for USB
   lib/
     storage.ts            @capacitor/preferences wrapper (known devices)
     platform.ts           isIOS / isAndroid / hasWebSerial …
@@ -147,7 +147,7 @@ launch starts disconnected.
 ```
 /welcome → /connect → /setup/wifi → /setup/name          (first run)
 / (tabs)  home · zones · assistant · schedule · device
-/device/terminal
+/device/terminal         full screen, outside the tab layout
 ```
 
 The first launch goes to `/welcome`. After that the app opens on the Home tab

@@ -1,0 +1,154 @@
+/* Always dark: a terminal reads best light-on-dark in both themes (design/README.md screen 11). */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  height: 100%;
+  padding-block: calc(var(--s-3) + env(safe-area-inset-top, 0px))
+    calc(var(--s-3) + env(safe-area-inset-bottom, 0px));
+  padding-inline: calc(var(--s-4) + env(safe-area-inset-left, 0px))
+    calc(var(--s-4) + env(safe-area-inset-right, 0px));
+  background: var(--console-bg);
+  color: var(--console-ink);
+  color-scheme: dark;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--console-ink);
+}
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--console-raised);
+  color: var(--console-ink);
+  cursor: pointer;
+}
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+:dir(rtl) .iconBtn:first-child svg {
+  transform: scaleX(-1);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--console-raised);
+  color: var(--console-ink);
+  font: 600 var(--text-xs) var(--font-mono);
+  cursor: pointer;
+}
+.on {
+  background: var(--console-active);
+  color: var(--console-rx);
+}
+.baud {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.console {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  user-select: text;
+}
+.console p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.tx {
+  color: var(--console-tx);
+}
+.rx {
+  color: var(--console-rx);
+}
+.ts {
+  color: var(--console-dim);
+  margin-inline-end: 6px;
+}
+.hint {
+  color: var(--console-dim);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+.error {
+  margin: 0;
+  color: var(--console-tx);
+  font-size: var(--text-sm);
+}
+
+.inputBar {
+  display: flex;
+  gap: var(--s-2);
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  padding-inline: var(--s-3);
+  border: 1px solid var(--console-line);
+  border-radius: var(--r-sm);
+  background: var(--console-raised);
+  color: var(--console-ink);
+  font: 16px var(--font-mono); /* 16px stops iOS zooming into the field */
+}
+.input::placeholder {
+  color: var(--console-dim);
+}
+.send {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+}
+.send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+:dir(rtl) .send svg {
+  transform: scaleX(-1);
+}
+/* The global focus ring is dark ink; it would vanish on the dark console. */
+.screen :focus-visible {
+  outline-color: var(--console-rx);
+}

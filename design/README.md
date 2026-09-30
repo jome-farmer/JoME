@@ -95,7 +95,7 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | 8 | **Assistant — chat** | The conversation. Tool traces, source chips and action cards appear in the flow, in the order they happened. A header menu has *New chat*. |
 | 9 | **Schedule** | Programs as cards: name, days (7 day-chips), start time, total duration, enable switch. The editor is a full-screen sheet with days, start time and an ordered list of zone steps. |
 | 10 | **Device** | Device card (name, serial in mono, firmware, link type). Rows: Wi‑Fi, Rain delay, Appearance (theme), **Serial terminal**, Forget device. |
-| 11 | **Terminal** | Dark mono console, even in light theme. Log lines in `ink-2`, protocol JSON dimmed (toggle *Show protocol*). Input bar with Send. Link chip (BLE/USB). Baud selector for USB only. Clear and Copy buttons. |
+| 11 | **Terminal** | Opens from Device, full screen with no tab bar. The console is dark in both themes. Firmware logs are plain, board protocol lines are mint (←), and lines the app sends are **amber** (→); blue is reserved for water. Chips: link (Bluetooth, USB with a baud selector, or Demo), *Protocol* and *Timestamps* toggles, *Clear*. Copy is in the header. The input bar sends text as typed. It follows new output unless you scroll up, and keeps the last 2,000 lines. |
 
 ## Flows
 
