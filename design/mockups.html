@@ -253,20 +253,23 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-  <symbol id="i-mascot" viewBox="20 16 216 212">
-    <rect x="30" y="140" width="24" height="52" rx="12" fill="#1E88E5"/><rect x="202" y="140" width="24" height="52" rx="12" fill="#1E88E5"/>
-    <rect x="58" y="100" width="140" height="126" rx="40" fill="#F4F7F5" stroke="#0F3D2B" stroke-width="9"/>
-    <rect x="80" y="136" width="96" height="58" rx="26" fill="#0F3D2B"/>
-    <ellipse cx="106" cy="165" rx="9" ry="13" fill="#4CE08A"/><ellipse cx="150" cy="165" rx="9" ry="13" fill="#4CE08A"/>
-    <circle cx="110" cy="158" r="3.5" fill="#fff"/><circle cx="154" cy="158" r="3.5" fill="#fff"/>
-    <path d="M108 208Q128 222 148 208" stroke="#0F3D2B" stroke-width="9" stroke-linecap="round" fill="none"/>
-    <path d="M128 46V64" stroke="#0F3D2B" stroke-width="8" stroke-linecap="round"/>
-    <path d="M128 52C128 28 146 18 170 20C170 44 152 56 128 52Z" fill="#2FA860"/>
-    <path d="M128 56C128 40 116 32 98 34C98 50 112 60 128 56Z" fill="#8FDCA8"/>
-    <path d="M70 112C70 76 98 62 128 62C158 62 186 76 186 112Z" fill="#F4B942" stroke="#0F3D2B" stroke-width="9" stroke-linejoin="round"/>
-    <path d="M71 84H185L186 112H70Z" fill="#14703F"/>
-    <ellipse cx="128" cy="114" rx="100" ry="15" fill="#F4B942" stroke="#0F3D2B" stroke-width="9"/>
-  </symbol>
+  <!-- verbatim copy of public/logo/symbol.svg; do not edit here -->
+  <symbol id="i-mascot" viewBox="0 0 256 256"><defs><clipPath id="f"><rect x="58" y="100" width="140" height="126" rx="40"/></clipPath></defs>
+<rect x="30" y="140" width="24" height="52" rx="12" fill="#1E88E5"/><rect x="202" y="140" width="24" height="52" rx="12" fill="#1E88E5"/>
+<rect x="58" y="100" width="140" height="126" rx="40" fill="#F4F7F5"/>
+<rect x="58" y="100" width="140" height="40" fill="#D5E0DA" clip-path="url(#f)"/>
+<rect x="58" y="100" width="140" height="126" rx="40" fill="none" stroke="#0F3D2B" stroke-width="9"/>
+<rect x="80" y="136" width="96" height="58" rx="26" fill="#0F3D2B"/>
+<ellipse cx="106" cy="165" rx="9" ry="13" fill="#4CE08A"/><ellipse cx="150" cy="165" rx="9" ry="13" fill="#4CE08A"/>
+<circle cx="110" cy="158" r="3.5" fill="#fff"/><circle cx="154" cy="158" r="3.5" fill="#fff"/>
+<path d="M108 208Q128 222 148 208" stroke="#0F3D2B" stroke-width="9" stroke-linecap="round" fill="none"/>
+<path d="M128 46V64" stroke="#0F3D2B" stroke-width="8" stroke-linecap="round"/>
+<path d="M128 52C128 28 146 18 170 20C170 44 152 56 128 52Z" fill="#2FA860"/>
+<path d="M128 56C128 40 116 32 98 34C98 50 112 60 128 56Z" fill="#8FDCA8"/>
+<path d="M70 112C70 76 98 62 128 62C158 62 186 76 186 112Z" fill="#F4B942" stroke="#0F3D2B" stroke-width="9" stroke-linejoin="round"/>
+<path d="M71 84H185L186 112H70Z" fill="#14703F"/>
+
+<ellipse cx="128" cy="114" rx="108" ry="16" fill="#F4B942" stroke="#0F3D2B" stroke-width="9"/></symbol>
 </svg>
 
 <div class="wrap">
@@ -293,7 +296,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <div class="screen welcome">
           <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
           <div class="hero-mascot">
-            <div class="mascot-bg"><svg viewBox="20 16 216 212" role="img" aria-label="JoME mascot"><use href="#i-mascot"/></svg></div>
+            <div class="mascot-bg"><svg viewBox="0 0 256 256" role="img" aria-label="JoME mascot"><use href="#i-mascot"/></svg></div>
             <div>
               <h2>Hi, I'm JoME</h2>
               <p>your gardener</p>
@@ -397,7 +400,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab on"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
@@ -435,7 +438,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab on"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
@@ -450,7 +453,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <div class="sbar"><span>18:14</span><span>●●● ▮</span></div>
         <div class="screen">
           <div class="row between">
-            <div class="ai-id"><div class="av"><svg viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></div><h3 class="title">Ask JoME</h3></div>
+            <div class="ai-id"><div class="av"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></div><h3 class="title">Ask JoME</h3></div>
             <button class="iconbtn" aria-label="New chat"><svg class="i"><use href="#i-plus"/></svg></button>
           </div>
           <span class="ctx" style="align-self:flex-start"><svg class="i sm"><use href="#i-sprout"/></svg>Looking at Front garden · 6 zones</span>
@@ -470,7 +473,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab on"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab on"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
@@ -506,7 +509,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab on"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab on"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
@@ -539,7 +542,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab on"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
@@ -555,7 +558,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
           <h3 class="title">Device</h3>
           <div class="card" style="display:grid;gap:var(--s-3)">
             <div class="devcard">
-              <div class="m"><svg viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></div>
+              <div class="m"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></div>
               <div class="grow"><b style="font-size:var(--text-lg)">Front garden</b><div class="mono" style="font-size:var(--text-xs);color:var(--ink-2);margin-top:2px">JM-2024-0001</div></div>
             </div>
             <div class="kv">
@@ -574,7 +577,7 @@ figcaption span { font-size: var(--text-xs); color: var(--ink-2); line-height: 1
         <nav class="tabbar">
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-home"/></svg></span>Home</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-sprout"/></svg></span>Zones</span>
-          <span class="tab"><span class="ic"><svg class="m" viewBox="20 16 216 212" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
+          <span class="tab"><span class="ic"><svg class="m" viewBox="0 0 256 256" aria-hidden="true"><use href="#i-mascot"/></svg></span>JoME</span>
           <span class="tab"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Schedule</span>
           <span class="tab on"><span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>Device</span>
         </nav>
