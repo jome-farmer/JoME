@@ -75,7 +75,7 @@ export function createMockLink(): Link {
     ip: "192.168.1.42",
   };
   let rainDelayUntil: number | null = null;
-  let running: { zone: number; remaining: number } | null = null;
+  let running: { zone: number; remaining: number; total: number } | null = null;
 
   const emit = (text: string) => {
     if (!open) return;
@@ -88,11 +88,43 @@ export function createMockLink(): Link {
     emit(JSON.stringify({ evt, data }));
   const now = () => Math.floor(Date.now() / 1000);
 
+  /** The earliest enabled program start after now, looking a week ahead, like the firmware's scheduler. */
+  const nextRun = (): Status["nextRun"] => {
+    const t = new Date();
+    for (let d = 0; d < 8; d++) {
+      const day = new Date(t.getFullYear(), t.getMonth(), t.getDate() + d);
+      const next = programs
+        .filter((p) => p.enabled && p.days.includes(day.getDay()))
+        .map((p) => {
+          const [h, m] = p.start.split(":").map(Number);
+          return {
+            p,
+            at: new Date(
+              day.getFullYear(),
+              day.getMonth(),
+              day.getDate(),
+              h,
+              m,
+            ),
+          };
+        })
+        .filter((c) => c.at > t)
+        .sort((a, b) => a.at.getTime() - b.at.getTime())[0];
+      if (next)
+        return {
+          program: next.p.id ?? 0,
+          name: next.p.name,
+          at: Math.floor(next.at.getTime() / 1000),
+        };
+    }
+    return null;
+  };
+
   const status = (): Status => ({
     wifi,
     rainDelayUntil,
     running: running ? [{ ...running }] : [],
-    nextRun: { program: 2, name: "Evening", at: now() + 3 * 3600 },
+    nextRun: nextRun(),
   });
 
   const stopZone = (zone: number) => {
@@ -111,6 +143,7 @@ export function createMockLink(): Link {
         zone: running.zone,
         state: "watering",
         remaining: running.remaining,
+        total: running.total,
       });
   };
 
@@ -180,12 +213,13 @@ export function createMockLink(): Link {
         throw new Fail("BAD_REQUEST", "Run time must be 1 s to 60 min");
       if (running && running.zone !== z.zone)
         throw new Fail("ZONE_BUSY", `Zone ${running.zone} is running`);
-      running = { zone: z.zone, remaining: seconds };
+      running = { zone: z.zone, remaining: seconds, total: seconds };
       log("I", "valve", `zone ${z.zone} OPEN`);
       event("zone.state", {
         zone: z.zone,
         state: "watering",
         remaining: seconds,
+        total: seconds,
       });
       return {};
     },

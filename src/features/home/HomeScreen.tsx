@@ -1,50 +1,303 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Plug } from "lucide-react";
+import {
+  Bluetooth,
+  Cable,
+  CalendarPlus,
+  CloudRain,
+  Droplet,
+  FlaskConical,
+  Play,
+  Plug,
+  Square,
+  type LucideIcon,
+} from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
+import type { LinkKind } from "../../device/link";
+import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { Screen } from "../../ui/Screen";
+import { StatusPill } from "../../ui/StatusPill";
+import { WaterRing } from "../../ui/WaterRing";
+import { RainDelaySheet } from "./RainDelaySheet";
+import { greeting, todayRuns, whenLabel } from "./today";
+import { useHomeData } from "./useHomeData";
 import styles from "./HomeScreen.module.css";
 
-// Status hero, quick actions and today's timeline arrive in #18.
+const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
+  ble: { label: "Bluetooth", icon: Bluetooth },
+  usb: { label: "USB", icon: Cable },
+  mock: { label: "Demo", icon: FlaskConical },
+};
+
+/** Status first (design/README.md screen 5): what's watering, what runs next, what ran today. */
 export function HomeScreen() {
-  const { state, info, connectDemo } = useDevice();
+  const { state, info, client, linkKind, connectDemo } = useDevice();
   const navigate = useNavigate();
 
-  if (state === "ready" && info) {
+  if (state !== "ready" || !info || !client || !linkKind) {
     return (
-      <Screen eyebrow="Connected" title={info.name}>
-        <EmptyState title="Home screen is on its way">
-          Try the Device tab for controller details. Zones and the live watering
-          view arrive next.
+      <Screen title="Home">
+        <EmptyState
+          title="No controller connected"
+          action={
+            <div className={styles.actions}>
+              <Button icon={Plug} onClick={() => navigate("/connect")}>
+                Connect a controller
+              </Button>
+              <Button
+                variant="ghost"
+                icon={Play}
+                onClick={connectDemo}
+                loading={state === "connecting"}
+              >
+                Try the demo
+              </Button>
+            </div>
+          }
+        >
+          Pair your JoME over Bluetooth or a USB cable, or explore with the
+          simulated demo controller.
         </EmptyState>
       </Screen>
     );
   }
 
+  return <Connected name={info.name} linkKind={linkKind} />;
+}
+
+function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
+  const { client } = useDevice();
+  const navigate = useNavigate();
+  const { status, zones, programs, run, remaining, now, error, refresh } =
+    useHomeData(client);
+  const [rainOpen, setRainOpen] = useState(false);
+  const [busy, setBusy] = useState<"stop" | "stopAll">();
+  const [actionError, setActionError] = useState<string>();
+
+  const date = new Date(now);
+  const today = todayRuns(programs, date);
+  const zoneName = (zone: number) =>
+    zones.find((z) => z.zone === zone)?.name ?? `Zone ${zone}`;
+  const rainUntil =
+    status?.rainDelayUntil && status.rainDelayUntil * 1000 > now
+      ? status.rainDelayUntil
+      : null;
+  const startedBy = run
+    ? today.find(
+        (r) =>
+          r.state === "now" && r.program.steps.some((s) => s.zone === run.zone),
+      )?.program.name
+    : undefined;
+
+  const act = async (kind: "stop" | "stopAll") => {
+    if (!client) return;
+    setBusy(kind);
+    setActionError(undefined);
+    try {
+      if (kind === "stop" && run)
+        await client.request("zone.stop", { zone: run.zone });
+      else await client.request("stop.all", {});
+    } catch (e) {
+      setActionError(
+        `Couldn't stop the water. ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setBusy(undefined);
+    }
+  };
+
+  const Link = LINK[linkKind];
+
   return (
-    <Screen title="Home">
-      <EmptyState
-        title="No controller connected"
-        action={
-          <div className={styles.actions}>
-            <Button icon={Plug} onClick={() => navigate("/connect")}>
-              Connect a controller
-            </Button>
+    <Screen
+      eyebrow={greeting(date.getHours())}
+      title={name}
+      actions={
+        <StatusPill tone="ok" icon={Link.icon}>
+          {Link.label}
+        </StatusPill>
+      }
+    >
+      {(error || actionError) && (
+        <p className={styles.error} role="alert">
+          {actionError ?? `Couldn't read JoME's status. ${error}`}
+        </p>
+      )}
+
+      <Card hero className={styles.hero}>
+        {run ? (
+          <>
+            <div className={styles.heroRow}>
+              <WaterRing remaining={remaining} total={run.total} />
+              <div className={styles.heroText}>
+                <StatusPill tone="flow" icon={Droplet}>
+                  Watering
+                </StatusPill>
+                <b className={styles.big}>{zoneName(run.zone)}</b>
+                <span className={styles.meta}>
+                  Zone {run.zone} ·{" "}
+                  {startedBy ? `${startedBy} program` : "Started by hand"}
+                </span>
+              </div>
+            </div>
             <Button
-              variant="ghost"
-              icon={Play}
-              onClick={connectDemo}
-              loading={state === "connecting"}
+              variant="danger"
+              icon={Square}
+              block
+              loading={busy === "stop"}
+              onClick={() => void act("stop")}
             >
-              Try the demo
+              Stop watering
             </Button>
-          </div>
-        }
-      >
-        Pair your JoME over Bluetooth or a USB cable, or explore with the
-        simulated demo controller.
-      </EmptyState>
+          </>
+        ) : rainUntil ? (
+          <>
+            <StatusPill tone="warn" icon={CloudRain}>
+              Rain delay
+            </StatusPill>
+            <b className={styles.big}>
+              Paused until {whenLabel(rainUntil, date)}
+            </b>
+            <span className={styles.meta}>
+              Programs skip their runs until then.
+            </span>
+            <Button variant="secondary" onClick={() => setRainOpen(true)}>
+              Change or cancel
+            </Button>
+          </>
+        ) : status?.nextRun ? (
+          <>
+            <StatusPill tone="idle">Idle</StatusPill>
+            <span className={styles.label}>Next watering</span>
+            <b className={styles.big}>
+              {status.nextRun.name} · {whenLabel(status.nextRun.at, date)}
+            </b>
+            <span className={styles.meta}>
+              in {formatDuration(status.nextRun.at - now / 1000)}
+            </span>
+          </>
+        ) : status ? (
+          <>
+            <StatusPill tone="idle">Idle</StatusPill>
+            <b className={styles.big}>Nothing scheduled</b>
+            <span className={styles.meta}>
+              Add a program and JoME waters on its own.
+            </span>
+            <Button
+              variant="secondary"
+              icon={CalendarPlus}
+              onClick={() => navigate("/schedule")}
+            >
+              Create a program
+            </Button>
+          </>
+        ) : (
+          <StatusPill tone="idle" live>
+            Checking JoME…
+          </StatusPill>
+        )}
+      </Card>
+
+      <div className={styles.quick}>
+        <QuickAction
+          icon={Play}
+          label="Run a zone"
+          onClick={() => navigate("/zones")}
+        />
+        <QuickAction
+          icon={CloudRain}
+          tone="warn"
+          label="Rain delay"
+          onClick={() => setRainOpen(true)}
+        />
+        <QuickAction
+          icon={Square}
+          tone="danger"
+          label="Stop all"
+          onClick={() => void act("stopAll")}
+          disabled={!run || busy === "stopAll"}
+        />
+      </div>
+
+      <section className={styles.section}>
+        <h2 className={styles.label}>Today</h2>
+        {today.length === 0 ? (
+          <p className={styles.meta}>No programs run today.</p>
+        ) : (
+          <ol className={styles.timeline}>
+            {today.map((r) => {
+              const flowing =
+                r.state === "now" &&
+                run &&
+                r.program.steps.some((s) => s.zone === run.zone);
+              return (
+                <li
+                  key={r.program.id ?? r.program.name}
+                  className={styles[r.state]}
+                >
+                  <time className={styles.time}>{r.start}</time>
+                  <span
+                    className={`${styles.node} ${flowing ? styles.flowing : ""}`}
+                    aria-hidden
+                  />
+                  <span className={styles.what}>
+                    <b>{r.program.name}</b> ·{" "}
+                    {r.program.steps.length === 1
+                      ? zoneName(r.program.steps[0].zone)
+                      : `${r.program.steps.length} zones`}
+                  </span>
+                  <span className={styles.when}>
+                    {r.state === "now"
+                      ? "Now"
+                      : r.state === "done"
+                        ? "Done"
+                        : formatDuration(r.seconds)}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
+
+      {client && (
+        <RainDelaySheet
+          open={rainOpen}
+          onClose={() => setRainOpen(false)}
+          client={client}
+          until={rainUntil}
+          onChanged={() => void refresh()}
+        />
+      )}
     </Screen>
+  );
+}
+
+function QuickAction({
+  icon: Icon,
+  label,
+  onClick,
+  tone,
+  disabled,
+}: {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+  tone?: "warn" | "danger";
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.qa} ${tone ? styles[tone] : ""}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <Icon size={22} strokeWidth={1.75} aria-hidden />
+      {label}
+    </button>
   );
 }
