@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatClock, formatDuration } from "./format";
+import { formatClock, formatDuration, whenLabel } from "./format";
 
 describe("formatDuration", () => {
   it.each([
@@ -27,5 +27,19 @@ describe("formatClock", () => {
     [9.9, "0:09"],
   ])("%i s → %s", (input, expected) => {
     expect(formatClock(input)).toBe(expected);
+  });
+});
+
+describe("whenLabel", () => {
+  const now = new Date(2026, 8, 30, 18, 10); // Wednesday
+  const at = (d: Date) => d.getTime() / 1000;
+  it("says today, tomorrow, or the weekday", () => {
+    expect(whenLabel(at(new Date(2026, 8, 30, 21, 30)), now)).toBe(
+      "today 21:30",
+    );
+    expect(whenLabel(at(new Date(2026, 9, 1, 6, 0)), now)).toBe(
+      "tomorrow 06:00",
+    );
+    expect(whenLabel(at(new Date(2026, 9, 2, 6, 0)), now)).toBe("Friday 06:00");
   });
 });

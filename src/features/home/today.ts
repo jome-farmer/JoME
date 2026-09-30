@@ -36,25 +36,3 @@ export function greeting(hour: number): string {
   if (hour >= 17 && hour < 22) return "Good evening";
   return "Good night";
 }
-
-const WEEKDAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-/** Epoch seconds → "today 18:00", "tomorrow 06:00", "Friday 06:00". */
-export function whenLabel(at: number, now: Date): string {
-  const d = new Date(at * 1000);
-  const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  const startOf = (x: Date) =>
-    new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const days = Math.round((startOf(d) - startOf(now)) / 86_400_000);
-  const day =
-    days === 0 ? "today" : days === 1 ? "tomorrow" : WEEKDAYS[d.getDay()];
-  return `${day} ${hhmm}`;
-}

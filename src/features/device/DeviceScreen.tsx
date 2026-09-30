@@ -1,20 +1,31 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bluetooth,
   Cable,
+  Check,
+  CloudRain,
   FlaskConical,
   LogOut,
   Play,
   Plug,
   SquareTerminal,
+  SunMoon,
+  Trash2,
+  Wifi,
 } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
+import { useGarden } from "../../device/useGarden";
+import { whenLabel } from "../../lib/format";
+import { applyTheme, loadTheme, saveTheme, type Theme } from "../../lib/theme";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { List, ListRow } from "../../ui/ListRow";
+import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { Screen } from "../../ui/Screen";
+import { Sheet } from "../../ui/Sheet";
 import styles from "./DeviceScreen.module.css";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
@@ -22,10 +33,15 @@ const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
   usb: { label: "USB cable", icon: Cable },
   mock: { label: "Demo (simulated)", icon: FlaskConical },
 };
+const THEMES: { value: Theme; label: string }[] = [
+  { value: "system", label: "Match phone" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
 
-// Wi‑Fi, rain delay and appearance rows arrive in #21.
+/** Design screen 10: the controller card, then the occasional settings. */
 export function DeviceScreen() {
-  const { state, info, linkKind, connectDemo, disconnect } = useDevice();
+  const { state, info, linkKind, connectDemo } = useDevice();
   const navigate = useNavigate();
 
   if (state !== "ready" || !info || !linkKind) {
@@ -54,8 +70,35 @@ export function DeviceScreen() {
       </Screen>
     );
   }
+  return <Connected />;
+}
 
+function Connected() {
+  const { info, linkKind, client, disconnect } = useDevice();
+  const navigate = useNavigate();
+  const garden = useGarden(client);
+  const [theme, setTheme] = useState<Theme>("system");
+  const [sheet, setSheet] = useState<"rain" | "theme">();
+  const [confirmForget, setConfirmForget] = useState(false);
+
+  useEffect(() => {
+    void loadTheme().then(setTheme);
+  }, []);
+
+  if (!info || !linkKind || !client) return null;
   const demo = linkKind === "mock";
+  const now = new Date(garden.now);
+  const wifi = garden.status?.wifi;
+  const until = garden.status?.rainDelayUntil;
+  const rainUntil = until && until * 1000 > garden.now ? until : null;
+
+  const chooseTheme = (t: Theme) => {
+    setTheme(t);
+    applyTheme(t);
+    void saveTheme(t);
+    setSheet(undefined);
+  };
+
   return (
     <Screen title="Device">
       <Card className={styles.card}>
@@ -73,10 +116,46 @@ export function DeviceScreen() {
           </div>
           <div>
             <dt>Zones</dt>
-            <dd>{info.zoneCount}</dd>
+            <dd>
+              {garden.zones.length}
+              {info.valveCount ? ` of ${info.valveCount} valves` : ""}
+            </dd>
           </div>
         </dl>
       </Card>
+
+      <List>
+        <ListRow
+          icon={Wifi}
+          title="Wi‑Fi"
+          trailing={
+            wifi?.state === "connected"
+              ? wifi.ssid
+              : wifi
+                ? "Not connected"
+                : "…"
+          }
+          onClick={() => navigate("/device/wifi")}
+        />
+        <ListRow
+          icon={CloudRain}
+          title="Rain delay"
+          trailing={rainUntil ? `Until ${whenLabel(rainUntil, now)}` : "Off"}
+          onClick={() => setSheet("rain")}
+        />
+        <ListRow
+          icon={SunMoon}
+          title="Appearance"
+          trailing={THEMES.find((t) => t.value === theme)?.label}
+          onClick={() => setSheet("theme")}
+        />
+        <ListRow
+          icon={SquareTerminal}
+          title="Serial terminal"
+          onClick={() => navigate("/device/terminal")}
+        />
+      </List>
+
       <List>
         <ListRow
           icon={LINK[linkKind].icon}
@@ -84,17 +163,79 @@ export function DeviceScreen() {
           trailing={LINK[linkKind].label}
         />
         <ListRow
-          icon={SquareTerminal}
-          title="Serial terminal"
-          onClick={() => navigate("/device/terminal")}
-        />
-        <ListRow
           icon={LogOut}
           title={demo ? "Exit demo" : "Disconnect"}
-          tone="danger"
-          onClick={() => disconnect({ forget: demo })}
+          onClick={() => void disconnect({ forget: demo })}
         />
+        {!demo && (
+          <ListRow
+            icon={Trash2}
+            title="Forget this device"
+            tone="danger"
+            onClick={() => setConfirmForget(true)}
+          />
+        )}
       </List>
+
+      {confirmForget && (
+        <div
+          className={styles.confirm}
+          role="alertdialog"
+          aria-label="Forget device"
+        >
+          <p>
+            <b>Forget {info.name}?</b> The app stops reconnecting to it. Its
+            zones and programs stay on the controller, and you can pair it again
+            later.
+          </p>
+          <div className={styles.confirmActions}>
+            <Button variant="secondary" onClick={() => setConfirmForget(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              icon={Trash2}
+              onClick={async () => {
+                await disconnect({ forget: true });
+                navigate("/welcome", { replace: true });
+              }}
+            >
+              Forget
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <RainDelaySheet
+        open={sheet === "rain"}
+        onClose={() => setSheet(undefined)}
+        until={rainUntil}
+        onSet={async (hours) => {
+          await client.request("rain.delay", { hours });
+          await garden.refresh();
+        }}
+      />
+      <Sheet
+        open={sheet === "theme"}
+        onClose={() => setSheet(undefined)}
+        title="Appearance"
+      >
+        <List>
+          {THEMES.map((t) => (
+            <ListRow
+              key={t.value}
+              icon={SunMoon}
+              title={t.label}
+              trailing={
+                t.value === theme ? (
+                  <Check size={20} aria-label="Selected" />
+                ) : undefined
+              }
+              onClick={() => chooseTheme(t.value)}
+            />
+          ))}
+        </List>
+      </Sheet>
     </Screen>
   );
 }

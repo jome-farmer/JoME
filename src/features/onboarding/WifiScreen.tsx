@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Check, Lock, RefreshCw, Wifi } from "lucide-react";
+import { ArrowLeft, Check, Lock, RefreshCw, Wifi } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import type { WifiNetwork, WifiState } from "../../device/types";
 import { Button } from "../../ui/Button";
@@ -16,7 +16,16 @@ import styles from "./Onboarding.module.css";
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /** Setup step 3 (mockup 3): put the board on Wi‑Fi. Networks come from the board's own scan. */
-export function WifiScreen() {
+/**
+ * `setup`: onboarding step 3, continues to Name.
+ * `settings`: from the Device tab (/device/wifi), goes back when done.
+ */
+export function WifiScreen({
+  mode = "setup",
+}: {
+  mode?: "setup" | "settings";
+}) {
+  const setup = mode === "setup";
   const navigate = useNavigate();
   const { state, client } = useDevice();
   const [networks, setNetworks] = useState<WifiNetwork[]>();
@@ -90,8 +99,16 @@ export function WifiScreen() {
   return (
     <main className={styles.page}>
       <div className={styles.topBar}>
-        <span className={styles.spacer} />
-        <StepDots step={2} />
+        {setup ? (
+          <span className={styles.spacer} />
+        ) : (
+          <IconButton
+            icon={ArrowLeft}
+            label="Back"
+            onClick={() => navigate(-1)}
+          />
+        )}
+        {setup ? <StepDots step={2} /> : <span />}
         <IconButton
           icon={RefreshCw}
           label="Scan again"
@@ -100,7 +117,9 @@ export function WifiScreen() {
         />
       </div>
       <div>
-        <h1 className={styles.title}>Put JoME on Wi‑Fi</h1>
+        <h1 className={styles.title}>
+          {setup ? "Put JoME on Wi‑Fi" : "Wi‑Fi"}
+        </h1>
         <p className={styles.sub}>
           JoME found these networks from where it's installed.
         </p>
@@ -185,9 +204,9 @@ export function WifiScreen() {
               type="button"
               size="lg"
               block
-              onClick={() => navigate("/setup/name")}
+              onClick={() => (setup ? navigate("/setup/name") : navigate(-1))}
             >
-              Continue
+              {setup ? "Continue" : "Done"}
             </Button>
           ) : (
             <Button
@@ -200,7 +219,7 @@ export function WifiScreen() {
               Join network
             </Button>
           )}
-          {!joined && !alreadyOn && (
+          {setup && !joined && !alreadyOn && (
             <Button
               type="button"
               variant="ghost"

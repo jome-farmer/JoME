@@ -1,7 +1,8 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "../ui/base.css";
 import { DeviceProvider } from "../device/DeviceProvider";
+import { applyTheme, loadTheme } from "../lib/theme";
 import { FirstRunRedirect } from "./FirstRunRedirect";
 import { Splash } from "./Splash";
 import { TabLayout } from "./TabLayout";
@@ -20,6 +21,11 @@ import { NameScreen } from "../features/onboarding/NameScreen";
 const UiGallery = lazy(() => import("./UiGallery"));
 
 export function App() {
+  // The Appearance choice from the Device tab; "system" until one is saved.
+  useEffect(() => {
+    void loadTheme().then(applyTheme);
+  }, []);
+
   return (
     <DeviceProvider>
       <BrowserRouter>
@@ -37,6 +43,7 @@ export function App() {
           <Route path="setup/wifi" element={<WifiScreen />} />
           <Route path="setup/name" element={<NameScreen />} />
           <Route path="device/terminal" element={<TerminalScreen />} />
+          <Route path="device/wifi" element={<WifiScreen mode="settings" />} />
           <Route path="schedule/:id" element={<ProgramEditor />} />
           <Route
             path="ui"

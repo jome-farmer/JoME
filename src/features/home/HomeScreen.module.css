@@ -154,9 +154,3 @@
   color: var(--ink);
   font-weight: 700;
 }
-
-.sheetText {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--ink-2);
-}
