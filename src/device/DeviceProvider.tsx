@@ -19,7 +19,7 @@ import { createWebSerialLink } from "./links/webSerialLink";
 
 type Snapshot = Pick<
   DeviceContextValue,
-  "state" | "info" | "client" | "linkKind" | "error"
+  "state" | "info" | "client" | "linkKind" | "baudRate" | "error"
 >;
 type Active = { link: Link; client: DeviceClient };
 
@@ -72,7 +72,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
           bleDeviceId: link.kind === "ble" ? link.peerId : undefined,
           lastSeen: Date.now(),
         });
-        setSnap({ state: "ready", info, client, linkKind: link.kind });
+        setSnap({
+          state: "ready",
+          info,
+          client,
+          linkKind: link.kind,
+          baudRate: link.baudRate,
+        });
       } catch (e) {
         await teardown();
         await link.close().catch(() => {});
@@ -101,16 +107,32 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [connect],
   );
 
+  // The open serial port, re-openable at another speed (terminal baud selector).
+  const serial = useRef<((baudRate?: number) => Link) | null>(null);
+  const connectSerial = useCallback(
+    (make: (baudRate?: number) => Link, baudRate?: number) => {
+      serial.current = make;
+      return connect(() => make(baudRate));
+    },
+    [connect],
+  );
   const connectWebSerial = useCallback(
     (port: SerialPort, baudRate?: number) =>
-      connect(() => createWebSerialLink(port, baudRate)),
-    [connect],
+      connectSerial((b) => createWebSerialLink(port, b), baudRate),
+    [connectSerial],
+  );
+  const setBaudRate = useCallback(
+    async (baudRate: number) => {
+      const make = serial.current;
+      if (make && snap.linkKind === "usb") await connect(() => make(baudRate));
+    },
+    [connect, snap.linkKind],
   );
 
   const connectAndroidUsb = useCallback(
     (deviceId: number, baudRate?: number) =>
-      connect(() => createAndroidUsbLink(deviceId, baudRate)),
-    [connect],
+      connectSerial((b) => createAndroidUsbLink(deviceId, b), baudRate),
+    [connectSerial],
   );
 
   // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
@@ -164,6 +186,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectBle,
       connectWebSerial,
       connectAndroidUsb,
+      setBaudRate,
       retry,
       disconnect,
     }),
@@ -173,6 +196,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectBle,
       connectWebSerial,
       connectAndroidUsb,
+      setBaudRate,
       retry,
       disconnect,
     ],

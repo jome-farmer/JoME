@@ -1,4 +1,12 @@
-import { Bluetooth, Cable, FlaskConical, LogOut, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Bluetooth,
+  Cable,
+  FlaskConical,
+  LogOut,
+  Play,
+  SquareTerminal,
+} from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { Button } from "../../ui/Button";
@@ -19,6 +27,7 @@ const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
 // Wi‑Fi, rain delay, appearance and the terminal rows arrive in #21 and #14.
 export function DeviceScreen() {
   const { state, info, linkKind, connectDemo, disconnect } = useDevice();
+  const navigate = useNavigate();
 
   if (state !== "ready" || !info || !linkKind) {
     return (
@@ -72,6 +81,11 @@ export function DeviceScreen() {
           icon={LINK[linkKind].icon}
           title="Connection"
           trailing={LINK[linkKind].label}
+        />
+        <ListRow
+          icon={SquareTerminal}
+          title="Serial terminal"
+          onClick={() => navigate("/device/terminal")}
         />
         <ListRow
           icon={LogOut}

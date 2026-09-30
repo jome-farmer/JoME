@@ -55,6 +55,7 @@ export function createWebSerialLink(
 
   return {
     kind: "usb",
+    baudRate,
     async open() {
       await port.open({ baudRate });
       if (!port.readable) throw new Error("The serial port can't be read");

@@ -50,6 +50,15 @@
   --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-full: 999px;
   --tap: 48px;          /* min touch target */
   --knob: #ffffff;      /* switch knob, white in both themes like native switches */
+  /* Serial terminal: always dark, in both themes. tx is amber because blue means water. */
+  --console-bg: #08140e;
+  --console-ink: #cfe3d7;
+  --console-dim: #5f7d6c;
+  --console-rx: #8fdca8;
+  --console-tx: #f4d38a;
+  --console-raised: rgb(255 255 255 / 0.07);
+  --console-line: rgb(255 255 255 / 0.12);
+  --console-active: rgb(143 220 168 / 0.16);
 
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);

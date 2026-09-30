@@ -76,6 +76,7 @@ export function createAndroidUsbLink(
   return {
     kind: "usb",
     peerId: String(deviceId),
+    baudRate,
     async open() {
       // Listen first so no bytes the board sends right after opening are lost.
       handles = await Promise.all([

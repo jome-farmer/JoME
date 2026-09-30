@@ -8,6 +8,7 @@ import { ZonesScreen } from "../features/zones/ZonesScreen";
 import { AssistantScreen } from "../features/assistant/AssistantScreen";
 import { ScheduleScreen } from "../features/schedule/ScheduleScreen";
 import { DeviceScreen } from "../features/device/DeviceScreen";
+import { TerminalScreen } from "../features/terminal/TerminalScreen";
 
 const UiGallery = lazy(() => import("./UiGallery"));
 
@@ -23,6 +24,7 @@ export function App() {
             <Route path="schedule" element={<ScheduleScreen />} />
             <Route path="device" element={<DeviceScreen />} />
           </Route>
+          <Route path="device/terminal" element={<TerminalScreen />} />
           <Route
             path="ui"
             element={
