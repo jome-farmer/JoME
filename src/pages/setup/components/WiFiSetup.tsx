@@ -16,7 +16,7 @@ interface WiFiNetwork {
   strength: "high" | "medium" | "low" | "none";
 }
 
-const WiFiSetup = ({ onNext, onBack }: WiFiSetupProps) => {
+const WiFiSetup = ({ onNext }: WiFiSetupProps) => {
   const defaultNetwork: WiFiNetwork = {
     name: "Select your network",
     strength: "none",
@@ -74,8 +74,6 @@ const WiFiSetup = ({ onNext, onBack }: WiFiSetupProps) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setIsConnected(true);
-    } catch (error) {
-      // Handle error
     } finally {
       setIsConnecting(false);
     }

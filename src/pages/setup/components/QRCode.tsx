@@ -11,7 +11,7 @@ interface DeviceInfo {
   serialNumber: string;
 }
 
-const QRCode = ({ onNext, onBack }: QRCodeProps) => {
+const QRCode = ({ onNext }: QRCodeProps) => {
   const [scanned, setScanned] = useState(false);
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null);
 

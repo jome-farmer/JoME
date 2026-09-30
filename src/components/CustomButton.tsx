@@ -1,11 +1,12 @@
 import { Button } from 'primereact/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 import './CustomButton.css';
 
 interface CustomButtonProps {
     text?: string | null;
-    icon?: any;
+    icon?: IconDefinition | null;
     iconPosition?: 'left' | 'right';
     className?: string;
     severity?: "secondary" | "success" | "info" | "warning" | "danger" | "help" | "contrast";
