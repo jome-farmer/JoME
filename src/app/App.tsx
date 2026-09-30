@@ -11,6 +11,7 @@ import { AssistantScreen } from "../features/assistant/AssistantScreen";
 import { ScheduleScreen } from "../features/schedule/ScheduleScreen";
 import { DeviceScreen } from "../features/device/DeviceScreen";
 import { TerminalScreen } from "../features/terminal/TerminalScreen";
+import { ProgramEditor } from "../features/schedule/ProgramEditor";
 import { WelcomeScreen } from "../features/onboarding/WelcomeScreen";
 import { ConnectScreen } from "../features/onboarding/ConnectScreen";
 import { WifiScreen } from "../features/onboarding/WifiScreen";
@@ -36,6 +37,7 @@ export function App() {
           <Route path="setup/wifi" element={<WifiScreen />} />
           <Route path="setup/name" element={<NameScreen />} />
           <Route path="device/terminal" element={<TerminalScreen />} />
+          <Route path="schedule/:id" element={<ProgramEditor />} />
           <Route
             path="ui"
             element={

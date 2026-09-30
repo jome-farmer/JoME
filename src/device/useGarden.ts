@@ -146,6 +146,43 @@ export function useGarden(client: DeviceClient | undefined) {
     [client, refresh],
   );
 
+  /** Create (no id) or replace a program; the board may adjust it, so reload the list. */
+  const saveProgram = useCallback(
+    async (program: Program) => {
+      if (!client) throw new Error("Not connected");
+      const { id } = await client.request("program.save", program);
+      setPrograms((await client.request("programs.list", {})).programs);
+      return id;
+    },
+    [client],
+  );
+
+  const deleteProgram = useCallback(
+    async (id: number) => {
+      if (!client) throw new Error("Not connected");
+      await client.request("program.delete", { id });
+      setPrograms((ps) => ps.filter((p) => p.id !== id));
+    },
+    [client],
+  );
+
+  /** Optimistic on/off switch; rolls back if the board refuses. */
+  const setProgramEnabled = useCallback(
+    async (program: Program, enabled: boolean) => {
+      if (!client) throw new Error("Not connected");
+      const swap = (p: Program) => (ps: Program[]) =>
+        ps.map((x) => (x.id === p.id ? p : x));
+      setPrograms(swap({ ...program, enabled }));
+      try {
+        await client.request("program.save", { ...program, enabled });
+      } catch (e) {
+        setPrograms(swap(program));
+        throw e;
+      }
+    },
+    [client],
+  );
+
   const remaining = run
     ? Math.max(0, run.remaining - (now - run.at) / 1000)
     : 0;
@@ -164,5 +201,8 @@ export function useGarden(client: DeviceClient | undefined) {
     updateZone,
     createZone,
     deleteZone,
+    saveProgram,
+    deleteProgram,
+    setProgramEnabled,
   };
 }
