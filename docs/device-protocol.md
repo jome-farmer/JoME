@@ -73,7 +73,7 @@ Event, sent by the board without being asked (no `id`):
 |---|---|---|
 | `hello` | `{}` | `{proto, fw, hw, serial, name, zoneCount}` |
 | `time.set` | `{epoch, tz}` | `{}` (the app sends this on every connect because the board may lack an RTC) |
-| `status` | `{}` | `{wifi, rainDelayUntil, running: [{zone, remaining}], nextRun}` |
+| `status` | `{}` | `Status` (below) |
 | `wifi.scan` | `{}` | `{networks: [{ssid, rssi, secure}]}` |
 | `wifi.set` | `{ssid, password}` | `{}` (outcome arrives as `wifi.state` events) |
 | `zones.list` | `{}` | `{zones: [{zone, name, enabled, defaultSeconds}]}` |
@@ -84,7 +84,7 @@ Event, sent by the board without being asked (no `id`):
 | `programs.list` | `{}` | `{programs: [Program]}` |
 | `program.save` | `Program` | `{id}` |
 | `program.delete` | `{id}` | `{}` |
-| `rain.delay` | `{hours}` (0 clears it) | `{until}` |
+| `rain.delay` | `{hours}` (0 clears it) | `{until}` (epoch s, or `null` when cleared) |
 | `device.rename` | `{name}` | `{}` |
 
 ```ts
@@ -96,14 +96,24 @@ type Program = {
   start: string;           // "HH:MM", device local time
   steps: { zone: number; seconds: number }[]; // run in order
 };
+
+type Status = {
+  wifi: { state: "disconnected" | "connecting" | "connected" | "failed"; ssid?: string; ip?: string; reason?: string };
+  rainDelayUntil: number | null;                        // epoch seconds
+  running: { zone: number; remaining: number }[];       // remaining in seconds
+  nextRun: { program: number; name: string; at: number } | null; // at: epoch seconds
+};
 ```
+
+All times are **epoch seconds**. Durations are **seconds**. The app's
+TypeScript mirror of this section is `src/device/types.ts`.
 
 ### Events
 
 | `evt` | `data` |
 |---|---|
 | `zone.state` | `{zone, state: "idle" \| "watering" \| "disabled", remaining?}` |
-| `wifi.state` | `{state: "connecting" \| "connected" \| "failed", ssid, ip?, reason?}` |
+| `wifi.state` | `Status.wifi` |
 | `status` | same shape as the `status` response, sent on change |
 
 ### Error codes
