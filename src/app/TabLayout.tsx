@@ -6,6 +6,7 @@ import {
   Sprout,
   type LucideIcon,
 } from "lucide-react";
+import { ConnectionBanner } from "./ConnectionBanner";
 import styles from "./TabLayout.module.css";
 
 type Tab = { to: string; label: string; icon: LucideIcon | "mascot" };
@@ -21,6 +22,7 @@ const TABS: Tab[] = [
 export function TabLayout() {
   return (
     <div className={styles.layout}>
+      <ConnectionBanner />
       <div className={styles.content}>
         <Outlet />
       </div>

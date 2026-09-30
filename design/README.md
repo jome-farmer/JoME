@@ -70,7 +70,7 @@ Live reference: run the app and open **`/ui`** (also on https://app.jome-farmer.
 | `StatusPill` | Icon + word, soft fill: `Watering` (flow), `Idle` (surface-2), `Off` (ink-3), `Offline` (danger), `Rain delay` (warn). |
 | `WaterRing` | The signature element. A circular progress ring in `--flow` showing time left, with the minutes figure large in its centre. It animates smoothly each second. |
 | `Sheet` | Bottom sheet for zone actions and editors. Drag handle, 24 px top radius. |
-| `ConnectionBanner` | Slim bar under the header: `Reconnecting…` (warn) / `Connection lost · Retry` (danger). |
+| `ConnectionBanner` | Slim bar above every tab: `Connecting to …` (warn, pulsing dot), `Connection lost · Retry` or `Couldn't connect … · Retry` (danger), `Demo mode · simulated controller · Exit demo` (neutral). It is never a modal. |
 | `EmptyState` | Illustration (logo mascot), one sentence, one action. |
 | `TabBar` | 5 tabs: Home, Zones, **JoME** (assistant, centre, mascot icon), Schedule, Device. Icon and label always shown. The active tab is a leaf-coloured pill. |
 | `ChatMessage` | User messages are right-aligned leaf bubbles. Assistant messages are full-width text on the ground, with no bubble, so long answers read like a page. Text streams in. |
@@ -103,7 +103,7 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 First run:  Welcome → Connect ─┬─ QR → pair (passkey from QR) ─┐
                                ├─ pick device → passkey sheet ──┼→ Wi‑Fi → Name → Home
                                ├─ USB (Android/desktop) ────────┘
-                               └─ Try demo → Home (mock board, "Demo" pill in header)
+                               └─ Try demo → Home (mock board, "Demo mode" banner with Exit demo)
 Returning:  launch → Home (auto-reconnect to last device; banner while reconnecting)
 ```
 
