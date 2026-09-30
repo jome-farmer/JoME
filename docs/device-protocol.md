@@ -144,7 +144,8 @@ TypeScript mirror of this section is `src/device/types.ts`.
 A **valve** is a physical output on the board: a numbered terminal wired to a
 solenoid. A **zone** is what the gardener names and schedules ("Front lawn").
 Each zone drives exactly one valve, and each valve belongs to at most one zone,
-so there can be up to `valveCount` zones. The board rejects a `zone.create` or
+so there can be up to `valveCount` zones. (Decided: one valve per zone for
+now. Several valves per zone would be a protocol change.) The board rejects a `zone.create` or
 `zone.update` that would reuse a taken valve with `VALVE_IN_USE`, and a valve
 number outside `1 … valveCount` with `BAD_REQUEST`. Deleting a zone removes its
 steps from programs. A program left with no steps is disabled.
@@ -170,5 +171,4 @@ the passkey from the label.
   add a `WebSocketLink` with the same framing, and nothing above the link
   changes.
 - Can the board hold at least 16 zones and 8 programs in flash?
-- Should one zone ever drive **several valves** at once (a large lawn on two
-  valves), or valves be shared between zones? v1 assumes one valve per zone.
+

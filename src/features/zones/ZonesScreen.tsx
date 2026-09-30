@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Droplet, Play, Plug, Square } from "lucide-react";
+import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
 import type { Zone } from "../../device/types";
@@ -11,6 +11,8 @@ import { EmptyState } from "../../ui/EmptyState";
 import { Screen } from "../../ui/Screen";
 import { StatusPill } from "../../ui/StatusPill";
 import { zoneSummary } from "./summary";
+import { AddZoneSheet } from "./AddZoneSheet";
+import { valveCountOf, valveOptions } from "./valves";
 import { ZoneSheet } from "./ZoneSheet";
 import styles from "./ZonesScreen.module.css";
 
@@ -39,10 +41,11 @@ export function ZonesScreen() {
 }
 
 function Connected() {
-  const { client } = useDevice();
+  const { client, info } = useDevice();
   const garden = useGarden(client);
   const { zones, run, remaining } = garden;
   const [open, setOpen] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState<number>();
   const [error, setError] = useState<string>();
 
@@ -60,6 +63,8 @@ function Connected() {
   };
 
   const sheetZone = zones.find((z) => z.zone === open);
+  const valveCount = valveCountOf(info?.valveCount, zones);
+  const loaded = garden.status !== undefined;
 
   return (
     <Screen title="Zones">
@@ -68,6 +73,20 @@ function Connected() {
         <p className={styles.error} role="alert">
           {error ?? `Couldn't read zones. ${garden.error}`}
         </p>
+      )}
+
+      {loaded && zones.length === 0 && (
+        <EmptyState
+          title="No zones yet"
+          action={
+            <Button icon={Plus} onClick={() => setAdding(true)}>
+              Add your first zone
+            </Button>
+          }
+        >
+          Each zone is one valve on the controller. Name it after the part of
+          the garden it waters.
+        </EmptyState>
       )}
 
       <ul className={styles.list}>
@@ -92,9 +111,9 @@ function Connected() {
                 type="button"
                 className={styles.open}
                 onClick={() => setOpen(z.zone)}
-                aria-label={`${z.name}, zone ${z.zone}. Open settings`}
+                aria-label={`${z.name}, valve ${z.valve}. Open settings`}
               >
-                <span className={styles.zn}>ZONE {z.zone}</span>
+                <span className={styles.zn}>VALVE {z.valve}</span>
                 <span className={styles.name}>{z.name}</span>
                 <span className={styles.meta}>
                   {running ? (
@@ -135,6 +154,25 @@ function Connected() {
         })}
       </ul>
 
+      {zones.length > 0 && (
+        <button
+          type="button"
+          className={styles.addZone}
+          onClick={() => setAdding(true)}
+        >
+          <Plus size={20} aria-hidden />
+          Add zone
+        </button>
+      )}
+
+      {adding && (
+        <AddZoneSheet
+          options={valveOptions(valveCount, zones)}
+          onClose={() => setAdding(false)}
+          onCreate={garden.createZone}
+        />
+      )}
+
       {sheetZone && (
         <ZoneSheet
           key={sheetZone.zone}
@@ -144,6 +182,8 @@ function Connected() {
           onRun={(s) => garden.runZone(sheetZone.zone, s)}
           onStop={() => garden.stopZone(sheetZone.zone)}
           onUpdate={(p) => garden.updateZone(sheetZone.zone, p)}
+          onDelete={() => garden.deleteZone(sheetZone.zone)}
+          valves={valveOptions(valveCount, zones, sheetZone.zone)}
         />
       )}
     </Screen>
