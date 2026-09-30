@@ -5,6 +5,7 @@ import {
   FlaskConical,
   LogOut,
   Play,
+  Plug,
   SquareTerminal,
 } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
@@ -14,8 +15,6 @@ import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { List, ListRow } from "../../ui/ListRow";
 import { Screen } from "../../ui/Screen";
-import { BleConnect } from "./BleConnect";
-import { UsbConnect } from "./UsbConnect";
 import styles from "./DeviceScreen.module.css";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
@@ -24,7 +23,7 @@ const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
   mock: { label: "Demo (simulated)", icon: FlaskConical },
 };
 
-// Wi‑Fi, rain delay, appearance and the terminal rows arrive in #21 and #14.
+// Wi‑Fi, rain delay and appearance rows arrive in #21.
 export function DeviceScreen() {
   const { state, info, linkKind, connectDemo, disconnect } = useDevice();
   const navigate = useNavigate();
@@ -36,9 +35,11 @@ export function DeviceScreen() {
           title="No controller connected"
           action={
             <div className={styles.actions}>
-              <BleConnect />
-              <UsbConnect />
+              <Button icon={Plug} onClick={() => navigate("/connect")}>
+                Connect a controller
+              </Button>
               <Button
+                variant="ghost"
                 icon={Play}
                 onClick={connectDemo}
                 loading={state === "connecting" && linkKind === "mock"}
