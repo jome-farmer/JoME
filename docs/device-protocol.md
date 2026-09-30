@@ -38,13 +38,14 @@ same interface. Features never touch a link directly. They go through
 - `lineCodec.ts` splits bytes into lines. Lines starting with `{` are
   messages, and everything else is a log line for the terminal.
 - `client.ts` matches responses to requests by `id`, fans out events, and
-  times requests out (5 s, `wifi.scan` 15 s).
+  times requests out (5 s; 15 s for `wifi.scan`, `zones.list` and
+  `programs.list`, whose replies are long and queue behind others at startup).
 - `handshake.ts` runs on every connect: `hello` (refuses other `proto`), then
   `time.set` with the phone's clock and IANA zone.
 - Feature-detect optional actions with the required `hello.cmds` list rather
   than the firmware version. The connection refuses a board missing the app's
   baseline commands, and screens hide optional actions it does not list.
-- Messages over **1024 bytes** are refused in the app with `BAD_REQUEST`,
+- Messages over **16 KiB** are refused in the app with `BAD_REQUEST`,
   because the board drops them without answering (protocol §2).
 - People see the app's own words for each error `code` (`device/errors.ts`),
   never the board's English `message`. Unknown codes get a generic line.
@@ -70,4 +71,4 @@ changes.
   (`CLOCK_NOT_SET`), `device.reboot` drops the link, and Wi‑Fi failures use
   ESP-IDF reasons.
 - The Demo mode keeps one board per session, so a restart or reconnect keeps
-  your changes. *Exit demo* starts the next one fresh.
+  your changes. _Exit demo_ starts the next one fresh.
