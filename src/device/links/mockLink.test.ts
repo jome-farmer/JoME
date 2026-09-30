@@ -42,7 +42,7 @@ describe("mock board", () => {
 
     await ask(client.request("zone.run", { zone: 3, seconds: 3 }));
     const status = await ask(client.request("status", {}));
-    expect(status.running).toEqual([{ zone: 3, remaining: 3 }]);
+    expect(status.running).toEqual([{ zone: 3, remaining: 3, total: 3 }]);
 
     await vi.advanceTimersByTimeAsync(3_000);
     expect(states.map((s) => [s.state, s.remaining])).toEqual([
@@ -145,6 +145,14 @@ describe("mock board", () => {
         (l) => l.dir === "rx" && l.text.includes("unknown command 'help'"),
       ),
     ).toBe(true);
+  });
+
+  it("reports the next run from its enabled programs", async () => {
+    vi.setSystemTime(new Date(2026, 8, 30, 12, 0)); // Wednesday noon
+    const { client, ask } = await connected();
+    const { nextRun } = await ask(client.request("status", {}));
+    expect(nextRun?.name).toBe("Evening");
+    expect(new Date(nextRun!.at * 1000).getHours()).toBe(18);
   });
 
   it("stops talking after close", async () => {

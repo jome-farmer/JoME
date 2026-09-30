@@ -67,7 +67,7 @@ Response, sent by the board with the same `id`:
 Event, sent by the board without being asked (no `id`):
 
 ```json
-{"evt": "zone.state", "data": {"zone": 3, "state": "watering", "remaining": 598}}
+{"evt": "zone.state", "data": {"zone": 3, "state": "watering", "remaining": 598, "total": 600}}
 ```
 
 - `id` is an integer the app chooses, unique per open link.
@@ -106,19 +106,21 @@ type Program = {
 type Status = {
   wifi: { state: "disconnected" | "connecting" | "connected" | "failed"; ssid?: string; ip?: string; reason?: string };
   rainDelayUntil: number | null;                        // epoch seconds
-  running: { zone: number; remaining: number }[];       // remaining in seconds
+  running: { zone: number; remaining: number; total?: number }[]; // seconds; total = length of this run
   nextRun: { program: number; name: string; at: number } | null; // at: epoch seconds
 };
 ```
 
-All times are **epoch seconds**. Durations are **seconds**. The app's
+All times are **epoch seconds**. Durations are **seconds**. `total` is optional
+but boards should send it: without it, an app that connects mid-run can't
+show how much of the run is done. The app's
 TypeScript mirror of this section is `src/device/types.ts`.
 
 ### Events
 
 | `evt` | `data` |
 |---|---|
-| `zone.state` | `{zone, state: "idle" \| "watering" \| "disabled", remaining?}` |
+| `zone.state` | `{zone, state: "idle" \| "watering" \| "disabled", remaining?, total?}` |
 | `wifi.state` | `Status.wifi` |
 | `status` | same shape as the `status` response, sent on change |
 

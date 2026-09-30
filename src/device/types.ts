@@ -43,7 +43,8 @@ export type WifiState = {
 export type Status = {
   wifi: WifiState;
   rainDelayUntil: Epoch | null;
-  running: { zone: number; remaining: number }[];
+  /** Seconds. `total` is the length of this run (optional; older boards may omit it). */
+  running: { zone: number; remaining: number; total?: number }[];
   nextRun: { program: number; name: string; at: Epoch } | null;
 };
 
@@ -79,6 +80,7 @@ export type Events = {
     zone: number;
     state: "idle" | "watering" | "disabled";
     remaining?: number;
+    total?: number;
   };
   "wifi.state": WifiState;
   status: Status;
