@@ -21,18 +21,9 @@
   justify-items: center;
   gap: var(--s-5);
 }
-.mascotBg {
-  display: grid;
-  place-items: center;
-  width: 184px;
-  height: 184px;
-  border-radius: 50%;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
 .mascot {
-  width: 136px;
-  height: 136px;
+  width: 176px;
+  height: 176px;
 }
 .hello {
   margin: 0;

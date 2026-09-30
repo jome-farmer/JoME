@@ -18,9 +18,7 @@ export function WelcomeScreen() {
     <main className={`${styles.page} ${styles.welcome}`}>
       <StepDots step={0} />
       <div className={styles.hero}>
-        <div className={styles.mascotBg}>
-          <img src="/logo/symbol.svg" alt="" className={styles.mascot} />
-        </div>
+        <img src="/logo/symbol.svg" alt="" className={styles.mascot} />
         <div>
           <h1 className={styles.hello}>Hi, I'm JoME</h1>
           <p className={styles.tagline}>your gardener</p>
