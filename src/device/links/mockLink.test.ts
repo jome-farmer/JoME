@@ -68,10 +68,19 @@ describe("mock board", () => {
     expect((await ask(client.request("status", {}))).running).toEqual([]);
   });
 
+  it("lists its commands in hello.cmds", async () => {
+    const { client } = await connected();
+    const hello = client.request("hello", {});
+    await vi.advanceTimersByTimeAsync(100);
+    const { cmds } = await hello;
+    expect(cmds).toContain("zone.run");
+    expect(cmds).toEqual([...(cmds ?? [])].sort());
+  });
+
   it("refuses disabled zones, unknown zones and bad durations", async () => {
     const { client } = await connected();
     const cases = [
-      [client.request("zone.run", { zone: 6, seconds: 60 }), "BAD_REQUEST"],
+      [client.request("zone.run", { zone: 6, seconds: 60 }), "ZONE_DISABLED"],
       [client.request("zone.run", { zone: 42, seconds: 60 }), "NOT_FOUND"],
       [client.request("zone.run", { zone: 1, seconds: 0 }), "BAD_REQUEST"],
       [client.request("zone.run", { zone: 1, seconds: 3601 }), "BAD_REQUEST"],

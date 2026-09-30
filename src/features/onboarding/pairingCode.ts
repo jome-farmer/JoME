@@ -1,4 +1,4 @@
-/** What the QR label on a JoME controller encodes (docs/device-protocol.md §4). */
+/** What the QR label on a JoME controller encodes (jome-farmer/protocol §10). */
 export type PairingCode = { serial: string; passkey: string };
 
 const SERIAL = /^[A-Z0-9][A-Z0-9-]{2,30}[A-Z0-9]$/;

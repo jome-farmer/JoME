@@ -10,7 +10,7 @@ import {
 } from "../types";
 
 /**
- * An in-memory JoME board speaking protocol v1 (docs/device-protocol.md).
+ * An in-memory JoME board speaking protocol v1 (https://github.com/jome-farmer/protocol).
  * Used for Demo mode, development without hardware, and tests.
  * Like the real controller, it runs one zone at a time.
  */
@@ -213,6 +213,7 @@ export function createMockLink(): Link {
       name,
       zoneCount: zones.length,
       valveCount: VALVES,
+      cmds: Object.keys(handlers).sort(),
     }),
     "time.set": () => ({}),
     status,
@@ -278,7 +279,7 @@ export function createMockLink(): Link {
       const z = findZone(a.zone);
       const seconds = Number(a.seconds);
       if (!z.enabled)
-        throw new Fail("BAD_REQUEST", `Zone ${z.zone} is turned off`);
+        throw new Fail("ZONE_DISABLED", `Zone ${z.zone} is turned off`);
       if (!(seconds >= 1 && seconds <= 3600))
         throw new Fail("BAD_REQUEST", "Run time must be 1 s to 60 min");
       if (running && running.zone !== z.zone)
