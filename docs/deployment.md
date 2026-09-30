@@ -25,5 +25,17 @@ Deep links such as `/zones` work because the workflow copies `index.html` to
 
 ## Mobile
 
-iOS and Android builds are released through the stores from `release/*`. See
+iOS and Android builds are released through the stores from `release/*`. CI
+builds both native projects on every PR (the `android` and `ios` jobs in
+`ci.yml`).
+
+Icons and splash screens are generated from `assets/logo.png`, which is
+`public/logo/symbol.svg` rendered at 1024 px with safe padding:
+
+```bash
+npx @capacitor/assets generate --ios --android \
+  --iconBackgroundColor '#f4f7f5' --iconBackgroundColorDark '#0a1811' \
+  --splashBackgroundColor '#f4f7f5' --splashBackgroundColorDark '#0a1811' \
+  --logoSplashScale 0.5
+``` See
 [CONTRIBUTING.md](../CONTRIBUTING.md#releasing).

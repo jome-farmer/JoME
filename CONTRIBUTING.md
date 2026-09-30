@@ -5,7 +5,10 @@ and [design/README.md](design/README.md) before your first PR.
 
 ## Setup
 
-Requirements: Node 20 LTS or newer, Xcode (iOS), Android Studio + JDK 17 (Android).
+Requirements: Node 22 or newer, Xcode 16+ with an iOS simulator runtime (iOS),
+Android Studio + JDK 21 (Android).
+
+Supported devices: **iOS 15+** and **Android 7 (API 24)+**, which are Capacitor 8's defaults.
 
 ```bash
 npm install
