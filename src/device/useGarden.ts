@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { DeviceClient } from "./client";
 import { useDevice } from "./DeviceContext";
 import type { Program, Status, Zone } from "./types";
@@ -32,6 +32,7 @@ export function useGarden(client: DeviceClient | undefined) {
   const [run, setRun] = useState<Run | null>(null);
   const [error, setError] = useState<string>();
   const [now, setNow] = useState(() => Date.now());
+  const refreshedClient = useRef<DeviceClient | undefined>(undefined);
 
   const applyStatus = useCallback((s: Status) => {
     setStatus(s);
@@ -66,7 +67,12 @@ export function useGarden(client: DeviceClient | undefined) {
 
   useEffect(() => {
     if (!client) return;
-    void refresh();
+    // StrictMode re-runs effects without remounting component state. Keep the
+    // initial three-request refresh from being sent twice to the controller.
+    if (refreshedClient.current !== client) {
+      refreshedClient.current = client;
+      void refresh();
+    }
     const offs = [
       client.on("status", applyStatus),
       client.on("zone.state", (e) => {
