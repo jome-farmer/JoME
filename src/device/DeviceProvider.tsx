@@ -13,6 +13,7 @@ import { handshake } from "./handshake";
 import type { Link } from "./link";
 import { reconnectDelay } from "./backoff";
 import { canScanInApp, createBleLink } from "./links/bleLink";
+import { createAndroidUsbLink } from "./links/androidUsbLink";
 import { createMockLink } from "./links/mockLink";
 import { createWebSerialLink } from "./links/webSerialLink";
 
@@ -106,6 +107,12 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [connect],
   );
 
+  const connectAndroidUsb = useCallback(
+    (deviceId: number, baudRate?: number) =>
+      connect(() => createAndroidUsbLink(deviceId, baudRate)),
+    [connect],
+  );
+
   // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
   const attempts = useRef(0);
   useEffect(() => {
@@ -156,10 +163,19 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       connectDemo,
       connectBle,
       connectWebSerial,
+      connectAndroidUsb,
       retry,
       disconnect,
     }),
-    [snap, connectDemo, connectBle, connectWebSerial, retry, disconnect],
+    [
+      snap,
+      connectDemo,
+      connectBle,
+      connectWebSerial,
+      connectAndroidUsb,
+      retry,
+      disconnect,
+    ],
   );
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>

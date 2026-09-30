@@ -95,6 +95,8 @@ describe("mock board", () => {
   });
 
   it("saves, lists and deletes programs, and sets a rain delay", async () => {
+    // Start on a whole second so the 100 ms reply latency can't cross into the next epoch second.
+    vi.setSystemTime(new Date("2026-06-01T12:00:00.000Z"));
     const { client, ask } = await connected();
     const { id } = await ask(
       client.request("program.save", {
