@@ -14,6 +14,7 @@ import type { Link } from "./link";
 import { reconnectDelay } from "./backoff";
 import { canScanInApp, createBleLink } from "./links/bleLink";
 import { createMockLink } from "./links/mockLink";
+import { createWebSerialLink } from "./links/webSerialLink";
 
 type Snapshot = Pick<
   DeviceContextValue,
@@ -99,6 +100,12 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [connect],
   );
 
+  const connectWebSerial = useCallback(
+    (port: SerialPort, baudRate?: number) =>
+      connect(() => createWebSerialLink(port, baudRate)),
+    [connect],
+  );
+
   // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
   const attempts = useRef(0);
   useEffect(() => {
@@ -144,8 +151,15 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => () => void teardown(), [teardown]);
 
   const value = useMemo<DeviceContextValue>(
-    () => ({ ...snap, connectDemo, connectBle, retry, disconnect }),
-    [snap, connectDemo, connectBle, retry, disconnect],
+    () => ({
+      ...snap,
+      connectDemo,
+      connectBle,
+      connectWebSerial,
+      retry,
+      disconnect,
+    }),
+    [snap, connectDemo, connectBle, connectWebSerial, retry, disconnect],
   );
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>
