@@ -19,7 +19,7 @@ const Home = () => {
         <div className="home-container">
             <div className="top-navbar">
                 <h1 className="page-title">System Status</h1>
-                <CustomButton icon={faBell} className="notification-btn" severity="secondary" rounded={true} text={true} />
+                <CustomButton icon={faBell} className="notification-btn" severity="secondary" rounded={true} />
             </div>
 
             <Card className="system-status-card">
