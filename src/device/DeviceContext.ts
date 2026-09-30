@@ -19,6 +19,8 @@ export type DeviceContextValue = {
   connectBle(deviceId: string): Promise<void>;
   /** Desktop Chrome/Edge: a port from pickSerialPort(). */
   connectWebSerial(port: SerialPort, baudRate?: number): Promise<void>;
+  /** Android app: a deviceId from listUsbSerial(). */
+  connectAndroidUsb(deviceId: number, baudRate?: number): Promise<void>;
   /** Reconnect with the same kind of link as last time. */
   retry(): Promise<void>;
   /** `forget` also removes it from known devices, so it won't reconnect on next launch. */

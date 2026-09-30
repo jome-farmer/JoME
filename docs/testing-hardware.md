@@ -24,7 +24,9 @@ list into the release PR and tick each item.
 ## USB serial (Android OTG, desktop)
 
 - [ ] Test each adapter we ship: CH340, CP2102 (add FTDI if used)
-- [ ] The Android permission prompt appears once, and "Always allow" is remembered
+- [ ] Android: plugging in the adapter offers to open JoME, and "Always" is remembered
+- [ ] Android: *Connect with USB cable* asks for USB permission once, then connects
+- [ ] Android: with no adapter plugged in, the app says to connect a USB OTG cable
 - [ ] Changing the baud rate in the terminal works
 - [ ] Unplugging the cable shows the banner without crashing
 - [ ] On iOS, the Connect screen offers no USB option
