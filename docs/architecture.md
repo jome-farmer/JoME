@@ -120,7 +120,7 @@ On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
 On an unexpected close it moves to `lost` and the banner offers *Retry*.
 `connect` takes a link **factory**, so *Retry* re-creates the same kind of link.
 A dropped **BLE** link also reconnects automatically with backoff (1 s, 2 s,
-5 s, then every 10 s, `device/backoff.ts`). It only tries while the app is
+5 s, then every 10 s, `lib/backoff.ts`). It only tries while the app is
 visible, and a manual disconnect stops it.
 
 On launch the provider reconnects to the most recent known device
