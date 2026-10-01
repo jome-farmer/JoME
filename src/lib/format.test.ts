@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   displayPhone,
+  latinDigits,
   formatClock,
   formatDuration,
   formatFlow,
@@ -83,5 +84,11 @@ describe("displayPhone", () => {
   });
   it("leaves anything else alone", () => {
     expect(displayPhone("+14155550100")).toBe("+14155550100");
+  });
+});
+
+describe("latinDigits", () => {
+  it("turns Persian and Arabic digits into 0–9", () => {
+    expect(latinDigits("۰۹۱۲ ٣٤٥ abc")).toBe("0912 345 abc");
   });
 });

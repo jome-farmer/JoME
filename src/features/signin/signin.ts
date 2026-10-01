@@ -1,5 +1,6 @@
 import type { Session } from "../../auth/AuthContext";
 import { api } from "../../lib/api";
+import { latinDigits } from "../../lib/format";
 
 /** Where the sign-in code goes (docs/cloud.md, Sign-in). */
 export type Channel = "phone" | "email";
@@ -10,13 +11,6 @@ export const CODE_LENGTH = 6;
 export const MAX_TRIES = 5;
 /** One code per minute. */
 export const RESEND_MS = 60_000;
-
-/** Persian (۰–۹) and Arabic (٠–٩) digits → 0–9, as Iranian keyboards type them. */
-export function latinDigits(text: string): string {
-  return text
-    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0))
-    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660));
-}
 
 /** An Iranian mobile however it's typed (0912…, 912…, +98 912…, 0098…) → "+989123456789", else null. */
 export function toE164(input: string): string | null {
