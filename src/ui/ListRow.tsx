@@ -11,6 +11,8 @@ type Props = {
   /** Makes the row a button and shows a chevron. */
   onClick?: () => void;
   tone?: "default" | "danger";
+  /** Looks disabled but still calls onClick, so the screen can explain why. */
+  "aria-disabled"?: boolean;
 };
 
 /** Place ListRows inside a <List> so they share one surface and dividers. */
@@ -21,6 +23,7 @@ export function ListRow({
   trailing,
   onClick,
   tone = "default",
+  "aria-disabled": ariaDisabled,
 }: Props) {
   const body = (
     <>
@@ -43,7 +46,12 @@ export function ListRow({
     .filter(Boolean)
     .join(" ");
   return onClick ? (
-    <button type="button" className={cls} onClick={onClick}>
+    <button
+      type="button"
+      className={cls}
+      onClick={onClick}
+      aria-disabled={ariaDisabled || undefined}
+    >
       {body}
     </button>
   ) : (

@@ -18,7 +18,11 @@ import {
   Wifi,
 } from "lucide-react";
 import { accountLabel, useAuth } from "../../auth/AuthContext";
-import { supports, useDevice } from "../../device/DeviceContext";
+import {
+  supports,
+  useDevice,
+  useOfflineReason,
+} from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { useGarden } from "../../device/useGarden";
 import { whenLabel } from "../../lib/format";
@@ -90,6 +94,10 @@ function Connected() {
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [actionError, setActionError] = useState<string>();
+  // Offline, changes look disabled and a tap says why instead of opening anything.
+  const offlineReason = useOfflineReason();
+  const change = (go: () => void) => () =>
+    offlineReason ? setActionError(offlineReason) : go();
 
   useEffect(() => {
     void loadTheme().then(setTheme);
@@ -160,7 +168,8 @@ function Connected() {
             icon={CloudRain}
             title="Rain delay"
             trailing={rainUntil ? `Until ${whenLabel(rainUntil, now)}` : "Off"}
-            onClick={() => setSheet("rain")}
+            aria-disabled={!!offlineReason}
+            onClick={change(() => setSheet("rain"))}
           />
         )}
         <ListRow
@@ -195,7 +204,8 @@ function Connected() {
             icon={RotateCcw}
             title="Restart controller"
             trailing={restarting ? "Restarting…" : undefined}
-            onClick={() => setConfirmRestart(true)}
+            aria-disabled={!!offlineReason}
+            onClick={change(() => setConfirmRestart(true))}
           />
         )}
         <ListRow

@@ -15,7 +15,11 @@ import {
   Thermometer,
   type LucideIcon,
 } from "lucide-react";
-import { supports, useDevice } from "../../device/DeviceContext";
+import {
+  supports,
+  useDevice,
+  useOfflineReason,
+} from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import {
   formatDuration,
@@ -99,6 +103,10 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
   const [busy, setBusy] = useState<"stop" | "stopAll">();
   const [actionError, setActionError] = useState<string>();
   const temperature = sensors?.temperatureC;
+  // Offline, changes look disabled and a tap says why instead of opening anything.
+  const offlineReason = useOfflineReason();
+  const change = (open: () => void) => () =>
+    offlineReason ? setActionError(offlineReason) : open();
 
   const date = new Date(now);
   const today = todayRuns(programs, date);
@@ -226,7 +234,11 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
             <span className={styles.meta}>
               Programs skip their runs until then.
             </span>
-            <Button variant="secondary" onClick={() => setRainOpen(true)}>
+            <Button
+              variant="secondary"
+              aria-disabled={!!offlineReason}
+              onClick={change(() => setRainOpen(true))}
+            >
               Change or cancel
             </Button>
           </>
@@ -251,7 +263,8 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
             <Button
               variant="secondary"
               icon={CalendarPlus}
-              onClick={() => navigate("/schedule")}
+              aria-disabled={!!offlineReason}
+              onClick={change(() => navigate("/schedule"))}
             >
               Create a program
             </Button>
@@ -267,13 +280,15 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
         <QuickAction
           icon={Play}
           label="Run a zone"
-          onClick={() => navigate("/zones")}
+          blocked={!!offlineReason}
+          onClick={change(() => navigate("/zones"))}
         />
         <QuickAction
           icon={CloudRain}
           tone="warn"
           label="Rain delay"
-          onClick={() => setRainOpen(true)}
+          blocked={!!offlineReason}
+          onClick={change(() => setRainOpen(true))}
           disabled={!supports(info, "rain.delay")}
         />
         <QuickAction
@@ -356,12 +371,15 @@ function QuickAction({
   onClick,
   tone,
   disabled,
+  blocked,
 }: {
   icon: LucideIcon;
   label: string;
   onClick: () => void;
   tone?: "warn" | "danger";
   disabled?: boolean;
+  /** Looks disabled but stays tappable, so the screen can say why. */
+  blocked?: boolean;
 }) {
   return (
     <button
@@ -369,6 +387,7 @@ function QuickAction({
       className={`${styles.qa} ${tone ? styles[tone] : ""}`}
       onClick={onClick}
       disabled={disabled}
+      aria-disabled={blocked || undefined}
     >
       <Icon size={22} strokeWidth={1.75} aria-hidden />
       {label}

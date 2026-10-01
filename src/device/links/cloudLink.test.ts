@@ -155,7 +155,8 @@ describe("cloudLink", () => {
       client.request("zone.run", { zone: 1, seconds: 60 }),
     ).rejects.toMatchObject({
       code: "DEVICE_OFFLINE",
-      message: "Backyard is offline. Changes need it online.",
+      message:
+        "Changes need Backyard online. It reconnects on its own when its Wi‑Fi is back.",
     });
     expect(server.commands).toEqual([]);
     await link.close();

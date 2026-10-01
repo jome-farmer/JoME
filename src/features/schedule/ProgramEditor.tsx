@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2, X } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDevice, useOfflineReason } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
 import type { Program } from "../../device/types";
 import { formatDuration } from "../../lib/format";
@@ -37,6 +37,9 @@ export function ProgramEditor() {
   const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState<"save" | "delete">();
   const [error, setError] = useState<string>();
+  // Offline: Save is refused by the board link and says why; Delete says it before asking.
+  const offlineReason = useOfflineReason();
+  const blocked = !!offlineReason;
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Start editing once the board's data is in.
@@ -233,7 +236,13 @@ export function ProgramEditor() {
           </p>
         )}
 
-        <Button type="submit" size="lg" block loading={busy === "save"}>
+        <Button
+          type="submit"
+          size="lg"
+          block
+          aria-disabled={blocked}
+          loading={busy === "save"}
+        >
           Save program
         </Button>
 
@@ -269,7 +278,10 @@ export function ProgramEditor() {
             <Button
               variant="ghost"
               icon={Trash2}
-              onClick={() => setConfirmDelete(true)}
+              aria-disabled={blocked}
+              onClick={() =>
+                offlineReason ? setError(offlineReason) : setConfirmDelete(true)
+              }
             >
               Delete program
             </Button>

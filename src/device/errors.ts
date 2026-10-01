@@ -1,5 +1,10 @@
 import { DeviceError } from "./client";
 
+/** Why a change is refused while the board is offline (design/README.md, Board offline). */
+export function offlineText(name: string): string {
+  return `Changes need ${name} online. It reconnects on its own when its Wi‑Fi is back.`;
+}
+
 /**
  * What the app says for each error code. The board's `message` is English for
  * developers and logs (protocol §2); people see this instead.
@@ -20,8 +25,7 @@ const TEXT: Record<string, string> = {
   LINK_CLOSED: "The connection to JoME closed.",
   NO_DEVICE: "Connect to your JoME first.",
   // From the server (docs/cloud.md).
-  DEVICE_OFFLINE:
-    "Changes need JoME online. It reconnects on its own when its Wi‑Fi is back.",
+  DEVICE_OFFLINE: offlineText("JoME"),
   FORBIDDEN_REMOTE:
     "That change needs the phone near JoME. Connect nearby from the Device tab.",
   NETWORK: "Couldn't reach JoME's server. Check your internet and try again.",
@@ -38,6 +42,9 @@ const TEXT: Record<string, string> = {
 
 /** Plain words for any error thrown by the device layer. Unknown codes stay generic (protocol §6). */
 export function errorText(e: unknown): string {
+  // cloudLink words this one for people already, with the board's name.
+  if (e instanceof DeviceError && e.code === "DEVICE_OFFLINE" && e.message)
+    return e.message;
   if (e instanceof DeviceError)
     return TEXT[e.code] ?? `Something went wrong (${e.code}).`;
   const code = (e as { code?: unknown })?.code;
