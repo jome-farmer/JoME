@@ -8,7 +8,12 @@ import {
 } from "react";
 import { useAuth, type AuthState } from "../auth/AuthContext";
 import { api } from "../lib/api";
-import { forgetDevice, getKnownDevices, rememberDevice } from "../lib/storage";
+import {
+  addKnownDevices,
+  forgetDevice,
+  getKnownDevices,
+  rememberDevice,
+} from "../lib/storage";
 import { DeviceClient } from "./client";
 import { DeviceContext, type DeviceContextValue } from "./DeviceContext";
 import { handshake } from "./handshake";
@@ -16,13 +21,13 @@ import type { Link } from "./link";
 import { reconnectDelay } from "../lib/backoff";
 import { canScanInApp, createBleLink } from "./links/bleLink";
 import { createAndroidUsbLink } from "./links/androidUsbLink";
-import { createCloudLink } from "./links/cloudLink";
+import { createCloudLink, type CloudLink } from "./links/cloudLink";
 import { createMockLink } from "./links/mockLink";
 import { createWebSerialLink } from "./links/webSerialLink";
 
 type Snapshot = Pick<
   DeviceContextValue,
-  "state" | "info" | "client" | "linkKind" | "baudRate" | "error"
+  "state" | "info" | "client" | "linkKind" | "baudRate" | "error" | "offline"
 >;
 type Active = { link: Link; client: DeviceClient; offClose: () => void };
 
@@ -66,13 +71,23 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
             state: err ? "lost" : "idle",
             info: s.info,
             linkKind: link.kind,
-            // The cloud says why (the board went offline); a radio just drops.
+            // The cloud says why (signed out, board removed); a radio just drops.
             error:
               err &&
               (link.kind === "cloud"
                 ? err.message
                 : "The connection to JoME was lost."),
           }));
+        });
+        // Through the server, the board can be offline while the link stays up (screens show the cloud copy).
+        const cloud = link.kind === "cloud" ? (link as CloudLink) : undefined;
+        const offline = () => {
+          const p = cloud?.presence();
+          return p && !p.online ? { syncedAt: p.syncedAt } : undefined;
+        };
+        cloud?.onPresence(() => {
+          if (active.current?.link === link)
+            setSnap((s) => ({ ...s, offline: offline() }));
         });
         active.current = { link, client, offClose };
         const info = await handshake(client, {
@@ -95,6 +110,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
           client,
           linkKind: link.kind,
           baudRate: link.baudRate,
+          offline: offline(),
         });
       } catch (e) {
         await teardown();
@@ -162,14 +178,12 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [connectSerial],
   );
 
-  // Bluetooth drops (out of range, board rebooted) and boards going offline: keep trying with backoff while the app is visible.
-  // ponytail: an offline cloud board is polled every 10 s; #90 swaps this for an offline state fed by the event stream.
+  // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
   const attempts = useRef(0);
   useEffect(() => {
     if (snap.state === "ready") attempts.current = 0;
     const factory = lastFactory.current;
-    const retries = snap.linkKind === "ble" || snap.linkKind === "cloud";
-    if (snap.state !== "lost" || !retries || !factory) return;
+    if (snap.state !== "lost" || snap.linkKind !== "ble" || !factory) return;
     const timer = setTimeout(() => {
       // In the background: check again later without using up an attempt.
       if (document.hidden) return setSnap((s) => ({ ...s }));
@@ -246,16 +260,22 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     void (async () => {
       const [last] = await getKnownDevices();
       const signedIn = auth.state === "signedIn";
-      // Last time it was through the server: go straight there (opening checks it's still ours).
-      const boards =
-        signedIn && last?.lastLink !== "cloud"
-          ? await api<{ serial: string }[]>("/v1/devices").catch(() => [])
-          : [];
+      // The account's boards join this phone's list, so a new phone knows them too.
+      const list = signedIn
+        ? api<{ serial: string; name: string }[]>("/v1/devices").catch(() => [])
+        : Promise.resolve([]);
       // Someone connected by hand meanwhile: leave theirs alone.
       if (lastFactory.current !== before) return;
       if (last?.lastLink === "mock") return void connectDemo();
+      // Last time it was through the server: go straight there (opening checks it's still ours).
+      // The list is merged after connecting, so the two writes to known devices don't race.
       if (signedIn && last?.lastLink === "cloud")
-        return void connectCloud(last.serial);
+        return void connectCloud(last.serial)
+          .then(() => list)
+          .then(addKnownDevices);
+      const boards = await list;
+      await addKnownDevices(boards);
+      if (lastFactory.current !== before) return;
       const board = last
         ? boards.find((b) => b.serial === last.serial)
         : boards[0];

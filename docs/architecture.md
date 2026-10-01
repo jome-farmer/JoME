@@ -129,7 +129,7 @@ export interface Link {
 On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
 
 ```ts
-{ state: 'idle' | 'connecting' | 'ready' | 'offline' | 'lost', info?: Hello, client?: DeviceClient,
+{ state: 'idle' | 'connecting' | 'ready' | 'lost', offline?: { syncedAt }, info?: Hello, client?: DeviceClient,
   connect(link: Link): Promise<void>, disconnect(): Promise<void> }
 ```
 
@@ -155,9 +155,7 @@ feature work over it unchanged ([cloud.md](cloud.md)):
   `FORBIDDEN_REMOTE`, or the board's own code).
 - It reads `GET /v1/devices/{serial}/events/stream` and turns each event into an
   event line. `online` isn't a protocol event: `cloudLink` reports it to the
-  provider instead. Until the `offline` state below exists (#90), `online:
-  false` closes the link with `DEVICE_OFFLINE`, and the provider retries with
-  the BLE backoff.
+  provider instead (see *Board offline*).
 - The handshake skips `time.set` over the cloud: a board on Wi‑Fi keeps time
   from NTP.
 - There are no firmware log lines over the cloud, so the terminal shows only
@@ -176,15 +174,21 @@ feature work over it unchanged ([cloud.md](cloud.md)):
 
 ### Board offline
 
-The provider has one more state, `offline`: the server is reachable but the
-board isn't (`online: false`, or `DEVICE_OFFLINE`). Then:
+The server is reachable but the board isn't (`online: false` on the event
+stream, or `DEVICE_OFFLINE` from a command). The cloud link stays open and the
+provider stays `ready`, with `offline: { syncedAt }` set:
 
-- `useGarden` reads the cloud copy (`GET /v1/devices/{serial}`) instead of
-  sending reads, and exposes each part's `syncedAt`.
-- Screens show *Last synced 12 min ago* and turn off controls that need the
-  board, saying why: *Backyard is offline. Changes need it online.*
-- `online: true` on the event stream runs the handshake again and returns to
-  `ready`.
+- `cloudLink` answers the reads the copy holds (`hello`, `status`,
+  `zones.list`, `programs.list`, `sensors.read`, `usage.read`) from
+  `GET /v1/devices/{serial}`, so `useGarden` and every screen work unchanged.
+  Every other command is refused at once with `DEVICE_OFFLINE`, which the
+  screens word as *Changes need JoME online…*.
+- `syncedAt` is the newest part of the copy. The banner reads *Backyard is
+  offline · Last synced 12 min ago*.
+- `useGarden` re-reads when the board goes offline or comes back. Offline it
+  reports no live run; Home shows *Was watering …* from the copy instead.
+- `online: true` switches the link back to the board.
+- Opening the app to an offline board connects the same way, from the copy.
 
 ### Which links appear on which platform
 

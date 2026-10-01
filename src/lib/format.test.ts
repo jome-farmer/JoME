@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  agoLabel,
   displayPhone,
   latinDigits,
   formatClock,
@@ -91,4 +92,15 @@ describe("latinDigits", () => {
   it("turns Persian and Arabic digits into 0–9", () => {
     expect(latinDigits("۰۹۱۲ ٣٤٥ abc")).toBe("0912 345 abc");
   });
+});
+
+describe("agoLabel", () => {
+  const now = 1_790_000_000_000;
+  it.each([
+    [now / 1000 - 20, "just now"],
+    [now / 1000 - 12 * 60, "12 min ago"],
+    [now / 1000 - 3 * 3600 - 59, "3 h ago"],
+    [now / 1000 - 30 * 3600, "1 day ago"],
+    [now / 1000 - 3 * 86_400, "3 days ago"],
+  ])("%s → %s", (at, text) => expect(agoLabel(at, now)).toBe(text));
 });

@@ -33,6 +33,26 @@ export async function rememberDevice(device: KnownDevice): Promise<void> {
   });
 }
 
+/** Boards on the account that this phone hasn't seen yet go to the end of the list. */
+export async function addKnownDevices(
+  boards: { serial: string; name: string }[],
+): Promise<void> {
+  const known = await getKnownDevices();
+  const added = boards
+    .filter((b) => !known.some((d) => d.serial === b.serial))
+    .map(({ serial, name }): KnownDevice => ({
+      serial,
+      name,
+      lastLink: "cloud",
+      lastSeen: 0,
+    }));
+  if (added.length)
+    await Preferences.set({
+      key: KEY,
+      value: JSON.stringify([...known, ...added]),
+    });
+}
+
 export async function forgetDevice(serial: string): Promise<void> {
   const rest = (await getKnownDevices()).filter((d) => d.serial !== serial);
   await Preferences.set({ key: KEY, value: JSON.stringify(rest) });

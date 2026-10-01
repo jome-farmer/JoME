@@ -21,7 +21,7 @@ const TEXT: Record<string, string> = {
   NO_DEVICE: "Connect to your JoME first.",
   // From the server (docs/cloud.md).
   DEVICE_OFFLINE:
-    "JoME is offline. Changes need it back on Wi‑Fi, or the phone nearby.",
+    "Changes need JoME online. It reconnects on its own when its Wi‑Fi is back.",
   FORBIDDEN_REMOTE:
     "That change needs the phone near JoME. Connect nearby from the Device tab.",
   NETWORK: "Couldn't reach JoME's server. Check your internet and try again.",

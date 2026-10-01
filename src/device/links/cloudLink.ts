@@ -3,28 +3,82 @@ import { DeviceError } from "../client";
 import { encodeLine, LineDecoder } from "../lineCodec";
 import type { Link } from "../link";
 
-/** The parts of `GET /v1/devices/{serial}` the link needs (docs/cloud.md). */
-type CloudDevice = { serial: string; name: string; online: boolean };
+/** One part of the server's cloud copy: the board's `data` for a read command, and when it was read. */
+type Part = { data: unknown; syncedAt: number };
+
+/** `GET /v1/devices/{serial}` (docs/cloud.md). */
+type CloudDevice = {
+  serial: string;
+  name: string;
+  online: boolean;
+  state?: Partial<Record<string, Part>>;
+};
+
+/** Whether the board itself is reachable, and how old the copy is (epoch s) when it isn't. */
+export type Presence = { online: boolean; syncedAt?: number };
+
+export interface CloudLink extends Link {
+  readonly kind: "cloud";
+  presence(): Presence;
+  /** Fires when the board goes offline or comes back. */
+  onPresence(cb: (p: Presence) => void): () => void;
+}
+
+/** Reads the copy can answer while the board is offline, and the part that holds each. */
+const COPY: Record<string, string> = {
+  hello: "hello",
+  status: "status",
+  "zones.list": "zones",
+  "programs.list": "programs",
+  "sensors.read": "sensors",
+  "usage.read": "usage",
+};
 
 /**
  * The board through DouSHamBE (docs/architecture.md, Cloud link). A request
  * line becomes `POST /commands` and its reply comes back as a response line
- * with the same id; the event stream becomes event lines. The board going
- * offline (`online: false`) closes the link with an error, like a dropped radio.
+ * with the same id; the event stream becomes event lines.
+ *
+ * While the board is offline the link stays open: reads are answered from the
+ * server's cloud copy as they were at the last sync, and changes are refused
+ * with DEVICE_OFFLINE straight away (the server never queues them).
  */
-export function createCloudLink(serial: string): Link {
+export function createCloudLink(serial: string): CloudLink {
   const path = `/v1/devices/${encodeURIComponent(serial)}`;
   const decoder = new LineDecoder();
   const dataSubs = new Set<(bytes: Uint8Array) => void>();
   const closeSubs = new Set<(error?: Error) => void>();
+  const presenceSubs = new Set<(p: Presence) => void>();
   // Set while open; aborting it stops the event stream and requests in flight.
   let live: AbortController | undefined;
+  let device: CloudDevice | undefined;
+
+  const presence = (): Presence => {
+    if (!device || device.online) return { online: true };
+    const times = Object.values(device.state ?? {}).map(
+      (p) => p?.syncedAt ?? 0,
+    );
+    return { online: false, syncedAt: Math.max(0, ...times) || undefined };
+  };
+  const setDevice = (next: CloudDevice) => {
+    const was = device?.online;
+    device = next;
+    if (was !== undefined && was !== next.online)
+      presenceSubs.forEach((cb) => cb(presence()));
+  };
+  /** Read the board's record again: whether it's online, and a fresh copy. */
+  const sync = async () =>
+    setDevice(await api<CloudDevice>(path, { signal: live?.signal }));
 
   const emit = (text: string) => {
     if (!live) return;
     const bytes = encodeLine(text);
     dataSubs.forEach((cb) => cb(bytes));
   };
+  const reply = (id: unknown, data: unknown) =>
+    emit(JSON.stringify({ id, ok: true, data }));
+  const fail = (id: unknown, code: string, message: string) =>
+    emit(JSON.stringify({ id, ok: false, error: { code, message } }));
   const close = (error?: Error) => {
     if (!live) return;
     live.abort();
@@ -32,7 +86,18 @@ export function createCloudLink(serial: string): Link {
     closeSubs.forEach((cb) => cb(error));
   };
 
+  const fromCopy = (id: unknown, cmd: unknown) => {
+    const data = device?.state?.[COPY[String(cmd)] ?? ""]?.data;
+    if (data !== undefined) return reply(id, data);
+    fail(
+      id,
+      "DEVICE_OFFLINE",
+      `${device?.name ?? "JoME"} is offline. Changes need it online.`,
+    );
+  };
+
   const request = async (id: unknown, cmd: unknown, args: unknown) => {
+    if (device && !device.online) return fromCopy(id, cmd);
     const signal = live?.signal;
     try {
       const { data } = await api<{ data?: unknown }>(`${path}/commands`, {
@@ -40,41 +105,48 @@ export function createCloudLink(serial: string): Link {
         body: { cmd, args },
         signal,
       });
-      emit(JSON.stringify({ id, ok: true, data: data ?? {} }));
+      reply(id, data ?? {});
     } catch (e) {
       if (signal?.aborted) return;
-      // Server codes (DEVICE_OFFLINE, TIMEOUT, FORBIDDEN_REMOTE…) and the board's own pass through as protocol errors.
       const code = e instanceof ApiError ? e.code : "INTERNAL";
-      const message = e instanceof Error ? e.message : String(e);
-      emit(JSON.stringify({ id, ok: false, error: { code, message } }));
+      // It went offline before the stream said so: switch to the copy now.
+      if (code === "DEVICE_OFFLINE") {
+        await sync().catch(() => undefined);
+        if (device && !device.online) return fromCopy(id, cmd);
+      }
+      // Server codes (TIMEOUT, FORBIDDEN_REMOTE…) and the board's own pass through as protocol errors.
+      fail(id, code, e instanceof Error ? e.message : String(e));
     }
   };
 
   return {
     kind: "cloud",
     peerId: serial,
+    presence,
+    onPresence(cb) {
+      presenceSubs.add(cb);
+      return () => presenceSubs.delete(cb);
+    },
     async open() {
-      const device = await api<CloudDevice>(path);
-      if (!device.online)
-        throw new DeviceError(
-          "DEVICE_OFFLINE",
-          `${device.name} is offline. It comes back when it's on Wi‑Fi again.`,
-        );
+      // Checks the board is on this account; online or not, the link opens.
+      device = await api<CloudDevice>(path);
       live = new AbortController();
+      let reconnect = false;
       followEvents(
         `${path}/events/stream`,
         {
+          // After a dropped stream, catch up on what was missed (docs/cloud.md).
+          onOpen: () => {
+            if (reconnect) void sync().catch(() => undefined);
+            reconnect = true;
+          },
           onEvent: ({ event, data }) => {
             const payload = (data as { data?: unknown } | null)?.data;
             if (event !== "online")
-              emit(JSON.stringify({ evt: event, data: payload }));
-            else if (payload === false)
-              close(
-                new DeviceError(
-                  "DEVICE_OFFLINE",
-                  `${device.name} went offline.`,
-                ),
-              );
+              return emit(JSON.stringify({ evt: event, data: payload }));
+            // Gone: fetch the copy as the board left it. Back: talk to it again.
+            if (payload === false) void sync().catch(() => undefined);
+            else if (device) setDevice({ ...device, online: true });
           },
           // Signed out, or the board left this account.
           onError: (e) => close(e),
