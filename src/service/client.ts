@@ -1,6 +1,6 @@
 /** HTTP and event-stream client for the JoME server, DouSHamBE (docs/cloud.md). */
 
-import { reconnectDelay } from "./backoff";
+import { reconnectDelay } from "../lib/backoff";
 
 export const API_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:8000"

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth, type AuthState } from "../auth/AuthContext";
-import { api } from "../lib/api";
+import { listDevices } from "../service/devices";
 import {
   addKnownDevices,
   forgetDevice,
@@ -262,7 +262,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       const signedIn = auth.state === "signedIn";
       // The account's boards join this phone's list, so a new phone knows them too.
       const list = signedIn
-        ? api<{ serial: string; name: string }[]>("/v1/devices").catch(() => [])
+        ? listDevices().catch(() => [])
         : Promise.resolve([]);
       // Someone connected by hand meanwhile: leave theirs alone.
       if (lastFactory.current !== before) return;

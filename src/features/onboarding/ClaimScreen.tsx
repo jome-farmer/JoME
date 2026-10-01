@@ -4,8 +4,8 @@ import { CloudCheck } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import { useDevice } from "../../device/DeviceContext";
 import { errorText } from "../../device/errors";
-import { api } from "../../lib/api";
 import { latinDigits } from "../../lib/format";
+import { claimDevice } from "../../service/devices";
 import { Button } from "../../ui/Button";
 import { StatusPill } from "../../ui/StatusPill";
 import { TextField } from "../../ui/TextField";
@@ -42,10 +42,7 @@ export function ClaimScreen() {
     setError(undefined);
     try {
       // ponytail: the reply's broker credentials are dropped until the board can take them (server.set, #96).
-      await api("/v1/devices/claim", {
-        method: "POST",
-        body: { serial, code: label },
-      });
+      await claimDevice(serial, label);
       navigate("/setup/name", { replace: true });
     } catch (err) {
       setError(errorText(err));

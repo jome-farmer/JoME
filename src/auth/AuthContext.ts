@@ -1,22 +1,6 @@
 import { createContext, useContext } from "react";
 import { displayPhone } from "../lib/format";
-
-/** A way to sign in to the account (docs/cloud.md). */
-export type Identity = { type: "phone" | "email" | "google"; id: string };
-
-export type User = {
-  id: string;
-  role: string;
-  name: string | null;
-  identities: Identity[];
-};
-
-/** What `/v1/auth/*` returns. `created` means the account is new. */
-export type Session = {
-  accessToken: string;
-  user: User;
-  created: boolean;
-};
+import type { Identity, Session, User } from "../service/auth";
 
 export type AuthState = "loading" | "signedOut" | "signedIn";
 

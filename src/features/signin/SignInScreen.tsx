@@ -4,16 +4,11 @@ import { ArrowLeft } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import { errorText } from "../../device/errors";
 import { displayPhone } from "../../lib/format";
+import { startCode, type Channel, type CodeTarget } from "../../service/auth";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
 import { TextField } from "../../ui/TextField";
-import {
-  startCode,
-  toE164,
-  toEmail,
-  type Channel,
-  type CodeTarget,
-} from "./signin";
+import { toE164, toEmail } from "./signin";
 import styles from "./SignIn.module.css";
 
 const INVALID: Record<Channel, string> = {
