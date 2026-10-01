@@ -30,10 +30,10 @@ Two facts shape the design:
      The same tools work over BLE, USB, or a future cloud link, and the agent
      never needs a direct path to the board.
 2. **The app enforces safety, whatever the model says.**
-   - _Read_ tools run automatically.
-   - _Stop_ tools (`zone.stop`, `stop.all`) run automatically, because they
+   - *Read* tools run automatically.
+   - *Stop* tools (`zone.stop`, `stop.all`) run automatically, because they
      close water.
-   - _Act_ tools (start water, rain delay, change zones or programs) always
+   - *Act* tools (start water, rain delay, change zones or programs) always
      show an **action card** that the user must confirm. Nothing opens a valve
      without a tap.
    - The app validates tool arguments and enforces limits (for example, a run

@@ -21,10 +21,10 @@ would cost little. That makes it the right time to decide.
 
 ## The hard limits are set by the OS, not by the framework
 
-| Capability                                            | Android           | iOS                                                                                                                                                | Desktop (Chrome/Edge) |
-| ----------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| BLE                                                   | ✅                | ✅                                                                                                                                                 | ✅ Web Bluetooth      |
-| USB‑TTL serial (CH340, CP210x, FTDI, PL2303, CDC‑ACM) | ✅ USB host / OTG | ❌ **Not possible.** iOS only allows USB accessories through Apple's MFi program (External Accessory framework). Common USB‑TTL chips are not MFi. | ✅ Web Serial         |
+| Capability | Android | iOS | Desktop (Chrome/Edge) |
+|---|---|---|---|
+| BLE | ✅ | ✅ | ✅ Web Bluetooth |
+| USB‑TTL serial (CH340, CP210x, FTDI, PL2303, CDC‑ACM) | ✅ USB host / OTG | ❌ **Not possible.** iOS only allows USB accessories through Apple's MFi program (External Accessory framework). Common USB‑TTL chips are not MFi. | ✅ Web Serial |
 
 No framework (Flutter, React Native, native Swift) can do USB‑TTL serial on
 iOS. **On iPhone the board is reached over BLE.** Because the board uses one
@@ -33,14 +33,14 @@ the serial terminal still works on iPhone, over BLE instead of a cable.
 
 ## Options considered
 
-|                                | Capacitor + React (current)                                  | Flutter                     | React Native / Expo               | Native (Kotlin + Swift)           |
-| ------------------------------ | ------------------------------------------------------------ | --------------------------- | --------------------------------- | --------------------------------- |
-| BLE                            | `@capacitor-community/bluetooth-le`: mature, iOS/Android/Web | `flutter_blue_plus`: mature | `react-native-ble-plx`: mature    | Best possible                     |
-| Android USB serial             | Small local plugin wrapping `usb-serial-for-android`         | `usb_serial` package        | Community packages, uneven upkeep | `usb-serial-for-android` directly |
-| PC serial terminal, no install | ✅ same build runs in Chrome (Web Serial + Web Bluetooth)    | Needs a desktop build       | ❌                                | ❌                                |
-| Premium UI                     | CSS, full control, needs care on motion                      | Excellent, own renderer     | Good                              | Excellent                         |
-| Rewrite cost                   | None, only a UI redesign                                     | Full rewrite in Dart        | Full UI rewrite                   | Two codebases                     |
-| Team skills                    | TypeScript / React (existing)                                | New language                | TypeScript                        | Two languages                     |
+| | Capacitor + React (current) | Flutter | React Native / Expo | Native (Kotlin + Swift) |
+|---|---|---|---|---|
+| BLE | `@capacitor-community/bluetooth-le`: mature, iOS/Android/Web | `flutter_blue_plus`: mature | `react-native-ble-plx`: mature | Best possible |
+| Android USB serial | Small local plugin wrapping `usb-serial-for-android` | `usb_serial` package | Community packages, uneven upkeep | `usb-serial-for-android` directly |
+| PC serial terminal, no install | ✅ same build runs in Chrome (Web Serial + Web Bluetooth) | Needs a desktop build | ❌ | ❌ |
+| Premium UI | CSS, full control, needs care on motion | Excellent, own renderer | Good | Excellent |
+| Rewrite cost | None, only a UI redesign | Full rewrite in Dart | Full UI rewrite | Two codebases |
+| Team skills | TypeScript / React (existing) | New language | TypeScript | Two languages |
 
 ## Decision
 

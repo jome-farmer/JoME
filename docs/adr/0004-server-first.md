@@ -40,11 +40,11 @@ garden. We also want to see the garden when the board is offline.
 ## Consequences
 
 - The app needs an account and internet for remote use. Without either, BLE
-  and USB work as before, and _Try the demo_ needs neither.
+  and USB work as before, and *Try the demo* needs neither.
 - `wifi.scan` and `wifi.set` are never sent through the server (a wrong network
   sent remotely would cut the board off). Wi‑Fi changes need the phone nearby.
 - The assistant's device tools (ADR 0002) can run over `cloudLink` like any
-  link. The confirmation rule for _act_ tools is unchanged.
+  link. The confirmation rule for *act* tools is unchanged.
 - Handing the board its server credentials needs a new local command
   (`server.set`, SHamBE#5) and a protocol PR. Until then, claiming works and
   only a provisioned test board connects to the server.
