@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DeviceClient } from "../services/device/client";
-import { supports, useDevice } from "./DeviceContext";
+import { useAppSelector } from "../store";
+import { selectDevice } from "../store/deviceSlice";
+import { supports } from "./hooks";
 import type { Program, Sensors, Status, Zone } from "../services/device/types";
 
 export type GardenZone = Zone;
@@ -25,7 +27,7 @@ type ZonePatch = Partial<Omit<Zone, "zone">>;
  * and the zone actions. Each screen that mounts it loads fresh data and follows board events.
  */
 export function useGarden(client: DeviceClient | undefined) {
-  const { info, offline } = useDevice();
+  const { info, offline } = useAppSelector(selectDevice);
   const [status, setStatus] = useState<Status>();
   const [zones, setZones] = useState<Zone[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);

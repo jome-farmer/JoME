@@ -7,7 +7,9 @@ import {
 } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Lock, RefreshCw, Wifi } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDeviceClient } from "../../device/hooks";
+import { useAppSelector } from "../../store";
+import { selectDevice } from "../../store/deviceSlice";
 import type { WifiNetwork, WifiState } from "../../services/device/types";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
@@ -35,7 +37,8 @@ export function WifiScreen({
   const navigate = useNavigate();
   // Passed on to Claim untouched (the scanned label code, if any).
   const setupState = useLocation().state as SetupState;
-  const { state, client } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const [networks, setNetworks] = useState<WifiNetwork[]>();
   const [scanning, setScanning] = useState(false);
   const [current, setCurrent] = useState<WifiState>();

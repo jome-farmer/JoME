@@ -1,12 +1,14 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useDevice } from "../device/DeviceContext";
+import { useAppDispatch, useAppSelector } from "../store";
+import { disconnect, retry, selectDevice } from "../store/deviceSlice";
 import { agoLabel } from "../lib/format";
 import styles from "./ConnectionBanner.module.css";
 
 /** Slim bar above every tab: connecting, lost, failed, offline, or demo. Never a modal. */
 export function ConnectionBanner() {
-  const { state, linkKind, info, error, offline, retry, disconnect } =
-    useDevice();
+  const { state, linkKind, info, error, offline } =
+    useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   const name = info?.name ?? "JoME";
 
   if (state === "connecting") {
@@ -18,7 +20,10 @@ export function ConnectionBanner() {
   }
   if (state === "lost" || (state === "idle" && error)) {
     return (
-      <Bar tone="danger" action={{ label: "Retry", onClick: retry }}>
+      <Bar
+        tone="danger"
+        action={{ label: "Retry", onClick: () => void dispatch(retry()) }}
+      >
         {state === "lost" && linkKind === "ble"
           ? `Connection to ${name} lost. Reconnecting…`
           : (error ?? `Connection to ${name} lost.`)}
@@ -34,7 +39,7 @@ export function ConnectionBanner() {
         tone="idle"
         action={{
           label: "Exit demo",
-          onClick: () => disconnect({ forget: true }),
+          onClick: () => void dispatch(disconnect({ forget: true })),
         }}
       >
         Demo mode · simulated controller

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
-import { useDevice, useOfflineReason } from "../../device/DeviceContext";
+import { useDeviceClient, useOfflineReason } from "../../device/hooks";
+import { useAppSelector } from "../../store";
+import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
 import type { Zone } from "../../services/device/types";
 import { formatClock, formatDuration, formatFlow } from "../../lib/format";
@@ -19,7 +21,8 @@ import { errorText } from "../../services/device/errors";
 
 /** Mockup 5: every zone, what it's doing, one big button to run or stop it. */
 export function ZonesScreen() {
-  const { state, client } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const navigate = useNavigate();
 
   if (state !== "ready" || !client) {
@@ -42,7 +45,7 @@ export function ZonesScreen() {
 }
 
 function Connected() {
-  const { client } = useDevice();
+  const client = useDeviceClient();
   const garden = useGarden(client);
   const { zones, run, remaining, sensors } = garden;
   const [open, setOpen] = useState<number | null>(null);

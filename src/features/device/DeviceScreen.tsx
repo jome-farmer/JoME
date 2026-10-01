@@ -26,9 +26,15 @@ import {
 } from "../../store/authSlice";
 import {
   supports,
-  useDevice,
+  useDeviceClient,
   useOfflineReason,
-} from "../../device/DeviceContext";
+} from "../../device/hooks";
+import {
+  connectDemo,
+  disconnect,
+  restart,
+  selectDevice,
+} from "../../store/deviceSlice";
 import type { LinkKind } from "../../services/device/links/link";
 import { useGarden } from "../../device/useGarden";
 import { whenLabel } from "../../lib/format";
@@ -57,7 +63,8 @@ const THEMES: { value: Theme; label: string }[] = [
 
 /** Design screen 10: the controller card, then the occasional settings. */
 export function DeviceScreen() {
-  const { state, info, linkKind, connectDemo } = useDevice();
+  const { state, info, linkKind } = useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   if (state !== "ready" || !info || !linkKind) {
@@ -73,7 +80,7 @@ export function DeviceScreen() {
               <Button
                 variant="ghost"
                 icon={Play}
-                onClick={connectDemo}
+                onClick={() => void dispatch(connectDemo())}
                 loading={state === "connecting" && linkKind === "mock"}
               >
                 Try the demo
@@ -91,7 +98,9 @@ export function DeviceScreen() {
 }
 
 function Connected() {
-  const { info, linkKind, client, disconnect, restart } = useDevice();
+  const { info, linkKind } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const garden = useGarden(client);
   const [theme, setTheme] = useState<Theme>("system");
@@ -217,7 +226,7 @@ function Connected() {
         <ListRow
           icon={LogOut}
           title={demo ? "Exit demo" : "Disconnect"}
-          onClick={() => void disconnect({ forget: demo })}
+          onClick={() => void dispatch(disconnect({ forget: demo }))}
         />
         {!demo && (
           <ListRow
@@ -254,7 +263,7 @@ function Connected() {
                 setRestarting(true);
                 setActionError(undefined);
                 try {
-                  await restart();
+                  await dispatch(restart());
                 } catch (e) {
                   setActionError(`Couldn't restart JoME. ${errorText(e)}`);
                 } finally {
@@ -293,7 +302,7 @@ function Connected() {
               variant="danger"
               icon={Trash2}
               onClick={async () => {
-                await disconnect({ forget: true });
+                await dispatch(disconnect({ forget: true }));
                 navigate("/welcome", { replace: true });
               }}
             >

@@ -17,9 +17,11 @@ import {
 } from "lucide-react";
 import {
   supports,
-  useDevice,
+  useDeviceClient,
   useOfflineReason,
-} from "../../device/DeviceContext";
+} from "../../device/hooks";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { connectDemo, selectDevice } from "../../store/deviceSlice";
 import type { LinkKind } from "../../services/device/links/link";
 import {
   formatDuration,
@@ -50,7 +52,9 @@ const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
 
 /** Status first (design/README.md screen 5): what's watering, what runs next, what ran today. */
 export function HomeScreen() {
-  const { state, info, client, linkKind, connectDemo } = useDevice();
+  const { state, info, linkKind } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   if (state !== "ready" || !info || !client || !linkKind) {
@@ -66,7 +70,7 @@ export function HomeScreen() {
               <Button
                 variant="ghost"
                 icon={Play}
-                onClick={connectDemo}
+                onClick={() => void dispatch(connectDemo())}
                 loading={state === "connecting"}
               >
                 Try the demo
@@ -85,7 +89,8 @@ export function HomeScreen() {
 }
 
 function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
-  const { client, info, offline } = useDevice();
+  const { info, offline } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const navigate = useNavigate();
   const {
     status,

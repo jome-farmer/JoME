@@ -7,7 +7,9 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Copy, SendHorizontal } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDeviceClient } from "../../device/hooks";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { selectDevice, setBaudRate } from "../../store/deviceSlice";
 import type { LinkKind } from "../../services/device/links/link";
 import { appendCapped, clock, toPlainText, type TermLine } from "./lines";
 import styles from "./TerminalScreen.module.css";
@@ -28,7 +30,9 @@ const LINK_LABEL: Record<LinkKind, string> = {
 /** Friendly shell and raw serial view of whatever link is connected. */
 export function TerminalScreen() {
   const navigate = useNavigate();
-  const { state, client, info, linkKind, baudRate, setBaudRate } = useDevice();
+  const { state, info, linkKind, baudRate } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
+  const dispatch = useAppDispatch();
   const [lines, setLines] = useState<TermLine[]>([]);
   const [showProtocol, setShowProtocol] = useState(true);
   const [timestamps, setTimestamps] = useState(false);
@@ -195,7 +199,9 @@ export function TerminalScreen() {
                   id="baud"
                   className={styles.baud}
                   value={baudRate}
-                  onChange={(e) => void setBaudRate(Number(e.target.value))}
+                  onChange={(e) =>
+                    void dispatch(setBaudRate(Number(e.target.value)))
+                  }
                   aria-label="Baud rate"
                 >
                   {BAUD_RATES.map((b) => (

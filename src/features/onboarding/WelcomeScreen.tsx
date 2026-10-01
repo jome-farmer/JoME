@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { selectAuthState } from "../../store/authSlice";
-import { useDevice } from "../../device/DeviceContext";
+import { connectDemo, selectDevice } from "../../store/deviceSlice";
 import { Button } from "../../ui/Button";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
@@ -9,11 +9,12 @@ import styles from "./Onboarding.module.css";
 /** First launch, or signed out (FirstRunRedirect sends people here). Get started signs in first. */
 export function WelcomeScreen() {
   const navigate = useNavigate();
-  const { connectDemo, state } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   const authState = useAppSelector(selectAuthState);
 
   const tryDemo = async () => {
-    await connectDemo();
+    await dispatch(connectDemo());
     navigate("/", { replace: true });
   };
 
