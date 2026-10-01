@@ -86,7 +86,7 @@ registered; the signing steps are in [deployment.md](deployment.md#android-relea
 | Key                                            | SHA-1                                                         |
 | ---------------------------------------------- | ------------------------------------------------------------- |
 | Maintainer debug (`~/.android/debug.keystore`) | `4E:B9:A0:39:B9:03:F7:DA:41:0A:FE:04:73:02:BF:A1:5F:B5:4F:D0` |
-| Upload key (`jome-upload.jks`)                 | _to register after the key is created (#118)_                 |
+| Upload key (`jome-upload.jks`)                 | `C3:0D:BB:1A:AF:32:0B:FA:B9:C8:B7:1C:6D:4A:0A:13:9A:B6:21:31` |
 | Play App Signing                               | _to register after the app exists in Play Console (#118)_     |
 
 Another developer who tests sign-in on a debug build registers their own
