@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { API_URL, setToken } from "../../lib/api";
+import { API_URL, setToken } from "../../service/client";
 import { DeviceClient } from "../client";
 import { createCloudLink } from "./cloudLink";
 

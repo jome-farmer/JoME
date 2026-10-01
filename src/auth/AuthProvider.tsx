@@ -7,13 +7,12 @@ import {
   type ReactNode,
 } from "react";
 import { SecureStorage } from "@aparajita/capacitor-secure-storage";
-import { api, onUnauthorized, setToken } from "../lib/api";
+import { getMe, type Session, type User } from "../service/auth";
+import { onUnauthorized, setToken } from "../service/client";
 import {
   AuthContext,
   type AuthContextValue,
   type AuthState,
-  type Session,
-  type User,
 } from "./AuthContext";
 
 // Keychain on iOS, Keystore on Android, localStorage on the web (docs/architecture.md, Session).
@@ -74,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState("signedIn");
       // Refresh the account in the background. Offline is fine: the saved copy stays.
       // An expired token comes back 401, and onUnauthorized signs out.
-      api<User>("/v1/me").then(
+      getMe().then(
         (fresh) => {
           if (!live || current.current !== saved.accessToken) return;
           setUser(fresh);

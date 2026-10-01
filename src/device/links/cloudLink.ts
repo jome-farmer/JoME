@@ -1,18 +1,13 @@
-import { ApiError, api, followEvents } from "../../lib/api";
+import { ApiError } from "../../service/client";
+import {
+  followDeviceEvents,
+  getDevice,
+  sendCommand,
+  type CloudDevice,
+} from "../../service/devices";
 import { DeviceError } from "../client";
 import { encodeLine, LineDecoder } from "../lineCodec";
 import type { Link } from "../link";
-
-/** One part of the server's cloud copy: the board's `data` for a read command, and when it was read. */
-type Part = { data: unknown; syncedAt: number };
-
-/** `GET /v1/devices/{serial}` (docs/cloud.md). */
-type CloudDevice = {
-  serial: string;
-  name: string;
-  online: boolean;
-  state?: Partial<Record<string, Part>>;
-};
 
 /** Whether the board itself is reachable, and how old the copy is (epoch s) when it isn't. */
 export type Presence = { online: boolean; syncedAt?: number };
@@ -44,7 +39,6 @@ const COPY: Record<string, string> = {
  * with DEVICE_OFFLINE straight away (the server never queues them).
  */
 export function createCloudLink(serial: string): CloudLink {
-  const path = `/v1/devices/${encodeURIComponent(serial)}`;
   const decoder = new LineDecoder();
   const dataSubs = new Set<(bytes: Uint8Array) => void>();
   const closeSubs = new Set<(error?: Error) => void>();
@@ -67,8 +61,7 @@ export function createCloudLink(serial: string): CloudLink {
       presenceSubs.forEach((cb) => cb(presence()));
   };
   /** Read the board's record again: whether it's online, and a fresh copy. */
-  const sync = async () =>
-    setDevice(await api<CloudDevice>(path, { signal: live?.signal }));
+  const sync = async () => setDevice(await getDevice(serial, live?.signal));
 
   const emit = (text: string) => {
     if (!live) return;
@@ -100,12 +93,7 @@ export function createCloudLink(serial: string): CloudLink {
     if (device && !device.online) return fromCopy(id, cmd);
     const signal = live?.signal;
     try {
-      const { data } = await api<{ data?: unknown }>(`${path}/commands`, {
-        method: "POST",
-        body: { cmd, args },
-        signal,
-      });
-      reply(id, data ?? {});
+      reply(id, await sendCommand(serial, cmd, args, signal));
     } catch (e) {
       if (signal?.aborted) return;
       const code = e instanceof ApiError ? e.code : "INTERNAL";
@@ -129,11 +117,11 @@ export function createCloudLink(serial: string): CloudLink {
     },
     async open() {
       // Checks the board is on this account; online or not, the link opens.
-      device = await api<CloudDevice>(path);
+      device = await getDevice(serial);
       live = new AbortController();
       let reconnect = false;
-      followEvents(
-        `${path}/events/stream`,
+      followDeviceEvents(
+        serial,
         {
           // After a dropped stream, catch up on what was missed (docs/cloud.md).
           onOpen: () => {

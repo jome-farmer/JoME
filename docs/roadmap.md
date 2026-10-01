@@ -52,7 +52,7 @@ Milestone *Phase 5 — Cloud*, issues #86–#91.
 
 - Design: ADR, cloud contract, sign-in screens, offline state (#86)
 - Sign-in before onboarding: phone code, email code, Google (#87)
-- `lib/api` client for DouSHamBE (#88)
+- `service/` client for DouSHamBE (#88, moved from `lib/api` in #101)
 - `cloudLink` and link selection (#89)
 - Offline reads from the cloud copy (#90)
 - Claim the board in onboarding (#91, the credential hand-off waits on `server.set`, SHamBE#5)

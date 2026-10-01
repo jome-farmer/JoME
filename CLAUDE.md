@@ -50,7 +50,8 @@ desktop bench tool in Chrome.
   The app must stay RTL-ready for Persian.
 - Features talk to hardware only through `DeviceClient`. They never touch a
   `Link` or a Capacitor plugin directly.
-- Imports point down the layers: `app → features → ui | device → lib`. Features
+- Imports point down the layers: `app → features → ui | device | auth → service → lib`.
+  Every server call lives in `src/service/`; no `/v1/...` paths elsewhere. Features
   never import from other features.
 - No PrimeReact, Font Awesome, or UI kits. Use `src/ui/` components with
   `lucide-react` icons.

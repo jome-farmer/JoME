@@ -8,7 +8,7 @@ import {
   onUnauthorized,
   setToken,
   type ServerEvent,
-} from "./api";
+} from "./client";
 
 const fetchMock = vi.fn<typeof fetch>();
 vi.stubGlobal("fetch", fetchMock);

@@ -3,19 +3,12 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import { errorText } from "../../device/errors";
-import { ApiError } from "../../lib/api";
 import { displayPhone } from "../../lib/format";
+import { startCode, verifyCode, type CodeTarget } from "../../service/auth";
+import { ApiError } from "../../service/client";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
-import {
-  CODE_LENGTH,
-  MAX_TRIES,
-  RESEND_MS,
-  codeDigits,
-  startCode,
-  verifyCode,
-  type CodeTarget,
-} from "./signin";
+import { CODE_LENGTH, MAX_TRIES, RESEND_MS, codeDigits } from "./signin";
 import styles from "./SignIn.module.css";
 
 /** Design screen 1c: six digits, checked as soon as the sixth is typed. */

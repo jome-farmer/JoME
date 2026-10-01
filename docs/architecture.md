@@ -34,9 +34,10 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 ├──────────────────────┬────────────────────────┤
 │ ui/  design system   │ device/ client + links │
 │                      │ auth/   session        │
+│                      ├────────────────────────┤
+│                      │ service/ server APIs   │
 ├──────────────────────┴────────────────────────┤
-│ lib/  api, storage, formatting, platform,     │
-│       agentApi                                │
+│ lib/  storage, formatting, platform           │
 └───────────────────────────────────────────────┘
 ```
 
@@ -45,7 +46,9 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 moves down a layer. `device/`'s only React code is `DeviceProvider.tsx` and
 the shared data hook `useGarden.ts`. `auth/` sits beside `device/`, and
 `device/` may read the session token from it (for `cloudLink`), never the other
-way round.
+way round. `service/` holds every call to a server (DouSHamBE now, the agent
+backend later): `auth/`, `device/` and features call its functions, no
+`/v1/...` path appears anywhere else, and it imports only `lib/`.
 
 ## Folder layout
 
@@ -91,13 +94,16 @@ src/
     assistant/            chat, action cards, tool runner (device tools → DeviceClient)
     device/               device info, link, firmware, rain delay
     terminal/             serial terminal (any link): /device/terminal, 2000-line buffer, baud selector for USB
+  service/                every server call (docs/cloud.md)
+    client.ts             base URL (VITE_API_URL), bearer token, ApiError, 401 hook, SSE reader
+    auth.ts               account types, startCode / verifyCode, getMe
+    devices.ts            device types, listDevices, getDevice, claimDevice, sendCommand, followDeviceEvents
+    agent.ts              SSE chat client for the agent backend (fetch + ReadableStream; #22)
   lib/
-    api.ts                DouSHamBE client: base URL, bearer token, typed errors, SSE reader (docs/cloud.md)
     storage.ts            @capacitor/preferences wrapper (known devices)
     platform.ts           isIOS / isAndroid / hasWebSerial …
     format.ts             durations, times, "today 18:00" labels
     theme.ts              Appearance: saved choice, data-theme, status-bar style
-    agentApi.ts           SSE chat client for the agent backend (fetch + ReadableStream)
 android/
   app/src/main/java/.../UsbSerialPlugin.kt   local plugin (usb-serial-for-android)
 ```
@@ -243,7 +249,7 @@ only on `/connect`; Home and Device link to it.
 | What | How |
 |---|---|
 | `lineCodec`, `client` | Vitest unit tests against `mockLink` |
-| `lib/api`, `cloudLink` | Vitest against a fake `fetch` (replies, errors, SSE) |
+| `service/client`, `cloudLink` | Vitest against a fake `fetch` (replies, errors, SSE) |
 | End to end | Manual, against a local DouSHamBE with `MOCK_AUTH=true` and its fake board |
 | Feature hooks | Vitest with `mockLink` scripted responses |
 | Assistant tool runner | Vitest: tier handling, argument limits, unknown tool rejected, `USER_DECLINED` |

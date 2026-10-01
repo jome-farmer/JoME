@@ -5,7 +5,8 @@ The decision is [ADR 0004](adr/0004-server-first.md). The board messages
 themselves are [jome-farmer/protocol](https://github.com/jome-farmer/protocol)
 v1, the same as over BLE and USB.
 
-- Base URL: `VITE_API_URL` (dev: `http://<your Mac's LAN IP>:8000`). Every
+- Base URL: `VITE_API_URL` (dev: `http://<your Mac's LAN IP>:8000` in your
+  own `.env.local`, which git ignores, so phones on the same Wi‑Fi reach it too). Every
   path starts with `/v1`. Swagger is at `/docs`.
 - Auth: `Authorization: Bearer <accessToken>`. Tokens last 30 days; a `401`
   means sign in again.
@@ -114,7 +115,7 @@ data: {"data": false, "at": 1790814099.1}
 - Comment lines (`: keepalive`, every 15 s) keep the stream open. Reconnect on
   close, then read `GET /v1/devices/{serial}` to catch up.
 - `EventSource` can't send a bearer header, so read it with `fetch` and a
-  `ReadableStream`, like `agentApi`.
+  `ReadableStream` (`service/client.ts`).
 
 ## Platform notes
 

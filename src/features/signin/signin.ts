@@ -1,10 +1,4 @@
-import type { Session } from "../../auth/AuthContext";
-import { api } from "../../lib/api";
 import { latinDigits } from "../../lib/format";
-
-/** Where the sign-in code goes (docs/cloud.md, Sign-in). */
-export type Channel = "phone" | "email";
-export type CodeTarget = { channel: Channel; to: string };
 
 /** Codes are 6 digits. The server allows 5 wrong tries per code. */
 export const CODE_LENGTH = 6;
@@ -30,19 +24,4 @@ export function toEmail(input: string): string | null {
 /** Keep only digits from typing or pasting ("483 920" → "483920"). */
 export function codeDigits(text: string): string {
   return latinDigits(text).replace(/\D/g, "").slice(0, CODE_LENGTH);
-}
-
-export function startCode({ channel, to }: CodeTarget): Promise<unknown> {
-  return api("/v1/auth/otp/start", { method: "POST", body: { channel, to } });
-}
-
-/** The same call signs up and signs in; `created` says which. */
-export function verifyCode(
-  { channel, to }: CodeTarget,
-  code: string,
-): Promise<Session> {
-  return api<Session>("/v1/auth/otp/verify", {
-    method: "POST",
-    body: { channel, to, code },
-  });
 }
