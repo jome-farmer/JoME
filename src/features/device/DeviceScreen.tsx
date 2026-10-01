@@ -17,7 +17,13 @@ import {
   UserRound,
   Wifi,
 } from "lucide-react";
-import { accountLabel, useAuth } from "../../auth/AuthContext";
+import { useAppDispatch, useAppSelector } from "../../store";
+import {
+  accountLabel,
+  selectAuthState,
+  selectUser,
+  signOut,
+} from "../../store/authSlice";
 import {
   supports,
   useDevice,
@@ -336,7 +342,9 @@ function Connected() {
 
 /** Design screen 10, Account: who is signed in on this phone, and Sign out. */
 function Account() {
-  const { state, user, signOut } = useAuth();
+  const state = useAppSelector(selectAuthState);
+  const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   if (state === "loading") return null;
   return (
@@ -349,7 +357,11 @@ function Account() {
             trailing={accountLabel(user)}
           />
           {/* FirstRunRedirect goes to Welcome once the session is gone. */}
-          <ListRow icon={LogOut} title="Sign out" onClick={signOut} />
+          <ListRow
+            icon={LogOut}
+            title="Sign out"
+            onClick={() => void dispatch(signOut())}
+          />
         </>
       ) : (
         <ListRow

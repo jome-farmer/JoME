@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../auth/AuthContext";
+import { useAppSelector } from "../../store";
+import { selectAuthState } from "../../store/authSlice";
 import { useDevice } from "../../device/DeviceContext";
 import { Button } from "../../ui/Button";
 import { StepDots } from "./StepDots";
@@ -9,7 +10,7 @@ import styles from "./Onboarding.module.css";
 export function WelcomeScreen() {
   const navigate = useNavigate();
   const { connectDemo, state } = useDevice();
-  const auth = useAuth();
+  const authState = useAppSelector(selectAuthState);
 
   const tryDemo = async () => {
     await connectDemo();
@@ -34,7 +35,7 @@ export function WelcomeScreen() {
           size="lg"
           block
           onClick={() =>
-            navigate(auth.state === "signedIn" ? "/connect" : "/signin")
+            navigate(authState === "signedIn" ? "/connect" : "/signin")
           }
         >
           Get started

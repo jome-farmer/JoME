@@ -6,7 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAuth, type AuthState } from "../auth/AuthContext";
+import { useAppSelector } from "../store";
+import { selectAuthState, type AuthState } from "../store/authSlice";
 import { listDevices } from "../services/devices";
 import {
   addKnownDevices,
@@ -246,13 +247,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   // Which link to open without being asked (docs/architecture.md, Choosing a link): the demo if
   // that's where they left off; the server for a board on the account; otherwise Bluetooth to the
   // last board, in native apps only (browsers need a tap first). Runs at launch and on sign-in.
-  const auth = useAuth();
+  const authState = useAppSelector(selectAuthState);
   const autoFor = useRef<AuthState>(undefined);
   useEffect(() => {
-    if (auth.state === "loading" || autoFor.current === auth.state) return; // StrictMode runs effects twice.
+    if (authState === "loading" || autoFor.current === authState) return; // StrictMode runs effects twice.
     const launch = autoFor.current === undefined;
-    autoFor.current = auth.state;
-    if (auth.state === "signedOut" && !launch) {
+    autoFor.current = authState;
+    if (authState === "signedOut" && !launch) {
       // The server needs the account, so signing out ends a connection through it.
       if (active.current?.link.kind === "cloud")
         void teardown().then(() => setSnap({ state: "idle" }));
@@ -262,7 +263,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     const before = lastFactory.current;
     void (async () => {
       const [last] = await getKnownDevices();
-      const signedIn = auth.state === "signedIn";
+      const signedIn = authState === "signedIn";
       // The account's boards join this phone's list, so a new phone knows them too.
       const list = signedIn
         ? listDevices().catch(() => [])
@@ -286,7 +287,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       if (launch && last?.bleDeviceId && canScanInApp())
         void connectBle(last.bleDeviceId);
     })();
-  }, [auth.state, teardown, connectDemo, connectCloud, connectBle]);
+  }, [authState, teardown, connectDemo, connectCloud, connectBle]);
 
   useEffect(() => () => void teardown(), [teardown]);
 

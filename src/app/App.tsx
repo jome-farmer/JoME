@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "../ui/base.css";
-import { AuthProvider } from "../auth/AuthProvider";
+import { Provider } from "react-redux";
 import { DeviceProvider } from "../device/DeviceProvider";
+import { store } from "../store";
 import { applyTheme, loadTheme } from "../lib/theme";
 import { FirstRunRedirect } from "./FirstRunRedirect";
 import { Splash } from "./Splash";
@@ -32,7 +33,7 @@ export function App() {
   }, []);
 
   return (
-    <AuthProvider>
+    <Provider store={store}>
       <DeviceProvider>
         <BrowserRouter>
           <FirstRunRedirect />
@@ -71,6 +72,6 @@ export function App() {
         </BrowserRouter>
         <Splash />
       </DeviceProvider>
-    </AuthProvider>
+    </Provider>
   );
 }

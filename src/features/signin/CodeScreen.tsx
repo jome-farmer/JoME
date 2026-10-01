@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "../../auth/AuthContext";
+import { useAppDispatch } from "../../store";
+import { signIn } from "../../store/authSlice";
 import { errorText } from "../../services/device/errors";
 import { displayPhone } from "../../lib/format";
 import { startCode, verifyCode, type CodeTarget } from "../../services/auth";
@@ -14,7 +15,7 @@ import styles from "./SignIn.module.css";
 /** Design screen 1c: six digits, checked as soon as the sixth is typed. */
 export function CodeScreen() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const dispatch = useAppDispatch();
   const target = useLocation().state as CodeTarget | null;
   const [code, setCode] = useState("");
   const [error, setError] = useState<string>();
@@ -49,7 +50,7 @@ export function CodeScreen() {
     setError(undefined);
     try {
       const session = await verifyCode(target, value);
-      await signIn(session);
+      await dispatch(signIn(session));
       // A new account sets up its first board; a returning one goes home.
       navigate(session.created ? "/connect" : "/", { replace: true });
     } catch (err) {
