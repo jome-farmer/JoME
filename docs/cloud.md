@@ -80,8 +80,11 @@ One Google Cloud project, three OAuth clients:
 | Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                                                                                                                                                                                                                                              |
 | iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`).                                                                                                                                                                                                              |
 
-Android SHA-1s registered on the Android client (add a row when one is
-registered; the signing steps are in [deployment.md](deployment.md#android-release-signing)):
+Android SHA-1s registered in Google Cloud. An Android OAuth client takes one
+SHA-1, so each key gets its own client with package `ir.jomefarmer.jome`; the
+app signs in with the web client ID, so extra clients need no code change. Add
+a row when one is registered; the signing steps are in
+[deployment.md](deployment.md#android-release-signing):
 
 | Key                                            | SHA-1                                                         |
 | ---------------------------------------------- | ------------------------------------------------------------- |
