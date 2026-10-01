@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { DeviceClient } from "./client";
+import type { DeviceClient } from "../services/device/client";
 import { supports, useDevice } from "./DeviceContext";
-import type { Program, Sensors, Status, Zone } from "./types";
+import type { Program, Sensors, Status, Zone } from "../services/device/types";
 
 export type GardenZone = Zone;
 

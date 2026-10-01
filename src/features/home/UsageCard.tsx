@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Droplets } from "lucide-react";
-import type { DeviceClient } from "../../device/client";
-import type { Usage } from "../../device/types";
+import type { DeviceClient } from "../../services/device/client";
+import type { Usage } from "../../services/device/types";
 import { formatLiters } from "../../lib/format";
 import styles from "./UsageCard.module.css";
 

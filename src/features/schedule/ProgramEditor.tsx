@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { useDevice, useOfflineReason } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
-import type { Program } from "../../device/types";
+import type { Program } from "../../services/device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
@@ -20,7 +20,7 @@ import {
   totalSeconds,
 } from "./program";
 import styles from "./Schedule.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 /** Full-screen editor at /schedule/new and /schedule/:id: name, days, start time, zones in order. */
 export function ProgramEditor() {

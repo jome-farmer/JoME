@@ -4,16 +4,16 @@
 (`protocol.md`). It is shared by the app, the board firmware (SHamBE) and the
 server (DouSHamBE), and it covers transports, the message format, every
 command, events, types, error codes, limits, the QR label, and the rules for
-changing any of them. Read it before touching `src/device/`.
+changing any of them. Read it before touching `src/services/device/`.
 
 To change the protocol, open a PR there first and link it to the matching
-firmware and app PRs. `src/device/types.ts` mirrors its types.
+firmware and app PRs. `src/services/device/types.ts` mirrors its types.
 
 This page only covers how the app implements it.
 
 ## Links
 
-Every transport is a `Link` (`src/device/link.ts`), a byte stream with the
+Every transport is a `Link` (`src/services/device/links/link.ts`), a byte stream with the
 same interface. Features never touch a link directly. They go through
 `DeviceClient`.
 
@@ -48,7 +48,7 @@ same interface. Features never touch a link directly. They go through
   baseline commands, and screens hide optional actions it does not list.
 - Messages over **16 KiB** are refused in the app with `BAD_REQUEST`,
   because the board drops them without answering (protocol §2).
-- People see the app's own words for each error `code` (`device/errors.ts`),
+- People see the app's own words for each error `code` (`services/device/errors.ts`),
   never the board's English `message`. Unknown codes get a generic line.
 - `restart()` in `DeviceProvider` sends `device.reboot` and reconnects once the
   board is back. Bluetooth does this through its normal automatic reconnect.

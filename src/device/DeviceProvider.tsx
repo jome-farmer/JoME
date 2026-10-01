@@ -7,23 +7,26 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth, type AuthState } from "../auth/AuthContext";
-import { listDevices } from "../service/devices";
+import { listDevices } from "../services/devices";
 import {
   addKnownDevices,
   forgetDevice,
   getKnownDevices,
   rememberDevice,
 } from "../lib/storage";
-import { DeviceClient } from "./client";
+import { DeviceClient } from "../services/device/client";
 import { DeviceContext, type DeviceContextValue } from "./DeviceContext";
-import { handshake } from "./handshake";
-import type { Link } from "./link";
+import { handshake } from "../services/device/handshake";
+import type { Link } from "../services/device/links/link";
 import { reconnectDelay } from "../lib/backoff";
-import { canScanInApp, createBleLink } from "./links/bleLink";
-import { createAndroidUsbLink } from "./links/androidUsbLink";
-import { createCloudLink, type CloudLink } from "./links/cloudLink";
-import { createMockLink } from "./links/mockLink";
-import { createWebSerialLink } from "./links/webSerialLink";
+import { canScanInApp, createBleLink } from "../services/device/links/bleLink";
+import { createAndroidUsbLink } from "../services/device/links/androidUsbLink";
+import {
+  createCloudLink,
+  type CloudLink,
+} from "../services/device/links/cloudLink";
+import { createMockLink } from "../services/device/links/mockLink";
+import { createWebSerialLink } from "../services/device/links/webSerialLink";
 
 type Snapshot = Pick<
   DeviceContextValue,

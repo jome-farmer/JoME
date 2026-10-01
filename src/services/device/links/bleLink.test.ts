@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reconnectDelay } from "../../lib/backoff";
+import { reconnectDelay } from "../../../lib/backoff";
 import { chunks } from "./bleLink";
 
 describe("chunks", () => {

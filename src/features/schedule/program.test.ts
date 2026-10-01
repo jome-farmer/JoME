@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Program, Zone } from "../../device/types";
+import type { Program, Zone } from "../../services/device/types";
 import {
   moveStep,
   newProgram,

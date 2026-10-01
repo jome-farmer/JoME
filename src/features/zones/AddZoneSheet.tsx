@@ -8,7 +8,7 @@ import { TextField } from "../../ui/TextField";
 import { ValvePicker } from "./ValvePicker";
 import { firstFreeValve, type ValveOption } from "./valves";
 import styles from "./ZonesScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 type Props = {
   options: ValveOption[];

@@ -1,4 +1,4 @@
-import type { Program, Zone } from "../../device/types";
+import type { Program, Zone } from "../../services/device/types";
 
 export const MAX_STEPS = 16; // Same limit as the assistant's save_program (docs/assistant.md).
 export const MAX_STEP_MIN = 60;

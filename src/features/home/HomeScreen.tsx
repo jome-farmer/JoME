@@ -20,7 +20,7 @@ import {
   useDevice,
   useOfflineReason,
 } from "../../device/DeviceContext";
-import type { LinkKind } from "../../device/link";
+import type { LinkKind } from "../../services/device/links/link";
 import {
   formatDuration,
   formatFlow,
@@ -39,7 +39,7 @@ import { WeatherCard } from "./WeatherCard";
 import { UsageCard } from "./UsageCard";
 import { useGarden } from "../../device/useGarden";
 import styles from "./HomeScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },

@@ -8,7 +8,7 @@ import {
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Lock, RefreshCw, Wifi } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
-import type { WifiNetwork, WifiState } from "../../device/types";
+import type { WifiNetwork, WifiState } from "../../services/device/types";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
 import { List, ListRow } from "../../ui/ListRow";
@@ -19,7 +19,7 @@ import type { SetupState } from "./ClaimScreen";
 import { StepDots } from "./StepDots";
 import { networkList, passwordProblem, wifiFailureText } from "./wifi";
 import styles from "./Onboarding.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 /** Setup step 3 (mockup 3): put the board on Wi‑Fi. Networks come from the board's own scan. */
 /**

@@ -6,7 +6,7 @@ import { Button } from "../../ui/Button";
 import { TextField } from "../../ui/TextField";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 const MAX = 32; // Longest name the board stores (jome-farmer/protocol §7).
 

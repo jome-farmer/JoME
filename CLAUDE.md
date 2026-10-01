@@ -21,7 +21,7 @@ desktop bench tool in Chrome.
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Why Capacitor, what's possible on each platform          | [docs/adr/0001-cross-platform-framework.md](docs/adr/0001-cross-platform-framework.md)                                                                                                    |
 | Folders, layers, device layer, state                     | [docs/architecture.md](docs/architecture.md)                                                                                                                                              |
-| Server first: cloud link, sign-in, offline reads         | [docs/adr/0004-server-first.md](docs/adr/0004-server-first.md), contract in [docs/cloud.md](docs/cloud.md) (backend: [DouSHamBE](https://github.com/jome-farmer/DouSHamBE)) |
+| Server first: cloud link, sign-in, offline reads         | [docs/adr/0004-server-first.md](docs/adr/0004-server-first.md), contract in [docs/cloud.md](docs/cloud.md) (backend: [DouSHamBE](https://github.com/jome-farmer/DouSHamBE))               |
 | App ↔ board protocol (BLE NUS, USB serial, JSON lines)   | **[jome-farmer/protocol](https://github.com/jome-farmer/protocol)** (the contract, shared with firmware and server); app-side notes in [docs/device-protocol.md](docs/device-protocol.md) |
 | AI assistant: agent contract, device tools, safety tiers | [docs/adr/0002-ai-assistant.md](docs/adr/0002-ai-assistant.md), [docs/assistant.md](docs/assistant.md)                                                                                    |
 | Design principles, components, screens, copy             | [design/README.md](design/README.md), [design/mockups.html](design/mockups.html)                                                                                                          |
@@ -50,9 +50,10 @@ desktop bench tool in Chrome.
   The app must stay RTL-ready for Persian.
 - Features talk to hardware only through `DeviceClient`. They never touch a
   `Link` or a Capacitor plugin directly.
-- Imports point down the layers: `app → features → ui | device | auth → service → lib`.
-  Every server call lives in `src/service/`; no `/v1/...` paths elsewhere. Features
-  never import from other features.
+- Imports point down the layers: `app → features → ui | device | auth → services → lib`.
+  Every service lives in `src/services/`: server calls, and the board
+  protocol and its links (`services/device/`). No `/v1/...` paths elsewhere.
+  Features never import from other features.
 - No PrimeReact, Font Awesome, or UI kits. Use `src/ui/` components with
   `lucide-react` icons.
 - Fonts and assets are bundled. The app must work offline.

@@ -1,4 +1,4 @@
-import type { Program } from "../../device/types";
+import type { Program } from "../../services/device/types";
 
 export type TodayRun = {
   program: Program;

@@ -1,4 +1,4 @@
-import type { Args, Command } from "../../device/types";
+import type { Args, Command } from "../../services/device/types";
 
 export type TerminalCommand = {
   [C in Command]: { cmd: C; args: Args<C> };

@@ -1,5 +1,5 @@
 import { formatDuration } from "../../lib/format";
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 
 /** Compact zone list for the terminal, using the same duration wording as the app. */
 export function formatZones(zones: Zone[]): string {

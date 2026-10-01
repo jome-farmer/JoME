@@ -32,23 +32,27 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 │             schedule · assistant · device ·   │
 │             terminal                          │
 ├──────────────────────┬────────────────────────┤
-│ ui/  design system   │ device/ client + links │
+│ ui/  design system   │ device/ provider, hook │
 │                      │ auth/   session        │
 │                      ├────────────────────────┤
-│                      │ service/ server APIs   │
+│                      │ services/ server APIs, │
+│                      │   board protocol+links │
 ├──────────────────────┴────────────────────────┤
 │ lib/  storage, formatting, platform           │
 └───────────────────────────────────────────────┘
 ```
 
 **Dependency rule:** imports only point down. `ui/` never imports from
-`device/` or `features/`. Features don't import from each other; shared code
-moves down a layer. `device/`'s only React code is `DeviceProvider.tsx` and
-the shared data hook `useGarden.ts`. `auth/` sits beside `device/`, and
-`device/` may read the session token from it (for `cloudLink`), never the other
-way round. `service/` holds every call to a server (DouSHamBE now, the agent
-backend later): `auth/`, `device/` and features call its functions, no
-`/v1/...` path appears anywhere else, and it imports only `lib/`.
+`device/`, `services/` or `features/`. Features don't import from each other;
+shared code moves down a layer. `device/` is only the React side of the board:
+`DeviceContext.ts`, `DeviceProvider.tsx` and the shared data hook `useGarden.ts`.
+`auth/` sits beside `device/`, and
+`device/` may read the session from it (for `cloudLink`), never the other way
+round. Every service lives in
+`services/`: the calls to a server (DouSHamBE now, the agent backend later) and
+the board protocol with its transports (`services/device/`), which is an API
+too. No `/v1/...` path appears outside `services/`, and `services/` imports only
+`lib/`. Features still reach the board only through `DeviceClient`.
 
 ## Folder layout
 
@@ -66,18 +70,7 @@ src/
     base.css              imports design/tokens.css + bundled fonts
     Screen.tsx  Button.tsx  IconButton.tsx  Card.tsx  Switch.tsx  Sheet.tsx
     Stepper.tsx  ListRow.tsx  StatusPill.tsx  WaterRing.tsx  EmptyState.tsx
-  device/
-    link.ts               Link interface + LinkKind
-    links/
-      bleLink.ts          @capacitor-community/bluetooth-le (native + Web Bluetooth); scan / browser chooser
-      webSerialLink.ts    desktop Chrome/Edge
-      androidUsbLink.ts   bridge to the local UsbSerial Capacitor plugin
-      mockLink.ts         simulated board (dev, tests, demo mode)
-      cloudLink.ts        the board through DouSHamBE: request lines → API calls, SSE → event lines
-    lineCodec.ts          bytes → lines; protocol messages vs log lines; 16 KB line cap
-    client.ts             DeviceClient: typed request/response + events
-    types.ts              Zone, Program, Status… (mirrors device-protocol.md)
-    handshake.ts          hello + protocol version check + time.set
+  device/                 React side of the board
     DeviceContext.ts      context type + useDevice()
     DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
     useGarden.ts          live status, zones, programs, running zone + zone/program actions (Home, Zones, Schedule);
@@ -94,11 +87,24 @@ src/
     assistant/            chat, action cards, tool runner (device tools → DeviceClient)
     device/               device info, link, firmware, rain delay
     terminal/             serial terminal (any link): /device/terminal, 2000-line buffer, baud selector for USB
-  service/                every server call (docs/cloud.md)
+  services/               every service: server calls (docs/cloud.md) and the board protocol
     client.ts             base URL (VITE_API_URL), bearer token, ApiError, 401 hook, SSE reader
     auth.ts               account types, startCode / verifyCode, getMe
     devices.ts            device types, listDevices, getDevice, claimDevice, sendCommand, followDeviceEvents
     agent.ts              SSE chat client for the agent backend (fetch + ReadableStream; #22)
+    device/               board protocol (jome-farmer/protocol, docs/device-protocol.md)
+      client.ts           DeviceClient: typed request/response + events
+      types.ts            Zone, Program, Status… (mirrors the protocol)
+      lineCodec.ts        bytes → lines; protocol messages vs log lines; 16 KB line cap
+      handshake.ts        hello + protocol version check + time.set
+      errors.ts           the app's words for each error code, offline text
+      links/
+        link.ts           Link interface + LinkKind
+        bleLink.ts        @capacitor-community/bluetooth-le (native + Web Bluetooth); scan / browser chooser
+        webSerialLink.ts  desktop Chrome/Edge
+        androidUsbLink.ts bridge to the local UsbSerial Capacitor plugin
+        mockLink.ts       simulated board (dev, tests, demo mode)
+        cloudLink.ts      the board through DouSHamBE: request lines → API calls, SSE → event lines
   lib/
     storage.ts            @capacitor/preferences wrapper (known devices)
     platform.ts           isIOS / isAndroid / hasWebSerial …
@@ -111,15 +117,15 @@ android/
 ## Device layer
 
 ```ts
-// device/link.ts
-export type LinkKind = 'ble' | 'usb' | 'mock' | 'cloud';
+// services/device/links/link.ts
+export type LinkKind = "ble" | "usb" | "mock" | "cloud";
 
 export interface Link {
   readonly kind: LinkKind;
   open(): Promise<void>;
   close(): Promise<void>;
   write(bytes: Uint8Array): Promise<void>;
-  onData(cb: (bytes: Uint8Array) => void): () => void;   // returns unsubscribe
+  onData(cb: (bytes: Uint8Array) => void): () => void; // returns unsubscribe
   onClose(cb: (error?: Error) => void): () => void;
 }
 ```
@@ -139,15 +145,15 @@ On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
   connect(link: Link): Promise<void>, disconnect(): Promise<void> }
 ```
 
-On an unexpected close it moves to `lost` and the banner offers *Retry*.
-`connect` takes a link **factory**, so *Retry* re-creates the same kind of link.
+On an unexpected close it moves to `lost` and the banner offers _Retry_.
+`connect` takes a link **factory**, so _Retry_ re-creates the same kind of link.
 A dropped **BLE** link also reconnects automatically with backoff (1 s, 2 s,
 5 s, then every 10 s, `lib/backoff.ts`). It only tries while the app is
 visible, and a manual disconnect stops it.
 
 On launch the provider reconnects to the most recent known device
 (`lib/storage.ts`). Native apps reconnect to BLE devices by their saved
-`bleDeviceId`. Browsers can't, because Web Bluetooth needs a tap first. *Exit demo* also forgets the demo device, so the next
+`bleDeviceId`. Browsers can't, because Web Bluetooth needs a tap first. _Exit demo_ also forgets the demo device, so the next
 launch starts disconnected.
 
 ### Cloud link
@@ -161,7 +167,7 @@ feature work over it unchanged ([cloud.md](cloud.md)):
   `FORBIDDEN_REMOTE`, or the board's own code).
 - It reads `GET /v1/devices/{serial}/events/stream` and turns each event into an
   event line. `online` isn't a protocol event: `cloudLink` reports it to the
-  provider instead (see *Board offline*).
+  provider instead (see _Board offline_).
 - The handshake skips `time.set` over the cloud: a board on Wi‑Fi keeps time
   from NTP.
 - There are no firmware log lines over the cloud, so the terminal shows only
@@ -171,8 +177,8 @@ feature work over it unchanged ([cloud.md](cloud.md)):
 
 1. **Onboarding uses BLE or USB.** Pairing and `wifi.*` are local only.
 2. **After that, the cloud is the default** for a claimed board when signed in.
-3. **Nearby:** the user can switch to BLE or USB from Device (*Connect
-   nearby*, which returns to Device afterwards) or Connect, for example to
+3. **Nearby:** the user can switch to BLE or USB from Device (_Connect
+   nearby_, which returns to Device afterwards) or Connect, for example to
    change Wi‑Fi or watch firmware logs. When the cloud says the
    board is offline and the phone has its saved BLE peer, the native app tries
    BLE in the background.
@@ -188,23 +194,23 @@ provider stays `ready`, with `offline: { syncedAt }` set:
   `zones.list`, `programs.list`, `sensors.read`, `usage.read`) from
   `GET /v1/devices/{serial}`, so `useGarden` and every screen work unchanged.
   Every other command is refused at once with `DEVICE_OFFLINE`, which the
-  screens word as *Changes need JoME online…*.
-- `syncedAt` is the newest part of the copy. The banner reads *Backyard is
-  offline · Last synced 12 min ago*.
+  screens word as _Changes need JoME online…_.
+- `syncedAt` is the newest part of the copy. The banner reads _Backyard is
+  offline · Last synced 12 min ago_.
 - `useGarden` re-reads when the board goes offline or comes back. Offline it
-  reports no live run; Home shows *Was watering …* from the copy instead.
+  reports no live run; Home shows _Was watering …_ from the copy instead.
 - `online: true` switches the link back to the board.
 - Opening the app to an offline board connects the same way, from the copy.
 
 ### Which links appear on which platform
 
-| Platform | Links offered in Connect |
-|---|---|
-| iOS | BLE |
-| Android | BLE, USB (only when a USB serial device is attached) |
-| Desktop Chrome / Edge | BLE (Web Bluetooth), USB (Web Serial) |
-| Other browsers | Demo (mock) only, with a notice |
-| Any, signed in | Cloud, for claimed boards |
+| Platform              | Links offered in Connect                             |
+| --------------------- | ---------------------------------------------------- |
+| iOS                   | BLE                                                  |
+| Android               | BLE, USB (only when a USB serial device is attached) |
+| Desktop Chrome / Edge | BLE (Web Bluetooth), USB (Web Serial)                |
+| Other browsers        | Demo (mock) only, with a notice                      |
+| Any, signed in        | Cloud, for claimed boards                            |
 
 ## State and data
 
@@ -230,7 +236,7 @@ provider stays `ready`, with `offline: { syncedAt }` set:
 ```
 
 On launch at `/` when signed out, or with no known controller,
-`FirstRunRedirect` goes to `/welcome`. *Try the demo* needs no account. Deep links such as `/ui` are left alone. After that the app opens
+`FirstRunRedirect` goes to `/welcome`. _Try the demo_ needs no account. Deep links such as `/ui` are left alone. After that the app opens
 on the Home tab and reconnects to the last device. The connect choices live
 only on `/connect`; Home and Device link to it.
 
@@ -239,29 +245,29 @@ only on `/connect`; Home and Device link to it.
 - Link errors turn into a **connection banner** at the top of the tab layout,
   never a modal. An offline board is a banner too, with the copy's age.
 - `FORBIDDEN_REMOTE` explains that the change needs the phone near the board,
-  and offers *Connect nearby*.
+  and offers _Connect nearby_.
 - A command error shows a toast with the board's `message` and a retry
   action when the command is safe to repeat.
 - User-facing text follows the copy rules in [design/README.md](../design/README.md#copy).
 
 ## Testing
 
-| What | How |
-|---|---|
-| `lineCodec`, `client` | Vitest unit tests against `mockLink` |
-| `service/client`, `cloudLink` | Vitest against a fake `fetch` (replies, errors, SSE) |
-| End to end | Manual, against a local DouSHamBE with `MOCK_AUTH=true` and its fake board |
-| Feature hooks | Vitest with `mockLink` scripted responses |
-| Assistant tool runner | Vitest: tier handling, argument limits, unknown tool rejected, `USER_DECLINED` |
-| Screens | Manual, using the in-app **Demo mode** (mock link) |
-| Hardware | Manual checklist in [testing-hardware.md](testing-hardware.md) before each release |
+| What                           | How                                                                                |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `lineCodec`, `client`          | Vitest unit tests against `mockLink`                                               |
+| `services/client`, `cloudLink` | Vitest against a fake `fetch` (replies, errors, SSE)                               |
+| End to end                     | Manual, against a local DouSHamBE with `MOCK_AUTH=true` and its fake board         |
+| Feature hooks                  | Vitest with `mockLink` scripted responses                                          |
+| Assistant tool runner          | Vitest: tier handling, argument limits, unknown tool rejected, `USER_DECLINED`     |
+| Screens                        | Manual, using the in-app **Demo mode** (mock link)                                 |
+| Hardware                       | Manual checklist in [testing-hardware.md](testing-hardware.md) before each release |
 
 ## Target dependencies
 
-| Remove | Add |
-|---|---|
+| Remove                                       | Add                                                                                                                                                                                                                                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `primereact`, `primeicons`, `@fortawesome/*` | `@capacitor/android`, `@capacitor/ios`, `@capacitor-community/bluetooth-le`, `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor-mlkit/barcode-scanning` (QR), `lucide-react`, `@fontsource-variable/manrope`, `@fontsource/jetbrains-mono` · dev: `vitest`, `prettier` |
-| | Phase 5: `@aparajita/capacitor-secure-storage` (session token: Keychain, Keystore, `localStorage` on the web; #87), a Google sign-in plugin (ID token; #94) |
+|                                              | Phase 5: `@aparajita/capacitor-secure-storage` (session token: Keychain, Keystore, `localStorage` on the web; #87), a Google sign-in plugin (ID token; #94)                                                                                                                                                                          |
 
 Fonts are bundled, not loaded from a CDN, because the app must work with no
 internet connection in a garden.

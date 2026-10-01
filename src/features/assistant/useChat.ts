@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { DeviceClient } from "../../device/client";
-import type { Program, Zone } from "../../device/types";
+import type { DeviceClient } from "../../services/device/client";
+import type { Program, Zone } from "../../services/device/types";
 import { CONFIRM_TIMEOUT_MS, planTool, type Plan } from "./tools";
 import type {
   AgentContext,
@@ -9,7 +9,7 @@ import type {
   ToolCall,
   ToolResult,
 } from "./types";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 export type CardState =
   "pending" | "running" | "done" | "declined" | "failed" | "expired";

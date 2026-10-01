@@ -1,5 +1,5 @@
 // App ↔ agent contract (docs/assistant.md). The real SSE transport arrives with #22.
-import type { Hello, Program, Status, Zone } from "../../device/types";
+import type { Hello, Program, Status, Zone } from "../../services/device/types";
 
 export type ToolCall = {
   callId: string;

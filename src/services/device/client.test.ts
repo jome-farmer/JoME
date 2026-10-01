@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DeviceClient, DeviceError, type TrafficLine } from "./client";
-import type { Link } from "./link";
+import type { Link } from "./links/link";
 
 /** Minimal scripted link: records writes, lets the test feed board output. */
 function fakeLink() {

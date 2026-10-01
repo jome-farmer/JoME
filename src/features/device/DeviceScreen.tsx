@@ -23,7 +23,7 @@ import {
   useDevice,
   useOfflineReason,
 } from "../../device/DeviceContext";
-import type { LinkKind } from "../../device/link";
+import type { LinkKind } from "../../services/device/links/link";
 import { useGarden } from "../../device/useGarden";
 import { whenLabel } from "../../lib/format";
 import { applyTheme, loadTheme, saveTheme, type Theme } from "../../lib/theme";
@@ -35,7 +35,7 @@ import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { Screen } from "../../ui/Screen";
 import { Sheet } from "../../ui/Sheet";
 import styles from "./DeviceScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },

@@ -1,4 +1,4 @@
-import type { Link } from "../link";
+import type { Link } from "./link";
 
 /** jome-farmer/protocol §1: the board UART runs 115200 8N1 by default. */
 export const DEFAULT_BAUD = 115_200;

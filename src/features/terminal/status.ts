@@ -1,4 +1,4 @@
-import type { WifiState } from "../../device/types";
+import type { WifiState } from "../../services/device/types";
 
 /** The terminal's compact, human-readable view of the controller Wi-Fi state. */
 export function formatWifiState(wifi: WifiState): string {

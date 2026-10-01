@@ -1,5 +1,5 @@
-import type { LinkKind } from "../../device/link";
-import type { Hello } from "../../device/types";
+import type { LinkKind } from "../../services/device/links/link";
+import type { Hello } from "../../services/device/types";
 
 const LINK_LABEL: Record<LinkKind, string> = {
   ble: "Bluetooth",

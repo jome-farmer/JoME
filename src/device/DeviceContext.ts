@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import type { DeviceClient } from "./client";
-import { offlineText } from "./errors";
-import type { LinkKind } from "./link";
-import type { Hello } from "./types";
+import type { DeviceClient } from "../services/device/client";
+import { offlineText } from "../services/device/errors";
+import type { LinkKind } from "../services/device/links/link";
+import type { Hello } from "../services/device/types";
 
 export type ConnectionState = "idle" | "connecting" | "ready" | "lost";
 

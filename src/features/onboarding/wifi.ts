@@ -1,4 +1,4 @@
-import type { WifiNetwork } from "../../device/types";
+import type { WifiNetwork } from "../../services/device/types";
 
 /** One row per network name, keeping the strongest signal, strongest first. Hidden (empty) names dropped. */
 export function networkList(scan: WifiNetwork[]): WifiNetwork[] {
