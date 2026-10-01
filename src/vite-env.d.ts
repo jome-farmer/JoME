@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** DouSHamBE base URL (docs/cloud.md). Defaults to http://localhost:8000. */
+  /** DouSHamBE base URL (docs/cloud.md). Defaults to https://api.jome-farmer.ir. */
   readonly VITE_API_URL?: string;
   /** Google OAuth web client ID (Android and web sign-in; docs/cloud.md). */
   readonly VITE_GOOGLE_WEB_CLIENT_ID?: string;

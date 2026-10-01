@@ -5,9 +5,11 @@ The decision is [ADR 0004](adr/0004-server-first.md). The board messages
 themselves are [jome-farmer/protocol](https://github.com/jome-farmer/protocol)
 v1, the same as over BLE and USB.
 
-- Base URL: `VITE_API_URL` (dev: `http://<your Mac's LAN IP>:8000` in your
-  own `.env.local`, which git ignores, so phones on the same Wi‑Fi reach it too). Every
-  path starts with `/v1`. Swagger is at `/docs`.
+- Base URL: `https://api.jome-farmer.ir` by default, on the web and in the
+  native apps. To use a local server, set `VITE_API_URL` (e.g.
+  `http://<your Mac's LAN IP>:8000`) in your own `.env.local`, which git
+  ignores, so phones on the same Wi‑Fi reach it too. Every path starts with
+  `/v1`. Swagger is at https://api.jome-farmer.ir/docs.
 - Auth: `Authorization: Bearer <accessToken>`. Tokens last 30 days; a `401`
   means sign in again.
 - Times are epoch seconds, like the protocol.
@@ -72,11 +74,11 @@ server accepts tokens whose audience is that web client.
 
 One Google Cloud project, three OAuth clients:
 
-| Client  | Where it goes                                                                                                                         |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Client  | Where it goes                                                                                                                                                                                                                                                                                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Web     | `VITE_GOOGLE_WEB_CLIENT_ID`, committed in `.env` (client IDs are public). Android and the web sign in with it, and it's the ID token's audience. Authorized JavaScript origins: `https://app.jome-farmer.ir`, `http://localhost:5173`. Authorized redirect URIs (the web popup returns there): `https://app.jome-farmer.ir/signin`, `http://localhost:5173/signin`. |
-| Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                |
-| iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`). |
+| Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                                                                                                                                                                                                                                              |
+| iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`).                                                                                                                                                                                                              |
 
 DouSHamBE must accept the web client ID as the token audience.
 
@@ -138,11 +140,9 @@ data: {"data": false, "at": 1790814099.1}
 
 ## Platform notes
 
-- **Native apps, for now (#103):** without `VITE_API_URL`, iOS and Android
-  talk to the dev server on the maintainer's LAN, `http://192.168.10.183:8000`.
-  Plain `http` needs three allowances, all to be removed once the server is
-  `https`: Android debug builds allow cleartext, Android allows mixed content
-  (the webview's origin is `https://localhost`), and iOS sets
-  `NSAllowsLocalNetworking`. The phone must be on the same Wi‑Fi.
+- **Native apps:** the default server is `https`, so release builds need no
+  special allowances. The cleartext and local-network allowances (Android
+  debug cleartext and mixed content, iOS `NSAllowsLocalNetworking`) remain
+  only so a `VITE_API_URL=http://<LAN IP>:8000` dev server still works.
 - **CORS:** the server allows `capacitor://localhost`, `https://localhost`,
   `http://localhost`, `http://localhost:5173` and `https://app.jome-farmer.ir`.
