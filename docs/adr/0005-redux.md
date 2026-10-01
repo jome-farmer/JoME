@@ -39,6 +39,6 @@ storage, so it never shows in devtools.
 
 - Layers: `app → features → ui | device | store → services → lib`.
 - The move goes slice by slice, one PR each: auth (with this ADR), device,
-  garden. Until the last one lands, device state stays in `DeviceProvider`.
+  garden. Until the last one lands, board data stays in `useGarden`.
 - Slices and thunks are tested with Vitest against a real store and mocked
   services.

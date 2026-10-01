@@ -32,7 +32,7 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 │             schedule · assistant · device ·   │
 │             terminal                          │
 ├──────────────────────┬────────────────────────┤
-│ ui/  design system   │ device/ provider, hook │
+│ ui/  design system   │ device/ hooks, wiring  │
 │                      ├────────────────────────┤
 │                      │ store/  Redux: slices, │
 │                      │   selectors, thunks    │
@@ -47,7 +47,8 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 **Dependency rule:** imports only point down. `ui/` never imports from
 `device/`, `services/` or `features/`. Features don't import from each other;
 shared code moves down a layer. `device/` is only the React side of the board:
-`DeviceContext.ts`, `DeviceProvider.tsx` and the shared data hook `useGarden.ts`.
+`hooks.ts` (`useDeviceClient`, `useOfflineReason`), `DeviceLifecycle.tsx` and
+the shared data hook `useGarden.ts`.
 App state lives in the Redux store in `store/` ([ADR 0005](adr/0005-redux.md)):
 screens read it with selectors and change it by dispatching thunks, which call
 `services/`. Every service lives in `services/`: the calls to a server (DouSHamBE now, the agent backend later) and
@@ -72,13 +73,16 @@ src/
     Screen.tsx  Button.tsx  IconButton.tsx  Card.tsx  Switch.tsx  Sheet.tsx
     Stepper.tsx  ListRow.tsx  StatusPill.tsx  WaterRing.tsx  EmptyState.tsx
   device/                 React side of the board
-    DeviceContext.ts      context type + useDevice()
-    DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
+    hooks.ts              useDeviceClient() (the client while ready), useOfflineReason(), supports()
+    DeviceLifecycle.tsx   no UI: auto-connect at launch and sign-in, BLE reconnect with backoff
     useGarden.ts          live status, zones, programs, running zone + zone/program actions (Home, Zones, Schedule);
                           reads the cloud copy while the board is offline
   store/                  Redux Toolkit (ADR 0005)
     index.ts              configureStore, RootState, AppThunk, useAppDispatch / useAppSelector
     authSlice.ts          signed in/out + user; signIn / signOut / startAuth thunks; sign out on 401
+    deviceSlice.ts        connection state, hello, link kind, offline; connect* / retry / restart / rename /
+                          disconnect / autoConnect thunks
+    connection.ts         the live Link + DeviceClient (not serializable, so beside the store)
   features/
     signin/               phone or email + code, Google
     onboarding/           Welcome → Sign in → Connect (BLE scan or browser chooser, USB, demo) → Wi‑Fi → Claim → Name
@@ -140,12 +144,16 @@ export interface Link {
   The terminal uses it and can hide protocol lines.
 - The terminal parses its small, documented shell vocabulary locally and sends validated requests through `DeviceClient`; protocol traffic remains visible for diagnostics.
 
-On connect, `DeviceProvider` runs `hello` and then `time.set`, and exposes:
+On connect, the `deviceSlice` thunks run `hello` and then `time.set`. The slice
+holds what screens read with `selectDevice`:
 
 ```ts
-{ state: 'idle' | 'connecting' | 'ready' | 'lost', offline?: { syncedAt }, info?: Hello, client?: DeviceClient,
-  connect(link: Link): Promise<void>, disconnect(): Promise<void> }
+{ state: 'idle' | 'connecting' | 'ready' | 'lost', offline?: { syncedAt }, info?: Hello,
+  linkKind?: LinkKind, baudRate?: number, error?: string }
 ```
+
+The live `Link` and `DeviceClient` sit in `store/connection.ts`; screens get the
+client with `useDeviceClient()`, set only while `ready`.
 
 On an unexpected close it moves to `lost` and the banner offers _Retry_.
 `connect` takes a link **factory**, so _Retry_ re-creates the same kind of link.
@@ -153,7 +161,7 @@ A dropped **BLE** link also reconnects automatically with backoff (1 s, 2 s,
 5 s, then every 10 s, `lib/backoff.ts`). It only tries while the app is
 visible, and a manual disconnect stops it.
 
-On launch the provider reconnects to the most recent known device
+On launch `DeviceLifecycle` dispatches `autoConnect`, which reconnects to the most recent known device
 (`lib/storage.ts`). Native apps reconnect to BLE devices by their saved
 `bleDeviceId`. Browsers can't, because Web Bluetooth needs a tap first. _Exit demo_ also forgets the demo device, so the next
 launch starts disconnected.
@@ -169,7 +177,7 @@ feature work over it unchanged ([cloud.md](cloud.md)):
   `FORBIDDEN_REMOTE`, or the board's own code).
 - It reads `GET /v1/devices/{serial}/events/stream` and turns each event into an
   event line. `online` isn't a protocol event: `cloudLink` reports it to the
-  provider instead (see _Board offline_).
+  device slice instead (see _Board offline_).
 - The handshake skips `time.set` over the cloud: a board on Wi‑Fi keeps time
   from NTP.
 - There are no firmware log lines over the cloud, so the terminal shows only
@@ -190,7 +198,7 @@ feature work over it unchanged ([cloud.md](cloud.md)):
 
 The server is reachable but the board isn't (`online: false` on the event
 stream, or `DEVICE_OFFLINE` from a command). The cloud link stays open and the
-provider stays `ready`, with `offline: { syncedAt }` set:
+device slice stays `ready`, with `offline: { syncedAt }` set:
 
 - `cloudLink` answers the reads the copy holds (`hello`, `status`,
   `zones.list`, `programs.list`, `sensors.read`, `usage.read`) from

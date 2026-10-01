@@ -1,9 +1,9 @@
-import { configureStore } from "@reduxjs/toolkit";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getMe, type User } from "../services/auth";
 import { api, getToken, setToken } from "../services/client";
 import { clearSession, loadSession, saveSession } from "../lib/session";
-import { authReducer, signIn, signOut, startAuth } from "./authSlice";
+import { makeStore } from ".";
+import { signIn, signOut, startAuth } from "./authSlice";
 
 vi.mock("../lib/session", () => ({
   loadSession: vi.fn(),
@@ -18,7 +18,6 @@ const user = (name: string): User => ({
   name,
   identities: [],
 });
-const makeStore = () => configureStore({ reducer: { auth: authReducer } });
 const flush = () => new Promise((r) => setTimeout(r));
 
 afterEach(() => {

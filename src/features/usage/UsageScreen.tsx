@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDeviceClient } from "../../device/hooks";
 import { errorText } from "../../services/device/errors";
 import type { Usage, Zone } from "../../services/device/types";
 import { formatDuration, formatLiters } from "../../lib/format";
@@ -18,7 +18,7 @@ const WEEKDAY = ["S", "M", "T", "W", "T", "F", "S"];
 /** Water use from the board's log (design/README.md screen 12). */
 export function UsageScreen() {
   const navigate = useNavigate();
-  const { client } = useDevice();
+  const client = useDeviceClient();
   const [period, setPeriod] = useState<Period>(7);
   const [usage, setUsage] = useState<Usage>();
   const [zones, setZones] = useState<Zone[]>([]);

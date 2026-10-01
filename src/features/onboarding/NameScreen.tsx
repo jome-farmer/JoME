@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Sprout } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { rename, selectDevice } from "../../store/deviceSlice";
 import { Button } from "../../ui/Button";
 import { TextField } from "../../ui/TextField";
 import { StepDots } from "./StepDots";
@@ -13,7 +14,8 @@ const MAX = 32; // Longest name the board stores (jome-farmer/protocol §7).
 /** Setup step 5: name the garden. The name is stored on the board. */
 export function NameScreen() {
   const navigate = useNavigate();
-  const { state, info, rename } = useDevice();
+  const { state, info } = useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   const [name, setName] = useState(info?.name ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
@@ -28,7 +30,7 @@ export function NameScreen() {
     setSaving(true);
     setError(undefined);
     try {
-      if (trimmed !== info.name) await rename(trimmed);
+      if (trimmed !== info.name) await dispatch(rename(trimmed));
       navigate("/", { replace: true });
     } catch (err) {
       setError(`Couldn't save the name. ${errorText(err)}`);

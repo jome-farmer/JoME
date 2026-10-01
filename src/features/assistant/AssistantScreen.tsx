@@ -17,7 +17,9 @@ import {
   SendHorizontal,
   Sprout,
 } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDeviceClient } from "../../device/hooks";
+import { useAppSelector } from "../../store";
+import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
 import { getFlag, setFlag } from "../../lib/storage";
 import { Button } from "../../ui/Button";
@@ -42,7 +44,8 @@ const SUGGESTIONS = [
 
 /** Mockups 6 and 7: Ask JoME. Answers stream in; anything that changes the garden waits for Confirm. */
 export function AssistantScreen() {
-  const { state, client } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const navigate = useNavigate();
 
   if (state !== "ready" || !client) {
@@ -75,7 +78,8 @@ export function AssistantScreen() {
 }
 
 function Chat() {
-  const { info, client } = useDevice();
+  const { info } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const navigate = useNavigate();
   const garden = useGarden(client);
   // ponytail: preview agent until the real JoME agent is connected (#22).

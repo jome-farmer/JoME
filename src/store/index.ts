@@ -5,8 +5,13 @@ import {
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { authReducer } from "./authSlice";
+import { deviceReducer } from "./deviceSlice";
 
-export const store = configureStore({ reducer: { auth: authReducer } });
+/** A fresh store; tests make their own. */
+export const makeStore = () =>
+  configureStore({ reducer: { auth: authReducer, device: deviceReducer } });
+
+export const store = makeStore();
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

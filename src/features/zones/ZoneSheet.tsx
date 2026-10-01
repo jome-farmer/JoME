@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Play, Square, Trash2 } from "lucide-react";
-import { useOfflineReason } from "../../device/DeviceContext";
+import { useOfflineReason } from "../../device/hooks";
 import type { Zone } from "../../services/device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";

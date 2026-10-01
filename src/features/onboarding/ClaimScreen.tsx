@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { CloudCheck } from "lucide-react";
 import { useAppSelector } from "../../store";
 import { selectAuthState } from "../../store/authSlice";
-import { useDevice } from "../../device/DeviceContext";
+import { selectDevice } from "../../store/deviceSlice";
 import { errorText } from "../../services/device/errors";
 import { latinDigits } from "../../lib/format";
 import { claimDevice } from "../../services/devices";
@@ -25,7 +25,7 @@ const CODE = /^\d{6}$/;
  */
 export function ClaimScreen() {
   const navigate = useNavigate();
-  const { state, info, linkKind } = useDevice();
+  const { state, info, linkKind } = useAppSelector(selectDevice);
   const authState = useAppSelector(selectAuthState);
   const scanned = (useLocation().state as SetupState)?.code;
   const [code, setCode] = useState(scanned ?? "");

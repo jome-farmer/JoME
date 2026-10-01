@@ -50,7 +50,7 @@ same interface. Features never touch a link directly. They go through
   because the board drops them without answering (protocol §2).
 - People see the app's own words for each error `code` (`services/device/errors.ts`),
   never the board's English `message`. Unknown codes get a generic line.
-- `restart()` in `DeviceProvider` sends `device.reboot` and reconnects once the
+- The `restart()` thunk in `store/deviceSlice.ts` sends `device.reboot` and reconnects once the
   board is back. Bluetooth does this through its normal automatic reconnect.
 
 ## Wi‑Fi

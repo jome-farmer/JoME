@@ -1,7 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2, X } from "lucide-react";
-import { useDevice, useOfflineReason } from "../../device/DeviceContext";
+import { useDeviceClient, useOfflineReason } from "../../device/hooks";
+import { useAppSelector } from "../../store";
+import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
 import type { Program } from "../../services/device/types";
 import { formatDuration } from "../../lib/format";
@@ -24,7 +26,8 @@ import { errorText } from "../../services/device/errors";
 
 /** Full-screen editor at /schedule/new and /schedule/:id: name, days, start time, zones in order. */
 export function ProgramEditor() {
-  const { state, client } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const { id } = useParams();
   const navigate = useNavigate();
   const garden = useGarden(client);

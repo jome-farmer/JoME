@@ -11,7 +11,15 @@ import {
   FlaskConical,
   QrCode,
 } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useAppDispatch, useAppSelector } from "../../store";
+import {
+  connectAndroidUsb,
+  connectBle,
+  connectDemo,
+  connectWebSerial,
+  disconnect,
+  selectDevice,
+} from "../../store/deviceSlice";
 import {
   canScanInApp,
   isBleAvailable,
@@ -47,7 +55,8 @@ const cancelled = (e: unknown) =>
 
 export function ConnectScreen() {
   const navigate = useNavigate();
-  const device = useDevice();
+  const device = useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   const back = (useLocation().state as { back?: string } | null)?.back;
   const [error, setError] = useState<string>();
   // Only react to connections started here, not one that was already up.
@@ -64,7 +73,7 @@ export function ConnectScreen() {
       device.info &&
       device.info.serial.toLowerCase() !== pairing.serial.toLowerCase()
     ) {
-      void device.disconnect();
+      void dispatch(disconnect());
       setError(
         `That was ${device.info.serial}, but the label says ${pairing.serial}. Move closer to the right controller and scan again.`,
       );
@@ -81,9 +90,9 @@ export function ConnectScreen() {
       replace: true,
       state: { code: pairing?.passkey } satisfies SetupState,
     });
-  }, [device, pairing, navigate, back]);
+  }, [device, pairing, navigate, back, dispatch]);
 
-  // Found and tried, but the connection failed: the provider's error is shown instead.
+  // Found and tried, but the connection failed: the device slice's error is shown instead.
   const pairingTried = useRef(false);
   // A scanned board that never shows up: stop waiting and say why.
   useEffect(() => {
@@ -107,13 +116,12 @@ export function ConnectScreen() {
     setError(undefined);
     void run();
   }, []);
-  const connectBle = device.connectBle;
   const pickNearby = useCallback(
     (id: string) => {
       if (pairing) pairingTried.current = true;
-      connect(() => connectBle(id));
+      connect(() => dispatch(connectBle(id)));
     },
-    [connect, connectBle, pairing],
+    [connect, dispatch, pairing],
   );
 
   const scanLabel = async () => {
@@ -142,7 +150,7 @@ export function ConnectScreen() {
   const pickBluetooth = async () => {
     try {
       const d = await pickJoME();
-      connect(() => device.connectBle(d.deviceId));
+      connect(() => dispatch(connectBle(d.deviceId)));
     } catch (e) {
       if (!cancelled(e)) setError(`Couldn't open Bluetooth. ${message(e)}`);
     }
@@ -158,10 +166,10 @@ export function ConnectScreen() {
           return;
         }
         // ponytail: first adapter only; add a picker if people plug in several.
-        connect(() => device.connectAndroidUsb(first.deviceId));
+        connect(() => dispatch(connectAndroidUsb(first.deviceId)));
       } else {
         const port = await pickSerialPort();
-        connect(() => device.connectWebSerial(port));
+        connect(() => dispatch(connectWebSerial(port)));
       }
     } catch (e) {
       if (!cancelled(e)) setError(`Couldn't open the USB port. ${message(e)}`);
@@ -280,7 +288,7 @@ export function ConnectScreen() {
             icon={FlaskConical}
             title="Try the demo"
             subtitle="A simulated controller, no hardware needed"
-            onClick={() => connect(device.connectDemo)}
+            onClick={() => connect(() => dispatch(connectDemo()))}
           />
         </List>
       </section>

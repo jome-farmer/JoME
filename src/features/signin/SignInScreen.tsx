@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { connectDemo, selectDevice } from "../../store/deviceSlice";
 import { errorText } from "../../services/device/errors";
 import { displayPhone } from "../../lib/format";
 import { startCode, type Channel, type CodeTarget } from "../../services/auth";
@@ -20,7 +21,8 @@ const INVALID: Record<Channel, string> = {
 /** Design screen 1b: one screen for new and returning people. No passwords. */
 export function SignInScreen() {
   const navigate = useNavigate();
-  const { connectDemo, state } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const dispatch = useAppDispatch();
   // Back from the code screen ("Change number") finds what was typed.
   const back = useLocation().state as CodeTarget | null;
   const [channel, setChannel] = useState<Channel>(back?.channel ?? "phone");
@@ -58,7 +60,7 @@ export function SignInScreen() {
   };
 
   const tryDemo = async () => {
-    await connectDemo();
+    await dispatch(connectDemo());
     navigate("/", { replace: true });
   };
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus, Plug, Plus } from "lucide-react";
-import { useDevice, useOfflineReason } from "../../device/DeviceContext";
+import { useDeviceClient, useOfflineReason } from "../../device/hooks";
+import { useAppSelector } from "../../store";
+import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -16,7 +18,8 @@ import { errorText } from "../../services/device/errors";
 
 /** Mockup 6: programs run on the board. The start time is the biggest thing because it's what people scan for. */
 export function ScheduleScreen() {
-  const { state, client } = useDevice();
+  const { state } = useAppSelector(selectDevice);
+  const client = useDeviceClient();
   const navigate = useNavigate();
 
   if (state !== "ready" || !client) {
@@ -40,7 +43,7 @@ export function ScheduleScreen() {
 }
 
 function Connected() {
-  const { client } = useDevice();
+  const client = useDeviceClient();
   const navigate = useNavigate();
   const garden = useGarden(client);
   const { programs, zones } = garden;
