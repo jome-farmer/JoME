@@ -2,9 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
 import { useDeviceClient, useOfflineReason } from "../../device/hooks";
-import { useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
+import {
+  createZone,
+  deleteZone,
+  runZone,
+  stopZone,
+  updateZone,
+} from "../../store/gardenSlice";
 import type { Zone } from "../../services/device/types";
 import { formatClock, formatDuration, formatFlow } from "../../lib/format";
 import { remainingFraction } from "../../lib/math";
@@ -45,8 +52,8 @@ export function ZonesScreen() {
 }
 
 function Connected() {
-  const client = useDeviceClient();
-  const garden = useGarden(client);
+  const garden = useGarden();
+  const dispatch = useAppDispatch();
   const { zones, run, remaining, sensors } = garden;
   const [open, setOpen] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
@@ -61,8 +68,8 @@ function Connected() {
     setBusy(z.zone);
     setError(undefined);
     try {
-      if (run?.zone === z.zone) await garden.stopZone(z.zone);
-      else await garden.runZone(z.zone, z.defaultSeconds);
+      if (run?.zone === z.zone) await dispatch(stopZone(z.zone));
+      else await dispatch(runZone(z.zone, z.defaultSeconds));
     } catch (e) {
       setError(errorText(e));
     } finally {
@@ -192,7 +199,7 @@ function Connected() {
         <AddZoneSheet
           options={valveOptions(valveCount, zones)}
           onClose={() => setAdding(false)}
-          onCreate={garden.createZone}
+          onCreate={(z) => dispatch(createZone(z))}
         />
       )}
 
@@ -202,10 +209,10 @@ function Connected() {
           zone={sheetZone}
           running={run?.zone === sheetZone.zone}
           onClose={() => setOpen(null)}
-          onRun={(s) => garden.runZone(sheetZone.zone, s)}
-          onStop={() => garden.stopZone(sheetZone.zone)}
-          onUpdate={(p) => garden.updateZone(sheetZone.zone, p)}
-          onDelete={() => garden.deleteZone(sheetZone.zone)}
+          onRun={(s) => dispatch(runZone(sheetZone.zone, s))}
+          onStop={() => dispatch(stopZone(sheetZone.zone))}
+          onUpdate={(p) => dispatch(updateZone(sheetZone.zone, p))}
+          onDelete={() => dispatch(deleteZone(sheetZone.zone))}
           valves={valveOptions(valveCount, zones, sheetZone.zone)}
           canMoveValve={garden.canMoveValve}
         />

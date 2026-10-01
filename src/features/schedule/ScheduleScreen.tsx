@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus, Plug, Plus } from "lucide-react";
 import { useDeviceClient, useOfflineReason } from "../../device/hooks";
-import { useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
+import { setProgramEnabled } from "../../store/gardenSlice";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { EmptyState } from "../../ui/EmptyState";
@@ -43,9 +44,9 @@ export function ScheduleScreen() {
 }
 
 function Connected() {
-  const client = useDeviceClient();
   const navigate = useNavigate();
-  const garden = useGarden(client);
+  const garden = useGarden();
+  const dispatch = useAppDispatch();
   const { programs, zones } = garden;
   const [error, setError] = useState<string>();
   const loaded = garden.status !== undefined;
@@ -118,9 +119,9 @@ function Connected() {
               aria-disabled={!!offlineReason}
               onChange={(enabled) => {
                 setError(undefined);
-                garden
-                  .setProgramEnabled(p, enabled)
-                  .catch((e: unknown) => setError(errorText(e)));
+                dispatch(setProgramEnabled(p, enabled)).catch((e: unknown) =>
+                  setError(errorText(e)),
+                );
               }}
             />
           </li>

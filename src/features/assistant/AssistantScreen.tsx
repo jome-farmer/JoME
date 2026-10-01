@@ -81,7 +81,7 @@ function Chat() {
   const { info } = useAppSelector(selectDevice);
   const client = useDeviceClient();
   const navigate = useNavigate();
-  const garden = useGarden(client);
+  const garden = useGarden();
   // ponytail: preview agent until the real JoME agent is connected (#22).
   const agent = useMemo(() => createPreviewAgent(), []);
   const [consent, setConsent] = useState<boolean>();

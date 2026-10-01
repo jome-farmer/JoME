@@ -6,10 +6,17 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { authReducer } from "./authSlice";
 import { deviceReducer } from "./deviceSlice";
+import { gardenReducer } from "./gardenSlice";
 
 /** A fresh store; tests make their own. */
 export const makeStore = () =>
-  configureStore({ reducer: { auth: authReducer, device: deviceReducer } });
+  configureStore({
+    reducer: {
+      auth: authReducer,
+      device: deviceReducer,
+      garden: gardenReducer,
+    },
+  });
 
 export const store = makeStore();
 

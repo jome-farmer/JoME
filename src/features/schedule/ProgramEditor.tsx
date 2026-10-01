@@ -2,9 +2,10 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { useDeviceClient, useOfflineReason } from "../../device/hooks";
-import { useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
+import { deleteProgram, saveProgram } from "../../store/gardenSlice";
 import type { Program } from "../../services/device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -30,7 +31,8 @@ export function ProgramEditor() {
   const client = useDeviceClient();
   const { id } = useParams();
   const navigate = useNavigate();
-  const garden = useGarden(client);
+  const garden = useGarden();
+  const dispatch = useAppDispatch();
   const { programs, zones } = garden;
   const loaded = garden.status !== undefined;
   const existing =
@@ -74,7 +76,7 @@ export function ProgramEditor() {
     setBusy("save");
     setError(undefined);
     try {
-      await garden.saveProgram({ ...draft, name: draft.name.trim() });
+      await dispatch(saveProgram({ ...draft, name: draft.name.trim() }));
       navigate("/schedule", { replace: true });
     } catch (err) {
       setError(errorText(err));
@@ -86,7 +88,7 @@ export function ProgramEditor() {
     if (draft.id === undefined) return;
     setBusy("delete");
     try {
-      await garden.deleteProgram(draft.id);
+      await dispatch(deleteProgram(draft.id));
       navigate("/schedule", { replace: true });
     } catch (err) {
       setError(errorText(err));

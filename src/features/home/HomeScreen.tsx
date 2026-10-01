@@ -40,6 +40,7 @@ import { greeting, todayRuns } from "./today";
 import { WeatherCard } from "./WeatherCard";
 import { UsageCard } from "./UsageCard";
 import { useGarden } from "../../device/useGarden";
+import { refreshGarden } from "../../store/gardenSlice";
 import styles from "./HomeScreen.module.css";
 import { errorText } from "../../services/device/errors";
 
@@ -102,8 +103,8 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
     now,
     sensors,
     error,
-    refresh,
-  } = useGarden(client);
+  } = useGarden();
+  const dispatch = useAppDispatch();
   const [rainOpen, setRainOpen] = useState(false);
   const [busy, setBusy] = useState<"stop" | "stopAll">();
   const [actionError, setActionError] = useState<string>();
@@ -362,7 +363,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
               .catch((e: unknown) => {
                 throw new Error(errorText(e));
               });
-            await refresh();
+            await dispatch(refreshGarden());
           }}
         />
       )}
