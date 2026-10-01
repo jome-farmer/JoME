@@ -1,6 +1,6 @@
-export type LinkKind = "ble" | "usb" | "mock";
+export type LinkKind = "ble" | "usb" | "mock" | "cloud";
 
-/** A bidirectional byte stream to the board. BLE, USB and Mock all implement it. */
+/** A bidirectional byte stream to the board. BLE, USB, Mock and the cloud all implement it. */
 export interface Link {
   readonly kind: LinkKind;
   /** Transport-specific id of the peer, e.g. the BLE device id, remembered for reconnecting. */

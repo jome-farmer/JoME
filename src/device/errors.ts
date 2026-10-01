@@ -20,6 +20,10 @@ const TEXT: Record<string, string> = {
   LINK_CLOSED: "The connection to JoME closed.",
   NO_DEVICE: "Connect to your JoME first.",
   // From the server (docs/cloud.md).
+  DEVICE_OFFLINE:
+    "JoME is offline. Changes need it back on Wi‑Fi, or the phone nearby.",
+  FORBIDDEN_REMOTE:
+    "That change needs the phone near JoME. Connect nearby from the Device tab.",
   NETWORK: "Couldn't reach JoME's server. Check your internet and try again.",
   UNAUTHORIZED: "You've been signed out. Sign in again.",
   CODE_INVALID: "That code didn't work. Check it or ask for a new one.",

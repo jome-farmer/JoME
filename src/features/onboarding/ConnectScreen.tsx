@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   CapacitorBarcodeScanner,
   CapacitorBarcodeScannerTypeHint,
@@ -48,6 +48,7 @@ const cancelled = (e: unknown) =>
 export function ConnectScreen() {
   const navigate = useNavigate();
   const device = useDevice();
+  const back = (useLocation().state as { back?: string } | null)?.back;
   const [error, setError] = useState<string>();
   // Only react to connections started here, not one that was already up.
   const started = useRef(false);
@@ -70,12 +71,17 @@ export function ConnectScreen() {
       setPairing(null);
       return;
     }
+    // Switching to nearby from Device (Connect nearby): go back there, not through setup.
+    if (back) {
+      navigate(back, { replace: true });
+      return;
+    }
     // The label's passkey is also the claim code (design 3b): carry it to the Claim step.
     navigate("/setup/wifi", {
       replace: true,
       state: { code: pairing?.passkey } satisfies SetupState,
     });
-  }, [device, pairing, navigate]);
+  }, [device, pairing, navigate, back]);
 
   // Found and tried, but the connection failed: the provider's error is shown instead.
   const pairingTried = useRef(false);
