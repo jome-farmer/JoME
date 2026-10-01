@@ -265,6 +265,7 @@ export function ProgramEditor() {
               <div className={styles.confirmActions}>
                 <Button
                   variant="secondary"
+                  data-cancel
                   onClick={() => setConfirmDelete(false)}
                 >
                   Cancel

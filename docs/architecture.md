@@ -256,6 +256,19 @@ On launch at `/` when signed out, or with no known controller,
 on the Home tab and reconnects to the last device. The connect choices live
 only on `/connect`; Home and Device link to it.
 
+**Android back** (button or gesture, `app/AndroidBack.tsx`, rules in
+`app/backButton.ts`), most local first:
+
+1. An inline confirm (`role="alertdialog"`) cancels, via its `data-cancel` button.
+2. An open sheet closes, the same as Esc.
+3. Another tab goes to Home. Tabs don't walk back through each other.
+4. On Home, the app goes to the background (`App.minimizeApp()`).
+5. Below the tabs (program editor, terminal, setup steps, usage), it goes back
+   one screen, the same as the in-app back buttons (`navigate(-1)`). With
+   nothing behind, the app goes to the background.
+
+iOS has no back button, so the listener is Android only.
+
 ## Errors
 
 - Link errors turn into a **connection banner** at the top of the tab layout,

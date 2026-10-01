@@ -220,7 +220,11 @@ export function ZoneSheet({
             {zone.valve} becomes free.
           </p>
           <div className={styles.confirmActions}>
-            <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
+            <Button
+              variant="secondary"
+              data-cancel
+              onClick={() => setConfirmDelete(false)}
+            >
               Cancel
             </Button>
             <Button
