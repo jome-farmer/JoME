@@ -48,7 +48,9 @@ export async function googleIdToken(): Promise<{
   const nonce = crypto.randomUUID();
   const { result } = await SocialLogin.login({
     provider: "google",
-    options: { scopes: ["email", "profile"], nonce },
+    // No scopes: openid, email and profile are the default everywhere, and passing any
+    // on Android needs a modified MainActivity.
+    options: { nonce },
   });
   const idToken = result.responseType === "online" ? result.idToken : null;
   if (!idToken) throw new Error("Google didn't sign you in. Try again.");
