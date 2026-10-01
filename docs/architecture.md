@@ -248,7 +248,7 @@ only on `/connect`; Home and Device link to it.
 | Remove | Add |
 |---|---|
 | `primereact`, `primeicons`, `@fortawesome/*` | `@capacitor/android`, `@capacitor/ios`, `@capacitor-community/bluetooth-le`, `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor-mlkit/barcode-scanning` (QR), `lucide-react`, `@fontsource-variable/manrope`, `@fontsource/jetbrains-mono` · dev: `vitest`, `prettier` |
-| | Phase 5: a secure-storage plugin (session token), a Google sign-in plugin (ID token). Chosen in their issues |
+| | Phase 5: `@aparajita/capacitor-secure-storage` (session token: Keychain, Keystore, `localStorage` on the web; #87), a Google sign-in plugin (ID token; #94) |
 
 Fonts are bundled, not loaded from a CDN, because the app must work with no
 internet connection in a garden.

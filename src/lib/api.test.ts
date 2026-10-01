@@ -5,6 +5,7 @@ import {
   API_URL,
   followEvents,
   readEvents,
+  onUnauthorized,
   setToken,
   type ServerEvent,
 } from "./api";
@@ -75,6 +76,27 @@ describe("api", () => {
       code: "HTTP_502",
       status: 502,
     });
+  });
+
+  it("reports a rejected token, and only when one was sent", async () => {
+    const rejected = vi.fn();
+    onUnauthorized(rejected);
+    const unauthorized = () =>
+      json({ error: { code: "UNAUTHORIZED", message: "" } }, 401);
+
+    fetchMock.mockResolvedValue(unauthorized());
+    await expect(api("/v1/auth/otp/verify")).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(rejected).not.toHaveBeenCalled();
+
+    setToken("old");
+    fetchMock.mockResolvedValue(unauthorized());
+    await expect(api("/v1/me")).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+    expect(rejected).toHaveBeenCalledWith("old");
+    onUnauthorized(undefined);
   });
 
   it("reports an unreachable server as NETWORK", async () => {

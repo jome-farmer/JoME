@@ -55,3 +55,10 @@ export function whenLabel(at: number, now: Date): string {
     days === 0 ? "today" : days === 1 ? "tomorrow" : WEEKDAYS[d.getDay()];
   return `${day} ${hhmm}`;
 }
+
+/** An Iranian mobile "+989123456789" → "0912 345 6789", the way people write it. Others stay as they are. */
+export function displayPhone(e164: string): string {
+  if (!/^\+989\d{9}$/.test(e164)) return e164;
+  const n = `0${e164.slice(3)}`;
+  return `${n.slice(0, 4)} ${n.slice(4, 7)} ${n.slice(7)}`;
+}
