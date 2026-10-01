@@ -5,6 +5,7 @@
 | [roadmap.md](roadmap.md) | Refactor phases and open questions |
 | [architecture.md](architecture.md) | Layers, folders, device layer, state, testing |
 | [device-protocol.md](device-protocol.md) | App ↔ board contract: BLE NUS, USB serial, JSON lines |
+| [cloud.md](cloud.md) | App ↔ server contract (DouSHamBE): sign-in, devices, commands, live events, cloud copy |
 | [assistant.md](assistant.md) | App ↔ AI agent contract: streaming chat, device tools, safety tiers |
 | [deployment.md](deployment.md) | Web deploy to app.jome-farmer.ir, mobile releases |
 | [testing-hardware.md](testing-hardware.md) | Manual release checklist on real hardware |

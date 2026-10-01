@@ -87,8 +87,11 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | # | Screen | Purpose and key content |
 |---|---|---|
 | 1 | **Welcome** | Mascot, "Hi, I'm JoME / your gardener", *Get started*. Shown on first launch only. |
+| 1b | **Sign in** | After Welcome, before Connect. *Sign in to JoME* / *Check on your garden from anywhere.* Phone number field (prefix *+98*, the user types *0912…* or *912…*), *Send code* (primary). *Continue with Google* (secondary, Google mark). *Use email instead* switches the field. One screen for new and returning people: no separate sign-up. *Try the demo* stays available below and needs no account. Errors in words: *That number doesn't look right. Use an Iranian mobile, like 0912 345 6789.* |
+| 1c | **Code** | *Enter the code* / *We sent it to 0912 345 6789.* Six boxes, number keypad, filled from the SMS automatically where the phone allows it, and checked as soon as the sixth digit is typed. *Resend code* counts down from 60 s. *Change number* goes back. Wrong code: *That code didn't work. Check it or ask for a new one.* After 5 tries, *Ask for a new code.* A new account goes on to Connect; a returning one goes to Home. |
 | 2 | **Connect** | Choose how to reach the board: *Scan the label* (primary, phones only; the app finds that board, shows its pairing code large, and checks the serial after connecting), list of nearby `JoME-XXXX` devices with signal strength, *Use USB cable* (Android and desktop only), *Try demo*. Pairing uses the **system** dialog. When the passkey is known from the QR code, the app shows it large so it's easy to type. |
 | 3 | **Wi‑Fi** | Networks come from the board's own scan (`wifi.scan`), with signal bars and a lock icon. Password field. Live status: connecting, connected (IP), or failed with a reason. *Skip for now* is allowed. |
+| 3b | **Claim** | After Wi‑Fi. Adds the board to the account, so it can be reached from anywhere. With the QR label scanned, it's automatic: a short *Adding JoME‑0001 to your account…* step. Otherwise it asks for the 6‑digit code printed on the label. Errors: *That code doesn't match this JoME. Check the label.*; *This JoME belongs to another account. Ask its owner to remove it first.* *Skip for now* is allowed: the board then works only nearby. |
 | 4 | **Name** | Name the garden (up to 32 characters, stored on the board with `device.rename`). *Start gardening* lands on Home. |
 | 5 | **Home** | Header: greeting, garden name, link pill, and the **board temperature** (*28.5 °C*, thermometer icon, neutral pill; *— °C* when the sensor has no reading), only on boards that list `sensors.read`. It's read on open and every minute. **Hero**, one of four states: *Watering* (WaterRing, zone name, "Zone 3 · Evening program" or "Started by hand", the **live flow** from the board's flow sensor, *12.4 L/min*, water blue only while it's above 0, **Stop watering**); *Rain delay* (paused until when, change or cancel); *Idle* (next watering and in how long); *Nothing scheduled* (create a program). Quick actions: *Run a zone* (→ Zones), *Rain delay* (sheet: 24, 48 or 72 h, or cancel), *Stop all* (only while watering). **Water used** card (*Today 42 L · 7 days 812 L*, droplets icon, chevron) opens *Water use*; only on boards that list `usage.read`. **Weather** (Open-Meteo) at the garden: now (icon, temperature, sky in words, today's high/low and rain chance) and the next 5 days (day, icon, high/low, rain %). Icons stay neutral: rain is never water blue. The place is this phone's position, asked only when the user taps *Use this phone's location* (the card says it's saved on this phone and sent rounded to about 1 km); *Update location* re-takes it. Denied: how to allow it in settings. Offline or failed: *Couldn't get the weather. It needs internet; your garden keeps running on schedule.* **Today** timeline: today's enabled programs marked done, now or upcoming. The node is water blue only while that program is actually watering. |
 | 6 | **Zones** | Summary line "1 running · 2 idle · 1 off". Zone cards: **valve number**, name, state pill, default duration, big round **Run** button. A running card fills with a water-level tint and shows the live flow next to the time left (*6:42 left · 12.4 L/min*). **Add zone** at the end. Zone sheet: run time stepper and Run, make it the default, zone on/off, rename, **change valve**, **delete zone** (inline confirm: *Delete Front lawn? Programs stop watering it.*). |
@@ -96,9 +99,25 @@ Icons: `lucide-react`, 1.75 px stroke, 22 px in lists, 24 px in the tab bar.
 | 7 | **Assistant — start** | Mascot greeting with one live insight from the agent (for example, tonight's rain forecast). Context chip showing which garden it's looking at. Four suggestion chips. Composer. Offline state: *The assistant needs internet. Your garden keeps running on schedule.* |
 | 8 | **Assistant — chat** | The conversation. Tool traces, source chips and action cards appear in the flow, in the order they happened. A header menu has *New chat*. |
 | 9 | **Schedule** | Programs as cards, sorted by start time: name, **start time** (largest), 7 day chips, the zones in order and the total (*Front lawn → Hedge · 35 min*), and an on/off switch (optimistic; paused cards are dimmed). **+** opens the editor. The editor (`/schedule/new`, `/schedule/:id`) is full screen: name, day chips, the native time picker, and numbered zone steps, each with a zone, a run time (1–60 min), and move up/down or remove. *Add a zone* (up to 16 steps). Save checks for problems and explains them in plain words. Delete asks to confirm first. |
-| 10 | **Device** | Controller card: name, serial in mono, firmware, and zones out of the valve count. Rows: **Wi‑Fi** (current network, which opens the Wi‑Fi screen in settings mode at `/device/wifi` with *Done* instead of the setup steps), **Rain delay** (Off, or *Until Friday 18:17*; the same sheet as Home), **Appearance** (*Match phone*, *Light* or *Dark*; saved on the phone, applied on launch, and status-bar icons follow it), **Serial terminal**. Then *Connection*, *Disconnect* (or *Exit demo*), and **Forget this device**, which asks to confirm first and explains that zones and programs stay on the controller. |
+| 10 | **Device** | Controller card: name, serial in mono, firmware, and zones out of the valve count. **Connection** row: *Through the internet* (cloud) or *Bluetooth nearby* / *USB*, with *Connect nearby* to switch (needed to change Wi‑Fi). **Account** row: phone or email, *Sign out*. Rows: **Wi‑Fi** (current network, which opens the Wi‑Fi screen in settings mode at `/device/wifi` with *Done* instead of the setup steps), **Rain delay** (Off, or *Until Friday 18:17*; the same sheet as Home), **Appearance** (*Match phone*, *Light* or *Dark*; saved on the phone, applied on launch, and status-bar icons follow it), **Serial terminal**. Then *Connection*, *Disconnect* (or *Exit demo*), and **Forget this device**, which asks to confirm first and explains that zones and programs stay on the controller. |
 | 11 | **Terminal** | Opens from Device, full screen with no tab bar. The console is dark in both themes. On open it shows the link and controller details, then points to `help`. The input accepts short commands such as `status`, `zones` and `run 2 10m`; `status` prints the Wi-Fi state, network name and IP when available, and `zones` prints each zone's name, state and default time. Invalid commands stay local and explain their syntax. Firmware logs are plain, board protocol lines are mint (←), and lines the app sends are **amber** (→); blue is reserved for water. Chips: link (Bluetooth, USB with a baud selector, or Demo), *Protocol* and *Timestamps* toggles, *Clear*. Copy is in the header. It follows new output unless you scroll up, and keeps the last 2,000 lines. |
 | 12 | **Water use** | From the Home card, full screen with a back arrow (`/usage`). Period switch *7 days · 30 days · 90 days*. Summary card: total litres (large), *in the last 7 days · watered 3 h 20 min*, and a bar per day (days with nothing logged are empty; weekday letters under 7 days, first date and *Today* otherwise). **By zone**: each zone's litres, a share bar and its watering time, most first; a zone that no longer exists shows as *Zone 4 (removed)*. Bars are green, never water blue: this is past use, not water flowing now. Data is the controller's own 90-day log (`usage.read`), so it includes runs when no phone was connected. Empty: *No water logged yet*, with how logging works. |
+
+## Board offline
+
+When the server is reachable but the board isn't, every tab shows the cloud
+copy instead of a blank screen:
+
+- The connection banner reads *Backyard is offline · Last synced 12 min ago*
+  in neutral colours. It's never water blue or red: the garden keeps running on
+  its schedule.
+- Values that came from the copy are shown as they were, never as live.
+  Watering shows only if the board was watering at the last sync, as *Was
+  watering Front lawn at 18:02*, with no countdown.
+- Controls that need the board (Run, Stop, edits, rain delay) are disabled. A
+  tap explains why: *Changes need Backyard online. It reconnects on its own when
+  its Wi‑Fi is back.*
+- Pull to refresh asks the server to re-read the board; offline it says so.
 
 ## Motion: launch splash
 
@@ -121,11 +140,13 @@ Prototype: [splash.html](splash.html). It plays once per cold start and lasts ab
 ## Flows
 
 ```
-First run:  Welcome → Connect ─┬─ QR → pair (passkey shown) ───┐
-                               ├─ pick device → system pairing ─┼→ Wi‑Fi → Name → Home
-                               ├─ USB (Android/desktop) ────────┘
-                               └─ Try demo → Home (mock board, "Demo mode" banner with Exit demo)
-Returning:  launch → Home (auto-reconnect to last device; banner while reconnecting)
+First run:  Welcome ─┬─ Sign in → Code → Connect ─┬─ QR → pair (passkey shown) ───┐
+                    │                            ├─ pick device → system pairing ─┼→ Wi‑Fi → Claim → Name → Home
+                    │                            └─ USB (Android/desktop) ────────┘
+                    └─ Try demo → Home (mock board, "Demo mode" banner with Exit demo)
+Returning:  launch → Home (through the internet by default; nearby BLE when the board is offline
+            and the phone is near it; banner while reconnecting)
+Signed in on a new phone:  Sign in → Code → Home (the account's boards, no setup)
 ```
 
 ## Copy
@@ -139,7 +160,7 @@ Returning:  launch → Home (auto-reconnect to last device; banner while reconne
 
 ## Out of scope for 1.0
 
-User accounts and the Profile screen (unless the assistant needs accounts; see
-the roadmap), water-usage analytics, soil moisture charts, assistant voice
+A Profile screen beyond *Sign out* (accounts themselves arrive in Phase 5),
+water-usage analytics, soil moisture charts, assistant voice
 input and photo diagnosis. Each waits on a data source or an answer from the
 agent team.
