@@ -45,15 +45,27 @@ branches merged into `develop`.
 - Dark mode check, accessibility pass (contrast, touch targets, screen reader labels)
 - [Hardware checklist](testing-hardware.md), then `release/1.0.0`
 
+## Phase 5 — Cloud
+
+Server first ([ADR 0004](adr/0004-server-first.md), contract in [cloud.md](cloud.md)).
+Milestone *Phase 5 — Cloud*, issues #86–#91.
+
+- Design: ADR, cloud contract, sign-in screens, offline state (#86)
+- Sign-in before onboarding: phone code, email code, Google (#87)
+- `lib/api` client for DouSHamBE (#88)
+- `cloudLink` and link selection (#89)
+- Offline reads from the cloud copy (#90)
+- Claim the board in onboarding (#91, the credential hand-off waits on `server.set`, SHamBE#5)
+
 ## Open questions (need answers before Phase 1)
 
 1. ~~**App ID.**~~ Resolved: `ir.jomefarmer.jome` ([ADR 0003](adr/0003-app-id.md)).
 2. **Languages.** Is Persian (RTL) needed for 1.0? The CSS is RTL-ready either way.
 3. **Board MCU and firmware owner.** Is it ESP32? Who implements the protocol on
    the firmware side?
-4. **Cloud and accounts.** The assistant needs an authenticated call to the agent
-   backend. Do we add JoME accounts, or use per-device tokens? Remote control over
-   the internet depends on the same answer.
+4. ~~**Cloud and accounts.**~~ Resolved: JoME accounts on DouSHamBE, with
+   passwordless sign-in by phone code, email code or Google
+   ([ADR 0004](adr/0004-server-first.md)). Remote control goes through the same server.
 5. **Agent API.** See the open questions in [assistant.md](assistant.md#open-questions-for-the-agent-team).
 6. ~~**Minimum OS versions.**~~ Resolved: iOS 15+ and Android 8 (API 26)+. Android was raised from Capacitor 8's
    default of 24 in #16 for the QR scanner.
