@@ -1,9 +1,15 @@
 /** HTTP and event-stream client for the JoME server, DouSHamBE (docs/cloud.md). */
 
+import { Capacitor } from "@capacitor/core";
 import { reconnectDelay } from "../lib/backoff";
 
+// ponytail: the iOS and Android apps use the dev server on the maintainer's LAN until a public https server exists (#103).
+const NATIVE_DEV_SERVER = "http://192.168.10.183:8000";
+
+/** `VITE_API_URL` wins; otherwise the LAN dev server in the native apps, localhost on the web. */
 export const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:8000"
+  import.meta.env.VITE_API_URL ||
+  (Capacitor.isNativePlatform() ? NATIVE_DEV_SERVER : "http://localhost:8000")
 ).replace(/\/+$/, "");
 
 /**

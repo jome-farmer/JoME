@@ -8,6 +8,12 @@
 	<string>JoME uses the camera to scan the QR code on your controller’s label.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>JoME shows the weather at your garden. Your location stays on this phone and is sent to the weather service rounded to about 1 km.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Plain http to LAN addresses only: the dev server for now (#103). Remove once the server is https. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>JoME uses Bluetooth to set up and control your irrigation controller.</string>
 	<key>CFBundleDevelopmentRegion</key>
