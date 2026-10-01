@@ -273,6 +273,7 @@ export function ProgramEditor() {
                   variant="danger"
                   icon={Trash2}
                   loading={busy === "delete"}
+                  haptic
                   onClick={() => void remove()}
                 >
                   Delete

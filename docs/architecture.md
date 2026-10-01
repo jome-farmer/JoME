@@ -119,6 +119,7 @@ src/
     platform.ts           isIOS / isAndroid / hasWebSerial …
     format.ts             durations, times, "today 18:00" labels
     theme.ts              Appearance: saved choice, data-theme, status-bar style
+    haptics.ts            tick() for switches, thump() for water on/off and confirmed changes
 android/
   app/src/main/java/.../UsbSerialPlugin.kt   local plugin (usb-serial-for-android)
 ```

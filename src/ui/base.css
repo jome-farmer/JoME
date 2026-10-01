@@ -44,6 +44,17 @@ textarea {
   opacity: 0.5;
 }
 
+/* Every screen fades in as it opens (design: Motion). Opacity only: a transform
+   would make <main> the containing block for anything position: fixed inside it. */
+main {
+  animation: screen-in var(--dur) var(--ease);
+}
+@keyframes screen-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

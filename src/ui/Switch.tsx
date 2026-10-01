@@ -1,3 +1,4 @@
+import { tick } from "../lib/haptics";
 import styles from "./Switch.module.css";
 
 type Props = {
@@ -26,7 +27,11 @@ export function Switch({
       disabled={disabled}
       aria-disabled={ariaDisabled || undefined}
       className={styles.switch}
-      onClick={() => onChange(!checked)}
+      onClick={() => {
+        // Only a real change ticks; a looks-disabled switch just explains itself.
+        if (!ariaDisabled) tick();
+        onChange(!checked);
+      }}
     />
   );
 }

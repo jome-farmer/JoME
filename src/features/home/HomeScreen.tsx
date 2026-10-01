@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { thump } from "../../lib/haptics";
 import { useNavigate } from "react-router-dom";
 import {
   Bluetooth,
@@ -128,6 +129,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
 
   const act = async (kind: "stop" | "stopAll") => {
     if (!client) return;
+    thump();
     setBusy(kind);
     setActionError(undefined);
     try {
