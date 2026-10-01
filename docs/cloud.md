@@ -84,6 +84,21 @@ One Google Cloud project, three OAuth clients:
 | Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                                                                                                                                                                                                                                              |
 | iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`).                                                                                                                                                                                                              |
 
+Android SHA-1s registered in Google Cloud. An Android OAuth client takes one
+SHA-1, so each key gets its own client with package `ir.jomefarmer.jome`; the
+app signs in with the web client ID, so extra clients need no code change. Add
+a row when one is registered; the signing steps are in
+[deployment.md](deployment.md#android-release-signing):
+
+| Key                                            | SHA-1                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| Maintainer debug (`~/.android/debug.keystore`) | `4E:B9:A0:39:B9:03:F7:DA:41:0A:FE:04:73:02:BF:A1:5F:B5:4F:D0` |
+| Upload key (`jome-upload.jks`)                 | `C3:0D:BB:1A:AF:32:0B:FA:B9:C8:B7:1C:6D:4A:0A:13:9A:B6:21:31` |
+| Play App Signing                               | _to register after the app exists in Play Console (#118)_     |
+
+Another developer who tests sign-in on a debug build registers their own
+debug key's SHA-1 (`./gradlew signingReport` in `android/`).
+
 DouSHamBE must accept the web client ID as the token audience.
 
 ## Devices
