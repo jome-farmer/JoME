@@ -13,8 +13,10 @@ import {
   SquareTerminal,
   SunMoon,
   Trash2,
+  UserRound,
   Wifi,
 } from "lucide-react";
+import { accountLabel, useAuth } from "../../auth/AuthContext";
 import { supports, useDevice } from "../../device/DeviceContext";
 import type { LinkKind } from "../../device/link";
 import { useGarden } from "../../device/useGarden";
@@ -69,6 +71,7 @@ export function DeviceScreen() {
         >
           Controller settings, Wi‑Fi and the serial terminal live here.
         </EmptyState>
+        <Account />
       </Screen>
     );
   }
@@ -128,6 +131,8 @@ function Connected() {
           </div>
         </dl>
       </Card>
+
+      <Account />
 
       <List>
         {supports(info, "wifi.set") && (
@@ -302,5 +307,34 @@ function Connected() {
         </List>
       </Sheet>
     </Screen>
+  );
+}
+
+/** Design screen 10, Account: who is signed in on this phone, and Sign out. */
+function Account() {
+  const { state, user, signOut } = useAuth();
+  const navigate = useNavigate();
+  if (state === "loading") return null;
+  return (
+    <List>
+      {user ? (
+        <>
+          <ListRow
+            icon={UserRound}
+            title="Account"
+            trailing={accountLabel(user)}
+          />
+          {/* FirstRunRedirect goes to Welcome once the session is gone. */}
+          <ListRow icon={LogOut} title="Sign out" onClick={signOut} />
+        </>
+      ) : (
+        <ListRow
+          icon={UserRound}
+          title="Sign in"
+          subtitle="Check on your garden from anywhere"
+          onClick={() => navigate("/signin")}
+        />
+      )}
+    </List>
   );
 }

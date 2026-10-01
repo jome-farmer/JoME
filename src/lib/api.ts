@@ -22,10 +22,18 @@ export class ApiError extends Error {
 }
 
 let token: string | undefined;
+let unauthorized: ((rejected: string) => void) | undefined;
 
 /** Set after sign-in and cleared on sign-out. Sent as a bearer token on every call. */
 export function setToken(accessToken: string | undefined): void {
   token = accessToken;
+}
+
+/** Called with the token the server rejected (401): that session expired or was revoked. */
+export function onUnauthorized(
+  cb: ((rejected: string) => void) | undefined,
+): void {
+  unauthorized = cb;
 }
 
 type Options = {
@@ -41,9 +49,10 @@ export async function send(
   path: string,
   { method = "GET", body, signal, accept = "application/json" }: Options = {},
 ): Promise<Response> {
+  const sent = token;
   const headers: Record<string, string> = { Accept: accept };
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (sent) headers.Authorization = `Bearer ${sent}`;
 
   let res: Response;
   try {
@@ -58,6 +67,7 @@ export async function send(
     throw new ApiError("NETWORK", "Couldn't reach the JoME server.", 0);
   }
   if (res.ok) return res;
+  if (res.status === 401 && sent) unauthorized?.(sent);
 
   const error = (
     (await res.json().catch(() => null)) as {

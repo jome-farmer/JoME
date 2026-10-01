@@ -1,0 +1,87 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-height: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding-block: calc(var(--s-4) + env(safe-area-inset-top, 0px))
+    calc(var(--s-6) + env(safe-area-inset-bottom, 0px));
+  padding-inline: calc(var(--s-5) + env(safe-area-inset-left, 0px))
+    calc(var(--s-5) + env(safe-area-inset-right, 0px));
+}
+:dir(rtl) .back svg {
+  transform: scaleX(-1);
+}
+.back {
+  align-self: flex-start;
+}
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.sub {
+  margin: var(--s-1) 0 0;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+.form {
+  display: grid;
+  gap: var(--s-3);
+}
+.spacer {
+  flex: 1;
+}
+.error {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+.center {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* Six boxes over one real input, so the phone can fill the code from the SMS. */
+.code {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2);
+}
+.code input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  font-size: 16px; /* iOS zooms into smaller inputs */
+  caret-color: transparent;
+}
+.code i {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 52px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+.code:focus-within i.next {
+  border-color: var(--primary);
+}
+.code[aria-disabled="true"] i {
+  opacity: 0.5;
+}

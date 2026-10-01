@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "../ui/base.css";
+import { AuthProvider } from "../auth/AuthProvider";
 import { DeviceProvider } from "../device/DeviceProvider";
 import { applyTheme, loadTheme } from "../lib/theme";
 import { FirstRunRedirect } from "./FirstRunRedirect";
@@ -18,6 +19,8 @@ import { ConnectScreen } from "../features/onboarding/ConnectScreen";
 import { WifiScreen } from "../features/onboarding/WifiScreen";
 import { NameScreen } from "../features/onboarding/NameScreen";
 import { UsageScreen } from "../features/usage/UsageScreen";
+import { SignInScreen } from "../features/signin/SignInScreen";
+import { CodeScreen } from "../features/signin/CodeScreen";
 
 const UiGallery = lazy(() => import("./UiGallery"));
 
@@ -28,37 +31,44 @@ export function App() {
   }, []);
 
   return (
-    <DeviceProvider>
-      <BrowserRouter>
-        <FirstRunRedirect />
-        <Routes>
-          <Route element={<TabLayout />}>
-            <Route index element={<HomeScreen />} />
-            <Route path="zones" element={<ZonesScreen />} />
-            <Route path="assistant" element={<AssistantScreen />} />
-            <Route path="schedule" element={<ScheduleScreen />} />
-            <Route path="device" element={<DeviceScreen />} />
-          </Route>
-          <Route path="welcome" element={<WelcomeScreen />} />
-          <Route path="connect" element={<ConnectScreen />} />
-          <Route path="setup/wifi" element={<WifiScreen />} />
-          <Route path="setup/name" element={<NameScreen />} />
-          <Route path="device/terminal" element={<TerminalScreen />} />
-          <Route path="device/wifi" element={<WifiScreen mode="settings" />} />
-          <Route path="schedule/:id" element={<ProgramEditor />} />
-          <Route path="usage" element={<UsageScreen />} />
-          <Route
-            path="ui"
-            element={
-              <Suspense>
-                <UiGallery />
-              </Suspense>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-      <Splash />
-    </DeviceProvider>
+    <AuthProvider>
+      <DeviceProvider>
+        <BrowserRouter>
+          <FirstRunRedirect />
+          <Routes>
+            <Route element={<TabLayout />}>
+              <Route index element={<HomeScreen />} />
+              <Route path="zones" element={<ZonesScreen />} />
+              <Route path="assistant" element={<AssistantScreen />} />
+              <Route path="schedule" element={<ScheduleScreen />} />
+              <Route path="device" element={<DeviceScreen />} />
+            </Route>
+            <Route path="welcome" element={<WelcomeScreen />} />
+            <Route path="signin" element={<SignInScreen />} />
+            <Route path="signin/code" element={<CodeScreen />} />
+            <Route path="connect" element={<ConnectScreen />} />
+            <Route path="setup/wifi" element={<WifiScreen />} />
+            <Route path="setup/name" element={<NameScreen />} />
+            <Route path="device/terminal" element={<TerminalScreen />} />
+            <Route
+              path="device/wifi"
+              element={<WifiScreen mode="settings" />}
+            />
+            <Route path="schedule/:id" element={<ProgramEditor />} />
+            <Route path="usage" element={<UsageScreen />} />
+            <Route
+              path="ui"
+              element={
+                <Suspense>
+                  <UiGallery />
+                </Suspense>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+        <Splash />
+      </DeviceProvider>
+    </AuthProvider>
   );
 }

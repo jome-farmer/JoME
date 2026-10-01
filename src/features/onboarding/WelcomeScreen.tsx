@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useDevice } from "../../device/DeviceContext";
 import { Button } from "../../ui/Button";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
 
-/** First launch only (FirstRunRedirect sends people here when no controller is known). */
+/** First launch, or signed out (FirstRunRedirect sends people here). Get started signs in first. */
 export function WelcomeScreen() {
   const navigate = useNavigate();
   const { connectDemo, state } = useDevice();
+  const auth = useAuth();
 
   const tryDemo = async () => {
     await connectDemo();
@@ -28,7 +30,13 @@ export function WelcomeScreen() {
         </p>
       </div>
       <div className={styles.actions}>
-        <Button size="lg" block onClick={() => navigate("/connect")}>
+        <Button
+          size="lg"
+          block
+          onClick={() =>
+            navigate(auth.state === "signedIn" ? "/connect" : "/signin")
+          }
+        >
           Get started
         </Button>
         <Button

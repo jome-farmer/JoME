@@ -56,7 +56,9 @@ account, so the app goes on to onboarding.
 identities}, created}`. `GET /v1/me` returns the user.
 - **Dev:** with the backend's `MOCK_AUTH=true`, code `1234` works for any
   number or email, and Google accepts any token. Phone signs in the mock
-  customer, email the mock admin, and Google the mock support user.
+  customer, email the mock admin, and Google the mock support user. Real
+  codes are 6 digits and are checked on the sixth; for the 4-digit mock code,
+  type `1234` and press Enter.
 
 ## Devices
 

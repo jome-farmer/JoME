@@ -19,6 +19,14 @@ const TEXT: Record<string, string> = {
   TIMEOUT: "JoME didn't answer. Check it's nearby and try again.",
   LINK_CLOSED: "The connection to JoME closed.",
   NO_DEVICE: "Connect to your JoME first.",
+  // From the server (docs/cloud.md).
+  NETWORK: "Couldn't reach JoME's server. Check your internet and try again.",
+  UNAUTHORIZED: "You've been signed out. Sign in again.",
+  CODE_INVALID: "That code didn't work. Check it or ask for a new one.",
+  TOO_MANY_REQUESTS: "Wait a minute before asking for another code.",
+  SEND_FAILED: "We couldn't send the code. Try again in a minute.",
+  CHANNEL_UNAVAILABLE:
+    "Codes can't be sent that way right now. Try the other way, or try again later.",
 };
 
 /** Plain words for any error thrown by the device layer. Unknown codes stay generic (protocol §6). */

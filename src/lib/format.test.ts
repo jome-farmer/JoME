@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  displayPhone,
   formatClock,
   formatDuration,
   formatFlow,
@@ -74,4 +75,13 @@ describe("formatLiters", () => {
     [812.4, "812 L"],
     [1240, "1,240 L"],
   ])("%s → %s", (l, text) => expect(formatLiters(l)).toBe(text));
+});
+
+describe("displayPhone", () => {
+  it("writes an Iranian mobile the local way", () => {
+    expect(displayPhone("+989123456789")).toBe("0912 345 6789");
+  });
+  it("leaves anything else alone", () => {
+    expect(displayPhone("+14155550100")).toBe("+14155550100");
+  });
 });
