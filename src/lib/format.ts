@@ -62,3 +62,10 @@ export function displayPhone(e164: string): string {
   const n = `0${e164.slice(3)}`;
   return `${n.slice(0, 4)} ${n.slice(4, 7)} ${n.slice(7)}`;
 }
+
+/** Persian (۰–۹) and Arabic (٠–٩) digits → 0–9, as Iranian keyboards type them. */
+export function latinDigits(text: string): string {
+  return text
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0))
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660));
+}

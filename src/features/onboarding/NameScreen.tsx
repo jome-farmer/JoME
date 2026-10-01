@@ -10,7 +10,7 @@ import { errorText } from "../../device/errors";
 
 const MAX = 32; // Longest name the board stores (jome-farmer/protocol §7).
 
-/** Setup step 4: name the garden. The name is stored on the board. */
+/** Setup step 5: name the garden. The name is stored on the board. */
 export function NameScreen() {
   const navigate = useNavigate();
   const { state, info, rename } = useDevice();
@@ -38,7 +38,7 @@ export function NameScreen() {
 
   return (
     <main className={styles.page}>
-      <StepDots step={3} />
+      <StepDots step={4} />
       <div className={styles.hero}>
         <img src="/logo/symbol.svg" alt="" className={styles.mascotSmall} />
         <div>

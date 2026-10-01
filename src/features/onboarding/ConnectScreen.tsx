@@ -35,6 +35,7 @@ import {
   parsePairingCode,
   type PairingCode,
 } from "./pairingCode";
+import type { SetupState } from "./ClaimScreen";
 import { StepDots } from "./StepDots";
 import styles from "./Onboarding.module.css";
 
@@ -69,7 +70,11 @@ export function ConnectScreen() {
       setPairing(null);
       return;
     }
-    navigate("/setup/wifi", { replace: true });
+    // The label's passkey is also the claim code (design 3b): carry it to the Claim step.
+    navigate("/setup/wifi", {
+      replace: true,
+      state: { code: pairing?.passkey } satisfies SetupState,
+    });
   }, [device, pairing, navigate]);
 
   // Found and tried, but the connection failed: the provider's error is shown instead.

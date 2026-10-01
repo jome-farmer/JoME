@@ -1,9 +1,9 @@
 import styles from "./Onboarding.module.css";
 
-/** First-run progress: Welcome, Connect, Wi‑Fi, Name. */
+/** First-run progress: Welcome, Connect, Wi‑Fi, Claim, Name. */
 export function StepDots({
   step,
-  total = 4,
+  total = 5,
 }: {
   step: number;
   total?: number;

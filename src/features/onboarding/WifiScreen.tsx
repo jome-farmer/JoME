@@ -5,7 +5,7 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Lock, RefreshCw, Wifi } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
 import type { WifiNetwork, WifiState } from "../../device/types";
@@ -15,6 +15,7 @@ import { List, ListRow } from "../../ui/ListRow";
 import { StatusPill } from "../../ui/StatusPill";
 import { TextField } from "../../ui/TextField";
 import { SignalBars } from "./SignalBars";
+import type { SetupState } from "./ClaimScreen";
 import { StepDots } from "./StepDots";
 import { networkList, passwordProblem, wifiFailureText } from "./wifi";
 import styles from "./Onboarding.module.css";
@@ -32,6 +33,8 @@ export function WifiScreen({
 }) {
   const setup = mode === "setup";
   const navigate = useNavigate();
+  // Passed on to Claim untouched (the scanned label code, if any).
+  const setupState = useLocation().state as SetupState;
   const { state, client } = useDevice();
   const [networks, setNetworks] = useState<WifiNetwork[]>();
   const [scanning, setScanning] = useState(false);
@@ -213,7 +216,11 @@ export function WifiScreen({
               type="button"
               size="lg"
               block
-              onClick={() => (setup ? navigate("/setup/name") : navigate(-1))}
+              onClick={() =>
+                setup
+                  ? navigate("/setup/claim", { state: setupState })
+                  : navigate(-1)
+              }
             >
               {setup ? "Continue" : "Done"}
             </Button>
@@ -233,7 +240,7 @@ export function WifiScreen({
               type="button"
               variant="ghost"
               block
-              onClick={() => navigate("/setup/name")}
+              onClick={() => navigate("/setup/claim", { state: setupState })}
             >
               Skip for now
             </Button>

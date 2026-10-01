@@ -18,6 +18,7 @@ import { WelcomeScreen } from "../features/onboarding/WelcomeScreen";
 import { ConnectScreen } from "../features/onboarding/ConnectScreen";
 import { WifiScreen } from "../features/onboarding/WifiScreen";
 import { NameScreen } from "../features/onboarding/NameScreen";
+import { ClaimScreen } from "../features/onboarding/ClaimScreen";
 import { UsageScreen } from "../features/usage/UsageScreen";
 import { SignInScreen } from "../features/signin/SignInScreen";
 import { CodeScreen } from "../features/signin/CodeScreen";
@@ -48,6 +49,7 @@ export function App() {
             <Route path="signin/code" element={<CodeScreen />} />
             <Route path="connect" element={<ConnectScreen />} />
             <Route path="setup/wifi" element={<WifiScreen />} />
+            <Route path="setup/claim" element={<ClaimScreen />} />
             <Route path="setup/name" element={<NameScreen />} />
             <Route path="device/terminal" element={<TerminalScreen />} />
             <Route
