@@ -4,6 +4,7 @@ import {
   Bluetooth,
   Cable,
   CalendarPlus,
+  Cloud,
   CloudRain,
   Droplet,
   FlaskConical,
@@ -39,6 +40,7 @@ const LINK: Record<LinkKind, { label: string; icon: LucideIcon }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },
   usb: { label: "USB", icon: Cable },
   mock: { label: "Demo", icon: FlaskConical },
+  cloud: { label: "Internet", icon: Cloud },
 };
 
 /** Status first (design/README.md screen 5): what's watering, what runs next, what ran today. */

@@ -155,7 +155,9 @@ feature work over it unchanged ([cloud.md](cloud.md)):
   `FORBIDDEN_REMOTE`, or the board's own code).
 - It reads `GET /v1/devices/{serial}/events/stream` and turns each event into an
   event line. `online` isn't a protocol event: `cloudLink` reports it to the
-  provider instead.
+  provider instead. Until the `offline` state below exists (#90), `online:
+  false` closes the link with `DEVICE_OFFLINE`, and the provider retries with
+  the BLE backoff.
 - The handshake skips `time.set` over the cloud: a board on Wi‑Fi keeps time
   from NTP.
 - There are no firmware log lines over the cloud, so the terminal shows only
@@ -165,8 +167,9 @@ feature work over it unchanged ([cloud.md](cloud.md)):
 
 1. **Onboarding uses BLE or USB.** Pairing and `wifi.*` are local only.
 2. **After that, the cloud is the default** for a claimed board when signed in.
-3. **Nearby:** the user can switch to BLE or USB from Device or Connect, for
-   example to change Wi‑Fi or watch firmware logs. When the cloud says the
+3. **Nearby:** the user can switch to BLE or USB from Device (*Connect
+   nearby*, which returns to Device afterwards) or Connect, for example to
+   change Wi‑Fi or watch firmware logs. When the cloud says the
    board is offline and the phone has its saved BLE peer, the native app tries
    BLE in the background.
 4. **Signed out, or no internet:** BLE, USB and demo work as before.

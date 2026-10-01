@@ -22,6 +22,7 @@ const LINK_LABEL: Record<LinkKind, string> = {
   ble: "Bluetooth",
   usb: "USB",
   mock: "Demo",
+  cloud: "Internet",
 };
 
 /** Friendly shell and raw serial view of whatever link is connected. */

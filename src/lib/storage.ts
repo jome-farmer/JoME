@@ -4,7 +4,7 @@ import { Preferences } from "@capacitor/preferences";
 export type KnownDevice = {
   serial: string;
   name: string;
-  lastLink: "ble" | "usb" | "mock";
+  lastLink: "ble" | "usb" | "mock" | "cloud";
   /** BLE peripheral id, to reconnect without scanning. */
   bleDeviceId?: string;
   lastSeen: number;

@@ -18,10 +18,13 @@ export function validateCapabilities(hello: Hello): void {
     );
 }
 
-/** Runs on every connect: identify the board, refuse other protocol versions, set its clock. */
+/**
+ * Runs on every connect: identify the board, refuse other protocol versions, set its clock.
+ * Through the server `setClock` is false: a board on Wi‑Fi keeps time from NTP.
+ */
 export async function handshake(
   client: DeviceClient,
-  now = new Date(),
+  { setClock = true, now = new Date() } = {},
 ): Promise<Hello> {
   const hello = await client.request("hello", {});
   if (hello.proto !== PROTOCOL_VERSION) {
@@ -33,6 +36,7 @@ export async function handshake(
     );
   }
   validateCapabilities(hello);
+  if (!setClock) return hello;
   await client.request("time.set", {
     epoch: Math.floor(now.getTime() / 1000),
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,

@@ -5,6 +5,7 @@ const LINK_LABEL: Record<LinkKind, string> = {
   ble: "Bluetooth",
   usb: "USB",
   mock: "Demo",
+  cloud: "Internet",
 };
 
 export function terminalBanner(

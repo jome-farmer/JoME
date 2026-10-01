@@ -6,6 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useAuth, type AuthState } from "../auth/AuthContext";
+import { api } from "../lib/api";
 import { forgetDevice, getKnownDevices, rememberDevice } from "../lib/storage";
 import { DeviceClient } from "./client";
 import { DeviceContext, type DeviceContextValue } from "./DeviceContext";
@@ -14,6 +16,7 @@ import type { Link } from "./link";
 import { reconnectDelay } from "../lib/backoff";
 import { canScanInApp, createBleLink } from "./links/bleLink";
 import { createAndroidUsbLink } from "./links/androidUsbLink";
+import { createCloudLink } from "./links/cloudLink";
 import { createMockLink } from "./links/mockLink";
 import { createWebSerialLink } from "./links/webSerialLink";
 
@@ -63,16 +66,27 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
             state: err ? "lost" : "idle",
             info: s.info,
             linkKind: link.kind,
-            error: err && "The connection to JoME was lost.",
+            // The cloud says why (the board went offline); a radio just drops.
+            error:
+              err &&
+              (link.kind === "cloud"
+                ? err.message
+                : "The connection to JoME was lost."),
           }));
         });
         active.current = { link, client, offClose };
-        const info = await handshake(client);
+        const info = await handshake(client, {
+          setClock: link.kind !== "cloud",
+        });
+        const known = (await getKnownDevices()).find(
+          (d) => d.serial === info.serial,
+        );
         await rememberDevice({
           serial: info.serial,
           name: info.name,
           lastLink: link.kind,
-          bleDeviceId: link.kind === "ble" ? link.peerId : undefined,
+          // Keep the Bluetooth peer when connecting another way: it's the way back when the internet isn't.
+          bleDeviceId: link.kind === "ble" ? link.peerId : known?.bleDeviceId,
           lastSeen: Date.now(),
         });
         setSnap({
@@ -115,6 +129,10 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     (deviceId: string) => connect(() => createBleLink(deviceId)),
     [connect],
   );
+  const connectCloud = useCallback(
+    (serial: string) => connect(() => createCloudLink(serial)),
+    [connect],
+  );
 
   // The open serial port, re-openable at another speed (terminal baud selector).
   const serial = useRef<((baudRate?: number) => Link) | null>(null);
@@ -144,12 +162,14 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [connectSerial],
   );
 
-  // Bluetooth drops (out of range, board rebooted): keep trying with backoff while the app is visible.
+  // Bluetooth drops (out of range, board rebooted) and boards going offline: keep trying with backoff while the app is visible.
+  // ponytail: an offline cloud board is polled every 10 s; #90 swaps this for an offline state fed by the event stream.
   const attempts = useRef(0);
   useEffect(() => {
     if (snap.state === "ready") attempts.current = 0;
     const factory = lastFactory.current;
-    if (snap.state !== "lost" || snap.linkKind !== "ble" || !factory) return;
+    const retries = snap.linkKind === "ble" || snap.linkKind === "cloud";
+    if (snap.state !== "lost" || !retries || !factory) return;
     const timer = setTimeout(() => {
       // In the background: check again later without using up an attempt.
       if (document.hidden) return setSnap((s) => ({ ...s }));
@@ -206,18 +226,44 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     [teardown, snap.info?.serial, snap.linkKind],
   );
 
-  // Returning user: reconnect to the last device (USB reconnect arrives with #13).
-  const started = useRef(false);
+  // Which link to open without being asked (docs/architecture.md, Choosing a link): the demo if
+  // that's where they left off; the server for a board on the account; otherwise Bluetooth to the
+  // last board, in native apps only (browsers need a tap first). Runs at launch and on sign-in.
+  const auth = useAuth();
+  const autoFor = useRef<AuthState>(undefined);
   useEffect(() => {
-    if (started.current) return; // StrictMode runs effects twice in development.
-    started.current = true;
-    getKnownDevices().then(([last]) => {
-      if (last?.lastLink === "mock") void connectDemo();
-      // Browsers need a user gesture before connecting, so only native apps reconnect on launch.
-      else if (last?.lastLink === "ble" && last.bleDeviceId && canScanInApp())
+    if (auth.state === "loading" || autoFor.current === auth.state) return; // StrictMode runs effects twice.
+    const launch = autoFor.current === undefined;
+    autoFor.current = auth.state;
+    if (auth.state === "signedOut" && !launch) {
+      // The server needs the account, so signing out ends a connection through it.
+      if (active.current?.link.kind === "cloud")
+        void teardown().then(() => setSnap({ state: "idle" }));
+      return;
+    }
+    if (active.current) return; // Already connected, e.g. nearby during setup.
+    const before = lastFactory.current;
+    void (async () => {
+      const [last] = await getKnownDevices();
+      const signedIn = auth.state === "signedIn";
+      // Last time it was through the server: go straight there (opening checks it's still ours).
+      const boards =
+        signedIn && last?.lastLink !== "cloud"
+          ? await api<{ serial: string }[]>("/v1/devices").catch(() => [])
+          : [];
+      // Someone connected by hand meanwhile: leave theirs alone.
+      if (lastFactory.current !== before) return;
+      if (last?.lastLink === "mock") return void connectDemo();
+      if (signedIn && last?.lastLink === "cloud")
+        return void connectCloud(last.serial);
+      const board = last
+        ? boards.find((b) => b.serial === last.serial)
+        : boards[0];
+      if (board) return void connectCloud(board.serial);
+      if (launch && last?.bleDeviceId && canScanInApp())
         void connectBle(last.bleDeviceId);
-    });
-  }, [connectDemo, connectBle]);
+    })();
+  }, [auth.state, teardown, connectDemo, connectCloud, connectBle]);
 
   useEffect(() => () => void teardown(), [teardown]);
 

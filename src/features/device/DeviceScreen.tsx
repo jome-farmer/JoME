@@ -4,6 +4,7 @@ import {
   Bluetooth,
   Cable,
   Check,
+  Cloud,
   CloudRain,
   FlaskConical,
   LogOut,
@@ -36,6 +37,7 @@ const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
   ble: { label: "Bluetooth", icon: Bluetooth },
   usb: { label: "USB cable", icon: Cable },
   mock: { label: "Demo (simulated)", icon: FlaskConical },
+  cloud: { label: "Through the internet", icon: Cloud },
 };
 const THEMES: { value: Theme; label: string }[] = [
   { value: "system", label: "Match phone" },
@@ -95,6 +97,9 @@ function Connected() {
 
   if (!info || !linkKind || !client) return null;
   const demo = linkKind === "mock";
+  const cloud = linkKind === "cloud";
+  // Wi‑Fi and the board's logs need the phone nearby; Connect comes back here afterwards.
+  const nearby = () => navigate("/connect", { state: { back: "/device" } });
   const now = new Date(garden.now);
   const wifi = garden.status?.wifi;
   const until = garden.status?.rainDelayUntil;
@@ -146,7 +151,8 @@ function Connected() {
                   ? "Not connected"
                   : "…"
             }
-            onClick={() => navigate("/device/wifi")}
+            subtitle={cloud ? "Connect nearby to change it" : undefined}
+            onClick={() => (cloud ? nearby() : navigate("/device/wifi"))}
           />
         )}
         {supports(info, "rain.delay") && (
@@ -176,6 +182,14 @@ function Connected() {
           title="Connection"
           trailing={LINK[linkKind].label}
         />
+        {cloud && (
+          <ListRow
+            icon={Bluetooth}
+            title="Connect nearby"
+            subtitle="To change Wi‑Fi or watch the board's logs"
+            onClick={nearby}
+          />
+        )}
         {supports(info, "device.reboot") && (
           <ListRow
             icon={RotateCcw}
