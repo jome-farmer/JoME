@@ -119,8 +119,11 @@ data: {"data": false, "at": 1790814099.1}
 
 ## Platform notes
 
-- **Android:** the webview's origin is `https://localhost`, so plain `http`
-  calls to a dev server are blocked as mixed content. Use Capacitor's native
-  HTTP, or allow cleartext in debug builds only.
+- **Native apps, for now (#103):** without `VITE_API_URL`, iOS and Android
+  talk to the dev server on the maintainer's LAN, `http://192.168.10.183:8000`.
+  Plain `http` needs three allowances, all to be removed once the server is
+  `https`: Android debug builds allow cleartext, Android allows mixed content
+  (the webview's origin is `https://localhost`), and iOS sets
+  `NSAllowsLocalNetworking`. The phone must be on the same Wi‑Fi.
 - **CORS:** the server allows `capacitor://localhost`, `https://localhost`,
   `http://localhost`, `http://localhost:5173` and `https://app.jome-farmer.ir`.
