@@ -24,6 +24,7 @@ import { ClaimScreen } from "../features/onboarding/ClaimScreen";
 import { UsageScreen } from "../features/usage/UsageScreen";
 import { SignInScreen } from "../features/signin/SignInScreen";
 import { CodeScreen } from "../features/signin/CodeScreen";
+import { codeSignInEnabled } from "../features/signin/signin";
 
 const UiGallery = lazy(() => import("./UiGallery"));
 
@@ -49,7 +50,16 @@ export function App() {
           </Route>
           <Route path="welcome" element={<WelcomeScreen />} />
           <Route path="signin" element={<SignInScreen />} />
-          <Route path="signin/code" element={<CodeScreen />} />
+          <Route
+            path="signin/code"
+            element={
+              codeSignInEnabled ? (
+                <CodeScreen />
+              ) : (
+                <Navigate to="/signin" replace />
+              )
+            }
+          />
           <Route path="connect" element={<ConnectScreen />} />
           <Route path="setup/wifi" element={<WifiScreen />} />
           <Route path="setup/claim" element={<ClaimScreen />} />

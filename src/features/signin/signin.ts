@@ -1,5 +1,11 @@
 import { latinDigits } from "../../lib/format";
 
+/**
+ * Phone and email code sign-in needs SMS (Ghasedak) and SMTP on the server (docs/cloud.md).
+ * Off until it has them: set `VITE_CODE_SIGNIN=true` to bring it back. The code stays.
+ */
+export const codeSignInEnabled = import.meta.env.VITE_CODE_SIGNIN === "true";
+
 /** Codes are 6 digits. The server allows 5 wrong tries per code. */
 export const CODE_LENGTH = 6;
 export const MAX_TRIES = 5;

@@ -21,7 +21,7 @@ import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
 import { TextField } from "../../ui/TextField";
 import { GoogleMark } from "./GoogleMark";
-import { toE164, toEmail } from "./signin";
+import { codeSignInEnabled, toE164, toEmail } from "./signin";
 import styles from "./SignIn.module.css";
 
 const INVALID: Record<Channel, string> = {
@@ -116,42 +116,46 @@ export function SignInScreen() {
         </p>
       </div>
       <form className={styles.form} onSubmit={submit} noValidate>
-        {channel === "phone" ? (
-          <TextField
-            key="phone"
-            label="Phone number"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel-national"
-            placeholder="0912 345 6789"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            error={error}
-            enterKeyHint="send"
-            autoFocus
-          />
-        ) : (
-          <TextField
-            key="email"
-            label="Email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            placeholder="you@example.com"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            error={error}
-            enterKeyHint="send"
-            autoFocus
-          />
+        {codeSignInEnabled && (
+          <>
+            {channel === "phone" ? (
+              <TextField
+                key="phone"
+                label="Phone number"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                placeholder="0912 345 6789"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                error={error}
+                enterKeyHint="send"
+                autoFocus
+              />
+            ) : (
+              <TextField
+                key="email"
+                label="Email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                placeholder="you@example.com"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                error={error}
+                enterKeyHint="send"
+                autoFocus
+              />
+            )}
+            <Button type="submit" size="lg" block loading={sending}>
+              Send code
+            </Button>
+          </>
         )}
-        <Button type="submit" size="lg" block loading={sending}>
-          Send code
-        </Button>
         {googleAvailable && (
           <Button
-            variant="secondary"
+            variant={codeSignInEnabled ? "secondary" : "primary"}
             size="lg"
             block
             loading={googleBusy}
@@ -166,9 +170,16 @@ export function SignInScreen() {
             {googleError}
           </p>
         )}
-        <Button variant="ghost" block onClick={switchChannel}>
-          {channel === "phone" ? "Use email instead" : "Use phone instead"}
-        </Button>
+        {!codeSignInEnabled && !googleAvailable && (
+          <p className={styles.error} role="alert">
+            Sign-in isn't available in this build yet.
+          </p>
+        )}
+        {codeSignInEnabled && (
+          <Button variant="ghost" block onClick={switchChannel}>
+            {channel === "phone" ? "Use email instead" : "Use phone instead"}
+          </Button>
+        )}
       </form>
       <span className={styles.spacer} />
       <Button

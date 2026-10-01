@@ -45,6 +45,10 @@ Every error has the protocol's shape, so the app keeps one code-to-text map:
 Passwordless. The same calls sign up and sign in; `created: true` means a new
 account, so the app goes on to onboarding.
 
+**For now the app offers only Google.** Phone and email code sign-in is
+switched off in the app (the server has no SMS panel or SMTP yet); the code is
+still there. Set `VITE_CODE_SIGNIN=true` at build time to bring it back.
+
 | Method | Calls                                                                                                            |
 | ------ | ---------------------------------------------------------------------------------------------------------------- |
 | Phone  | `POST /v1/auth/otp/start` `{channel: "phone", to: "+98912…"}` → `POST /v1/auth/otp/verify` `{channel, to, code}` |
