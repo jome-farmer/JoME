@@ -10,11 +10,8 @@ const IOS = import.meta.env.VITE_GOOGLE_IOS_CLIENT_ID;
 
 const configured = !!WEB && (Capacitor.getPlatform() !== "ios" || !!IOS);
 
-/**
- * Whether to offer Continue with Google. Without client IDs it's hidden, except
- * in development, where the server's MOCK_AUTH accepts any token.
- */
-export const googleAvailable = configured || import.meta.env.DEV;
+/** Whether to offer Continue with Google: only with client IDs (the web one is in the committed .env). */
+export const googleAvailable = configured;
 
 let ready: Promise<void> | undefined;
 
@@ -43,12 +40,15 @@ export async function googleIdToken(): Promise<{
   idToken: string;
   nonce?: string;
 }> {
-  if (!configured) return { idToken: "dev-mock" }; // Development only, see googleAvailable.
+  if (!configured)
+    throw new Error("Google sign-in isn't set up in this build.");
   await prepareGoogle();
   const nonce = crypto.randomUUID();
   const { result } = await SocialLogin.login({
     provider: "google",
-    options: { scopes: ["email", "profile"], nonce },
+    // No scopes: openid, email and profile are the default everywhere, and passing any
+    // on Android needs a modified MainActivity.
+    options: { nonce },
   });
   const idToken = result.responseType === "online" ? result.idToken : null;
   if (!idToken) throw new Error("Google didn't sign you in. Try again.");

@@ -285,7 +285,7 @@ iOS has no back button, so the listener is Android only.
 | ------------------------------ | ---------------------------------------------------------------------------------- |
 | `lineCodec`, `client`          | Vitest unit tests against `mockLink`                                               |
 | `services/client`, `cloudLink` | Vitest against a fake `fetch` (replies, errors, SSE)                               |
-| End to end                     | Manual, against a local DouSHamBE with `MOCK_AUTH=true` and its fake board         |
+| End to end                     | Manual, against a local DouSHamBE and its fake board; sign-in codes from its log  |
 | Feature hooks                  | Vitest with `mockLink` scripted responses                                          |
 | Assistant tool runner          | Vitest: tier handling, argument limits, unknown tool rejected, `USER_DECLINED`     |
 | Screens                        | Manual, using the in-app **Demo mode** (mock link)                                 |

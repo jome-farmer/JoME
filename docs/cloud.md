@@ -55,19 +55,20 @@ account, so the app goes on to onboarding.
   per minute.
 - Every method returns `{accessToken, tokenType, user: {id, role, name,
 identities}, created}`. `GET /v1/me` returns the user.
-- **Dev:** with the backend's `MOCK_AUTH=true`, code `1234` works for any
-  number or email, and Google accepts any token. Phone signs in the mock
-  customer, email the mock admin, and Google the mock support user. Real
-  codes are 6 digits and are checked on the sixth; for the 4-digit mock code,
-  type `1234` and press Enter.
+- **Dev:** sign-in uses the real providers. A local DouSHamBE without
+  Ghasedak or SMTP set up writes each code to its log instead of sending it
+  (`dev: sign-in code for +98912… is 123456`, see `docker compose logs -f api`).
+  Google needs a real account. Everyone signs up as a customer; staff roles come
+  from the server's `doushambe role` command.
 
 ### Google sign-in setup
 
 The app uses `@capgo/capacitor-social-login` (Google only; Facebook, Apple
 and Twitter are switched off in `capacitor.config.ts`, so their SDKs aren't
 bundled). It sends a fresh `nonce` with each sign-in, and the ID token carries
-it. Continue with Google shows only when the client IDs are set. In development
-without them, it sends a placeholder token, which `MOCK_AUTH` accepts.
+it. Continue with Google shows only when the client IDs are set, in development
+too; the web client ID is in the committed `.env`, so dev builds have it. The
+server accepts tokens whose audience is that web client.
 
 One Google Cloud project, three OAuth clients:
 
