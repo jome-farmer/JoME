@@ -11,7 +11,7 @@ import { DeviceClient } from "./client";
 import { DeviceContext, type DeviceContextValue } from "./DeviceContext";
 import { handshake } from "./handshake";
 import type { Link } from "./link";
-import { reconnectDelay } from "./backoff";
+import { reconnectDelay } from "../lib/backoff";
 import { canScanInApp, createBleLink } from "./links/bleLink";
 import { createAndroidUsbLink } from "./links/androidUsbLink";
 import { createMockLink } from "./links/mockLink";
