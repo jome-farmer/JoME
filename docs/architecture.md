@@ -33,7 +33,9 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 │             terminal                          │
 ├──────────────────────┬────────────────────────┤
 │ ui/  design system   │ device/ provider, hook │
-│                      │ auth/   session        │
+│                      ├────────────────────────┤
+│                      │ store/  Redux: slices, │
+│                      │   selectors, thunks    │
 │                      ├────────────────────────┤
 │                      │ services/ server APIs, │
 │                      │   board protocol+links │
@@ -46,10 +48,9 @@ server path is [ADR 0004](adr/0004-server-first.md), with its contract in
 `device/`, `services/` or `features/`. Features don't import from each other;
 shared code moves down a layer. `device/` is only the React side of the board:
 `DeviceContext.ts`, `DeviceProvider.tsx` and the shared data hook `useGarden.ts`.
-`auth/` sits beside `device/`, and
-`device/` may read the session from it (for `cloudLink`), never the other way
-round. Every service lives in
-`services/`: the calls to a server (DouSHamBE now, the agent backend later) and
+App state lives in the Redux store in `store/` ([ADR 0005](adr/0005-redux.md)):
+screens read it with selectors and change it by dispatching thunks, which call
+`services/`. Every service lives in `services/`: the calls to a server (DouSHamBE now, the agent backend later) and
 the board protocol with its transports (`services/device/`), which is an API
 too. No `/v1/...` path appears outside `services/`, and `services/` imports only
 `lib/`. Features still reach the board only through `DeviceClient`.
@@ -75,9 +76,9 @@ src/
     DeviceProvider.tsx    owns the one connection: connect / retry / disconnect
     useGarden.ts          live status, zones, programs, running zone + zone/program actions (Home, Zones, Schedule);
                           reads the cloud copy while the board is offline
-  auth/
-    AuthContext.ts        session type + useAuth()
-    AuthProvider.tsx      signed in/out, token in secure storage, sign out on 401
+  store/                  Redux Toolkit (ADR 0005)
+    index.ts              configureStore, RootState, AppThunk, useAppDispatch / useAppSelector
+    authSlice.ts          signed in/out + user; signIn / signOut / startAuth thunks; sign out on 401
   features/
     signin/               phone or email + code, Google
     onboarding/           Welcome → Sign in → Connect (BLE scan or browser chooser, USB, demo) → Wi‑Fi → Claim → Name
@@ -107,6 +108,7 @@ src/
         cloudLink.ts      the board through DouSHamBE: request lines → API calls, SSE → event lines
   lib/
     storage.ts            @capacitor/preferences wrapper (known devices)
+    session.ts            saved session in secure storage
     platform.ts           isIOS / isAndroid / hasWebSerial …
     format.ts             durations, times, "today 18:00" labels
     theme.ts              Appearance: saved choice, data-theme, status-bar style
@@ -221,7 +223,7 @@ provider stays `ready`, with `offline: { syncedAt }` set:
   `{serial, name, lastLink, bleDeviceId?}` in `@capacitor/preferences`. When
   signed in, the account's boards come from `GET /v1/devices` and are merged
   in by serial.
-- **Session:** the access token lives in the platform keychain (iOS Keychain,
+- **Session:** `authSlice` holds signed in/out and the user. The access token lives in the platform keychain (iOS Keychain,
   Android Keystore) through a secure-storage plugin; the web build keeps it in
   `localStorage`. Never in `@capacitor/preferences`, which isn't encrypted.
 - **Writes are optimistic** only for toggles and switches. Everything else

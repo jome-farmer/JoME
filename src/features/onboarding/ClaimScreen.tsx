@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { CloudCheck } from "lucide-react";
-import { useAuth } from "../../auth/AuthContext";
+import { useAppSelector } from "../../store";
+import { selectAuthState } from "../../store/authSlice";
 import { useDevice } from "../../device/DeviceContext";
 import { errorText } from "../../services/device/errors";
 import { latinDigits } from "../../lib/format";
@@ -25,7 +26,7 @@ const CODE = /^\d{6}$/;
 export function ClaimScreen() {
   const navigate = useNavigate();
   const { state, info, linkKind } = useDevice();
-  const auth = useAuth();
+  const authState = useAppSelector(selectAuthState);
   const scanned = (useLocation().state as SetupState)?.code;
   const [code, setCode] = useState(scanned ?? "");
   const [error, setError] = useState<string>();
@@ -34,7 +35,7 @@ export function ClaimScreen() {
 
   const serial = info?.serial;
   // The demo board has no account to join, and a signed-out phone has no account to add it to.
-  const skip = linkKind === "mock" || auth.state === "signedOut";
+  const skip = linkKind === "mock" || authState === "signedOut";
 
   const claim = async (label: string) => {
     if (!serial) return;
@@ -52,11 +53,11 @@ export function ClaimScreen() {
 
   // Scanned the label: no need to ask, add it straight away (once).
   useEffect(() => {
-    if (tried.current || skip || !scanned || auth.state !== "signedIn") return;
+    if (tried.current || skip || !scanned || authState !== "signedIn") return;
     tried.current = true;
     void claim(scanned);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
-  }, [skip, scanned, auth.state]);
+  }, [skip, scanned, authState]);
 
   if (state !== "ready" || !info) return <Navigate to="/connect" replace />;
   if (skip) return <Navigate to="/setup/name" replace />;

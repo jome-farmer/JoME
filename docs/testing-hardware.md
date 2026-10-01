@@ -27,7 +27,7 @@ list into the release PR and tick each item.
 
 - [ ] Test each adapter we ship: CH340, CP2102 (add FTDI if used)
 - [ ] Android: plugging in the adapter offers to open JoME, and "Always" is remembered
-- [ ] Android: *Connect with USB cable* asks for USB permission once, then connects
+- [ ] Android: _Connect with USB cable_ asks for USB permission once, then connects
 - [ ] Android: with no adapter plugged in, the app says to connect a USB OTG cable
 - [ ] Changing the baud rate in the terminal works
 - [ ] Unplugging the cable shows the banner without crashing

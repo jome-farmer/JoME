@@ -48,7 +48,7 @@ branches merged into `develop`.
 ## Phase 5 — Cloud
 
 Server first ([ADR 0004](adr/0004-server-first.md), contract in [cloud.md](cloud.md)).
-Milestone *Phase 5 — Cloud*, issues #86–#91.
+Milestone _Phase 5 — Cloud_, issues #86–#91.
 
 - Design: ADR, cloud contract, sign-in screens, offline state (#86)
 - Sign-in before onboarding: phone code, email code, Google (#87)

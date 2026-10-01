@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { useAppSelector } from "../store";
+import { selectAuthState } from "../store/authSlice";
 import { getKnownDevices } from "../lib/storage";
 
 /**
@@ -11,7 +12,7 @@ import { getKnownDevices } from "../lib/storage";
 export function FirstRunRedirect() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { state } = useAuth();
+  const state = useAppSelector(selectAuthState);
   const checked = useRef(false);
   const was = useRef(state);
 

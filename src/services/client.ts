@@ -35,6 +35,11 @@ export function setToken(accessToken: string | undefined): void {
   token = accessToken;
 }
 
+/** The token in use now, if signed in. */
+export function getToken(): string | undefined {
+  return token;
+}
+
 /** Called with the token the server rejected (401): that session expired or was revoked. */
 export function onUnauthorized(
   cb: ((rejected: string) => void) | undefined,
