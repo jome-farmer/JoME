@@ -74,14 +74,17 @@ src/
     Stepper.tsx  ListRow.tsx  StatusPill.tsx  WaterRing.tsx  EmptyState.tsx
   device/                 React side of the board
     hooks.ts              useDeviceClient() (the client while ready), useOfflineReason(), supports()
-    DeviceLifecycle.tsx   no UI: auto-connect at launch and sign-in, BLE reconnect with backoff
-    useGarden.ts          live status, zones, programs, running zone + zone/program actions (Home, Zones, Schedule);
-                          reads the cloud copy while the board is offline
+    DeviceLifecycle.tsx   no UI: auto-connect at launch and sign-in, BLE reconnect with backoff,
+                          keeps the garden current (load on connect, board events, sensor polling)
+    useGarden.ts          the garden as screens see it: store data + the running zone counted down each second;
+                          no live run while the board is offline
   store/                  Redux Toolkit (ADR 0005)
     index.ts              configureStore, RootState, AppThunk, useAppDispatch / useAppSelector
     authSlice.ts          signed in/out + user; signIn / signOut / startAuth thunks; sign out on 401
     deviceSlice.ts        connection state, hello, link kind, offline; connect* / retry / restart / rename /
                           disconnect / autoConnect thunks
+    gardenSlice.ts        status, zones, programs, running zone, sensors (one copy for every screen);
+                          refresh / run / stop / zone and program thunks (optimistic toggles roll back)
     connection.ts         the live Link + DeviceClient (not serializable, so beside the store)
   features/
     signin/               phone or email + code, Google
@@ -202,13 +205,13 @@ device slice stays `ready`, with `offline: { syncedAt }` set:
 
 - `cloudLink` answers the reads the copy holds (`hello`, `status`,
   `zones.list`, `programs.list`, `sensors.read`, `usage.read`) from
-  `GET /v1/devices/{serial}`, so `useGarden` and every screen work unchanged.
+  `GET /v1/devices/{serial}`, so the garden slice and every screen work unchanged.
   Every other command is refused at once with `DEVICE_OFFLINE`, which the
   screens word as _Changes need JoME online…_.
 - `syncedAt` is the newest part of the copy. The banner reads _Backyard is
   offline · Last synced 12 min ago_.
-- `useGarden` re-reads when the board goes offline or comes back. Offline it
-  reports no live run; Home shows _Was watering …_ from the copy instead.
+- The garden re-reads when the board goes offline or comes back. Offline
+  `useGarden` reports no live run; Home shows _Was watering …_ from the copy instead.
 - `online: true` switches the link back to the board.
 - Opening the app to an offline board connects the same way, from the copy.
 
@@ -224,9 +227,11 @@ device slice stays `ready`, with `offline: { syncedAt }` set:
 
 ## State and data
 
-- **Board state:** `useGarden(client)` loads status, zones and programs, follows
-  events, and counts the running zone down between board reports. Home and Zones
-  use it. Each screen mounts its own copy, so there's no global store yet.
+- **Board state:** `gardenSlice` holds one copy of status, zones, programs, the
+  running zone and sensors for every screen. `DeviceLifecycle` loads it on each
+  connection and follows board events; it resets when another board connects
+  or the board is disconnected. `useGarden()` reads it and counts the running
+  zone down between board reports.
 - **App state kept between launches:** known devices
   `{serial, name, lastLink, bleDeviceId?}` in `@capacitor/preferences`. When
   signed in, the account's boards come from `GET /v1/devices` and are merged

@@ -37,6 +37,7 @@ import {
 } from "../../store/deviceSlice";
 import type { LinkKind } from "../../services/device/links/link";
 import { useGarden } from "../../device/useGarden";
+import { refreshGarden } from "../../store/gardenSlice";
 import { whenLabel } from "../../lib/format";
 import { applyTheme, loadTheme, saveTheme, type Theme } from "../../lib/theme";
 import { Button } from "../../ui/Button";
@@ -102,7 +103,7 @@ function Connected() {
   const client = useDeviceClient();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const garden = useGarden(client);
+  const garden = useGarden();
   const [theme, setTheme] = useState<Theme>("system");
   const [sheet, setSheet] = useState<"rain" | "theme">();
   const [confirmForget, setConfirmForget] = useState(false);
@@ -321,7 +322,7 @@ function Connected() {
           await client.request("rain.delay", { hours }).catch((e: unknown) => {
             throw new Error(errorText(e));
           });
-          await garden.refresh();
+          await dispatch(refreshGarden());
         }}
       />
       <Sheet

@@ -87,6 +87,8 @@ const deviceSlice = createSlice({
 });
 
 export const deviceReducer = deviceSlice.reducer;
+/** For gardenSlice: a new board, or none, means another garden. */
+export const { ready: deviceReady, closed: deviceClosed } = deviceSlice.actions;
 const {
   connecting,
   ready,
