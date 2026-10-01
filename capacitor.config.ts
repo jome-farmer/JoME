@@ -8,6 +8,15 @@ const config: CapacitorConfig = {
   // Allowed for now, while the app talks to that server (#103); turn off once the server is https.
   android: { allowMixedContent: true },
   plugins: {
+    // Continue with Google only (#94). The others stay out of the app, Facebook's SDK above all.
+    SocialLogin: {
+      providers: {
+        google: true,
+        facebook: false,
+        apple: false,
+        twitter: false,
+      },
+    },
     // The in-app splash (src/app/Splash.tsx) hides this once it's on screen, so there's no flash between them.
     SplashScreen: {
       launchAutoHide: false,
