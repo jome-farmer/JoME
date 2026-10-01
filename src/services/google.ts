@@ -27,6 +27,12 @@ export function prepareGoogle(): Promise<void> {
       iOSClientId: IOS,
       // So the ID token's audience is the web client, which the server checks.
       iOSServerClientId: WEB,
+      // Web only: Google's popup returns here. One fixed path, registered as a redirect URI
+      // on the web client, instead of whichever page the popup was opened from.
+      redirectUrl:
+        Capacitor.getPlatform() === "web"
+          ? `${window.location.origin}/signin`
+          : undefined,
       mode: "online",
     },
   }));

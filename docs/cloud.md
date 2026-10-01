@@ -73,7 +73,7 @@ One Google Cloud project, three OAuth clients:
 
 | Client  | Where it goes                                                                                                                         |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Web     | `VITE_GOOGLE_WEB_CLIENT_ID`. Android and the web sign in with it, and it's the ID token's audience. Authorized JavaScript origin: `https://app.jome-farmer.ir` (and `http://localhost:5173` for dev). |
+| Web     | `VITE_GOOGLE_WEB_CLIENT_ID`. Android and the web sign in with it, and it's the ID token's audience. Authorized JavaScript origins: `https://app.jome-farmer.ir`, `http://localhost:5173`. Authorized redirect URIs (the web popup returns there): `https://app.jome-farmer.ir/signin`, `http://localhost:5173/signin`. |
 | Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                |
 | iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`). |
 
