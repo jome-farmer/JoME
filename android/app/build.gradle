@@ -16,8 +16,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release signing (docs/deployment.md). The upload key stays outside the repo: its path and
+    // passwords come from ~/.gradle/gradle.properties or the JOME_UPLOAD_* env vars. Without
+    // them release builds are unsigned, so debug builds and CI still work.
+    def uploadStoreFile = findProperty('JOME_UPLOAD_STORE_FILE') ?: System.getenv('JOME_UPLOAD_STORE_FILE')
+    if (uploadStoreFile) {
+        signingConfigs {
+            release {
+                storeFile file(uploadStoreFile)
+                storePassword findProperty('JOME_UPLOAD_STORE_PASSWORD') ?: System.getenv('JOME_UPLOAD_STORE_PASSWORD')
+                keyAlias findProperty('JOME_UPLOAD_KEY_ALIAS') ?: System.getenv('JOME_UPLOAD_KEY_ALIAS') ?: 'upload'
+                keyPassword findProperty('JOME_UPLOAD_KEY_PASSWORD') ?: System.getenv('JOME_UPLOAD_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (uploadStoreFile) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

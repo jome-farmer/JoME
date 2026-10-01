@@ -34,6 +34,36 @@ iOS and Android builds are released through the stores from `release/*`. CI
 builds both native projects on every PR (the `android` and `ios` jobs in
 `ci.yml`).
 
+### Android release signing
+
+Play only accepts a signed bundle, and Google sign-in only works for keys
+whose SHA-1 is registered ([cloud.md](cloud.md#google-sign-in-setup)).
+
+1. Create the **upload key** once, outside the repo, and back it up (losing it
+   means a reset through Play support):
+   ```bash
+   keytool -genkeypair -v -keystore jome-upload.jks -alias upload \
+     -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. Point Gradle at it in `~/.gradle/gradle.properties` (or the same names as
+   env vars, for CI). Nothing secret goes in the repo:
+   ```properties
+   JOME_UPLOAD_STORE_FILE=/path/to/jome-upload.jks
+   JOME_UPLOAD_STORE_PASSWORD=...
+   JOME_UPLOAD_KEY_ALIAS=upload
+   JOME_UPLOAD_KEY_PASSWORD=...
+   ```
+3. Build the release bundle: `cd android && ./gradlew bundleRelease`
+   (`app/build/outputs/bundle/release/`). Without the properties the release
+   build is unsigned; debug builds and CI are unaffected.
+4. Check the key: `./gradlew signingReport` should show `release` with the
+   keystore, and `keytool -list -v -keystore jome-upload.jks -alias upload`
+   prints the SHA-1 to register.
+
+Play re-signs the app with its own **Play App Signing** key, so Google
+sign-in needs that key's SHA-1 too, from Play Console → App integrity → App
+signing → *App signing key certificate*.
+
 Icons and splash screens are generated from `assets/logo.png`, which is
 `public/logo/symbol.svg` rendered at 1024 px with safe padding:
 
