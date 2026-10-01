@@ -83,6 +83,7 @@ export function ZoneSheet({
           icon={Square}
           aria-disabled={blocked}
           loading={busy === "stop"}
+          haptic
           onClick={() => void act("stop", onStop, true)}
         >
           Stop watering
@@ -104,6 +105,7 @@ export function ZoneSheet({
             disabled={!zone.enabled}
             aria-disabled={blocked}
             loading={busy === "run"}
+            haptic
             onClick={() => void act("run", () => onRun(minutes * 60), true)}
           >
             Run {formatDuration(minutes * 60)}
@@ -225,6 +227,7 @@ export function ZoneSheet({
               variant="danger"
               icon={Trash2}
               loading={busy === "delete"}
+              haptic
               onClick={() => void act("delete", onDelete, true)}
             >
               Delete

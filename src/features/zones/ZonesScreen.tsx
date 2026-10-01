@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { thump } from "../../lib/haptics";
 import { useNavigate } from "react-router-dom";
 import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
 import { useDeviceClient, useOfflineReason } from "../../device/hooks";
@@ -65,6 +66,7 @@ function Connected() {
     offlineReason ? setError(offlineReason) : go();
 
   const quick = async (z: Zone) => {
+    thump();
     setBusy(z.zone);
     setError(undefined);
     try {

@@ -12,12 +12,34 @@
   background: var(--surface);
   color: var(--ink);
   box-shadow: var(--shadow);
+  /* Closing slides down. allow-discrete keeps it in the top layer until the slide ends;
+     browsers without it just close at once. */
+  transform: translateY(100%);
+  transition:
+    transform var(--dur) var(--ease),
+    overlay var(--dur) allow-discrete,
+    display var(--dur) allow-discrete;
 }
 .sheet[open] {
+  transform: none;
   animation: rise var(--dur) var(--ease);
 }
 .sheet::backdrop {
   background: rgb(6 20 13 / 0.45);
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease),
+    overlay var(--dur) allow-discrete,
+    display var(--dur) allow-discrete;
+}
+.sheet[open]::backdrop {
+  opacity: 1;
+  animation: fade var(--dur) var(--ease);
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
 }
 @keyframes rise {
   from {

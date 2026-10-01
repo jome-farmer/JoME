@@ -62,7 +62,9 @@ export function ActionCard({
           <Button variant="secondary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
+          <Button haptic onClick={onConfirm}>
+            Confirm
+          </Button>
         </div>
       ) : (
         result && (

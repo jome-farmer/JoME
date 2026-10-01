@@ -52,7 +52,8 @@ lives on the Device tab.
 | Type | **Manrope** for UI (Vazirmatn fallback for Persian). **JetBrains Mono** for the terminal and serial numbers. Scale: 12 / 14 / 16 / 20 / 28 / 40. Durations and times use `tabular-nums`. |
 | Space | 4 pt grid: 4, 8, 12, 16, 20, 24, 32. Screen gutter 20. |
 | Radius | 10 (inputs, chips), 16 (cards), 24 (sheets, hero), full (pills, round buttons) |
-| Motion | 150 ms micro, 250 ms screen/sheet, `--ease`. Off when reduce-motion is set. |
+| Motion | 150 ms micro, 250 ms screen/sheet, `--ease`. Screens fade in; sheets slide up to open and down to close. Off when reduce-motion is set. |
+| Haptics | Light tick when a switch changes. A firmer tap when water starts or stops, and on a confirmed change (Confirm, Delete, Restart, Forget). Nothing else buzzes. |
 | Dark mode | Follows the system, plus a manual override on the Device tab. Colours are re-tuned for dark, not inverted. |
 
 ## Components (`src/ui/`)
@@ -61,7 +62,7 @@ Live reference: run the app and open **`/ui`** (also on https://app.jome-farmer.
 
 | Component | Notes |
 |---|---|
-| `Button` | Variants: `primary` (leaf), `secondary` (surface-2), `ghost`, `danger`. Sizes: `md` 48 px, `lg` 56 px. Optional leading icon. Loading state keeps its width. |
+| `Button` | Variants: `primary` (leaf), `secondary` (surface-2), `ghost`, `danger`. Sizes: `md` 48 px, `lg` 56 px. Optional leading icon. Loading state keeps its width. `haptic` for run/stop and confirmed changes. |
 | `IconButton` | 44 px round, always has an `aria-label` |
 | `Card` | `surface` fill with `--shadow`. Use it only for the hero and tappable items. |
 | `ListRow` | Icon, title, optional subtitle, trailing value or chevron. Divided by `--line`. |

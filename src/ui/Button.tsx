@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 import type { LucideIcon } from "lucide-react";
+import { thump } from "../lib/haptics";
 import styles from "./Button.module.css";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -8,6 +9,8 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: LucideIcon;
   loading?: boolean;
   block?: boolean;
+  /** A firm tap on press: water on or off, or a confirmed change. */
+  haptic?: boolean;
 };
 
 export function Button({
@@ -16,7 +19,9 @@ export function Button({
   icon: Icon,
   loading = false,
   block = false,
+  haptic = false,
   className,
+  onClick,
   children,
   disabled,
   ...rest
@@ -37,6 +42,10 @@ export function Button({
       className={cls}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      onClick={(e) => {
+        if (haptic) thump();
+        onClick?.(e);
+      }}
       {...rest}
     >
       {/* The label stays in place while loading so the button keeps its width. */}

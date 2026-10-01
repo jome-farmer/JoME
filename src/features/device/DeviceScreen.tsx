@@ -260,6 +260,7 @@ function Connected() {
             <Button
               icon={RotateCcw}
               loading={restarting}
+              haptic
               onClick={async () => {
                 setRestarting(true);
                 setActionError(undefined);
@@ -302,6 +303,7 @@ function Connected() {
             <Button
               variant="danger"
               icon={Trash2}
+              haptic
               onClick={async () => {
                 await dispatch(disconnect({ forget: true }));
                 navigate("/welcome", { replace: true });
