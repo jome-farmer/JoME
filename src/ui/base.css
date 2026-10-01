@@ -39,6 +39,11 @@ textarea {
   outline-offset: 2px;
 }
 
+/* Looks disabled but stays focusable and tappable, so a tap can say why (e.g. the board is offline). */
+[aria-disabled="true"] {
+  opacity: 0.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

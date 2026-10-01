@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Play, Square, Trash2 } from "lucide-react";
+import { useOfflineReason } from "../../device/DeviceContext";
 import type { Zone } from "../../device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -49,6 +50,12 @@ export function ZoneSheet({
   const [error, setError] = useState<string>();
   const [pickValve, setPickValve] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Offline: changes look disabled. Those that go to the board are refused there and say why;
+  // these openers say it here instead of opening.
+  const offlineReason = useOfflineReason();
+  const blocked = !!offlineReason;
+  const change = (go: () => void) => () =>
+    offlineReason ? setError(offlineReason) : go();
 
   const act = async (what: string, fn: () => Promise<void>, close = false) => {
     setBusy(what);
@@ -74,6 +81,7 @@ export function ZoneSheet({
           size="lg"
           block
           icon={Square}
+          aria-disabled={blocked}
           loading={busy === "stop"}
           onClick={() => void act("stop", onStop, true)}
         >
@@ -94,6 +102,7 @@ export function ZoneSheet({
             block
             icon={Play}
             disabled={!zone.enabled}
+            aria-disabled={blocked}
             loading={busy === "run"}
             onClick={() => void act("run", () => onRun(minutes * 60), true)}
           >
@@ -103,6 +112,7 @@ export function ZoneSheet({
             <Button
               variant="ghost"
               block
+              aria-disabled={blocked}
               loading={busy === "default"}
               onClick={() =>
                 void act("default", () =>
@@ -132,6 +142,7 @@ export function ZoneSheet({
         <Switch
           checked={zone.enabled}
           label="Zone on"
+          aria-disabled={blocked}
           onChange={(enabled) =>
             void act("enabled", () => onUpdate({ enabled }))
           }
@@ -158,6 +169,7 @@ export function ZoneSheet({
           type="submit"
           variant="secondary"
           disabled={!trimmed || trimmed === zone.name}
+          aria-disabled={blocked}
           loading={busy === "name"}
         >
           Save name
@@ -173,7 +185,11 @@ export function ZoneSheet({
             </span>
           </span>
           {canMoveValve && (
-            <Button variant="secondary" onClick={() => setPickValve((p) => !p)}>
+            <Button
+              variant="secondary"
+              aria-disabled={blocked}
+              onClick={change(() => setPickValve((p) => !p))}
+            >
               {pickValve ? "Done" : "Change"}
             </Button>
           )}
@@ -219,7 +235,8 @@ export function ZoneSheet({
         <Button
           variant="ghost"
           icon={Trash2}
-          onClick={() => setConfirmDelete(true)}
+          aria-disabled={blocked}
+          onClick={change(() => setConfirmDelete(true))}
         >
           Delete zone
         </Button>

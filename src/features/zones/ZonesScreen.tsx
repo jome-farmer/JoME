@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDevice, useOfflineReason } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
 import type { Zone } from "../../device/types";
 import { formatClock, formatDuration, formatFlow } from "../../lib/format";
@@ -49,6 +49,10 @@ function Connected() {
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState<number>();
   const [error, setError] = useState<string>();
+  // Offline, changes look disabled and a tap says why instead of opening anything.
+  const offlineReason = useOfflineReason();
+  const change = (go: () => void) => () =>
+    offlineReason ? setError(offlineReason) : go();
 
   const quick = async (z: Zone) => {
     setBusy(z.zone);
@@ -80,7 +84,11 @@ function Connected() {
         <EmptyState
           title="No zones yet"
           action={
-            <Button icon={Plus} onClick={() => setAdding(true)}>
+            <Button
+              icon={Plus}
+              aria-disabled={!!offlineReason}
+              onClick={change(() => setAdding(true))}
+            >
               Add your first zone
             </Button>
           }
@@ -125,6 +133,11 @@ function Connected() {
                       {sensors?.flowLpm !== undefined &&
                         formatFlow(sensors.flowLpm)}
                     </>
+                  ) : garden.wasWatering === z.zone ? (
+                    // Offline: what it was doing at the last sync, never live.
+                    <StatusPill tone="off" icon={Droplet}>
+                      Was watering
+                    </StatusPill>
                   ) : z.enabled ? (
                     <>
                       <StatusPill tone="idle">Idle</StatusPill>
@@ -139,8 +152,9 @@ function Connected() {
                 <button
                   type="button"
                   className={`${styles.run} ${running ? styles.stop : ""}`}
-                  onClick={() => void quick(z)}
+                  onClick={change(() => void quick(z))}
                   disabled={busy === z.zone}
+                  aria-disabled={!!offlineReason || undefined}
                   aria-label={
                     running
                       ? `Stop ${z.name}`
@@ -163,7 +177,8 @@ function Connected() {
         <button
           type="button"
           className={styles.addZone}
-          onClick={() => setAdding(true)}
+          onClick={change(() => setAdding(true))}
+          aria-disabled={!!offlineReason || undefined}
         >
           <Plus size={20} aria-hidden />
           Add zone

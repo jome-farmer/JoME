@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { DeviceClient } from "./client";
+import { offlineText } from "./errors";
 import type { LinkKind } from "./link";
 import type { Hello } from "./types";
 
@@ -42,6 +43,15 @@ export type DeviceContextValue = {
 };
 
 export const DeviceContext = createContext<DeviceContextValue | null>(null);
+
+/**
+ * While the board is offline through the server, controls that change it are
+ * disabled: this is what a tap on one says. Undefined when changes can go through.
+ */
+export function useOfflineReason(): string | undefined {
+  const { offline, info } = useDevice();
+  return offline ? offlineText(info?.name ?? "JoME") : undefined;
+}
 
 export function useDevice(): DeviceContextValue {
   const value = useContext(DeviceContext);

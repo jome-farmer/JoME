@@ -6,6 +6,7 @@ import {
   type CloudDevice,
 } from "../../service/devices";
 import { DeviceError } from "../client";
+import { offlineText } from "../errors";
 import { encodeLine, LineDecoder } from "../lineCodec";
 import type { Link } from "../link";
 
@@ -82,11 +83,7 @@ export function createCloudLink(serial: string): CloudLink {
   const fromCopy = (id: unknown, cmd: unknown) => {
     const data = device?.state?.[COPY[String(cmd)] ?? ""]?.data;
     if (data !== undefined) return reply(id, data);
-    fail(
-      id,
-      "DEVICE_OFFLINE",
-      `${device?.name ?? "JoME"} is offline. Changes need it online.`,
-    );
+    fail(id, "DEVICE_OFFLINE", offlineText(device?.name ?? "JoME"));
   };
 
   const request = async (id: unknown, cmd: unknown, args: unknown) => {
@@ -103,7 +100,13 @@ export function createCloudLink(serial: string): CloudLink {
         if (device && !device.online) return fromCopy(id, cmd);
       }
       // Server codes (TIMEOUT, FORBIDDEN_REMOTE…) and the board's own pass through as protocol errors.
-      fail(id, code, e instanceof Error ? e.message : String(e));
+      const message =
+        code === "DEVICE_OFFLINE"
+          ? offlineText(device?.name ?? "JoME")
+          : e instanceof Error
+            ? e.message
+            : String(e);
+      fail(id, code, message);
     }
   };
 

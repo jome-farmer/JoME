@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus, Plug, Plus } from "lucide-react";
-import { useDevice } from "../../device/DeviceContext";
+import { useDevice, useOfflineReason } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
@@ -46,6 +46,10 @@ function Connected() {
   const { programs, zones } = garden;
   const [error, setError] = useState<string>();
   const loaded = garden.status !== undefined;
+  // Offline, changes look disabled and a tap says why instead of opening anything.
+  const offlineReason = useOfflineReason();
+  const change = (go: () => void) => () =>
+    offlineReason ? setError(offlineReason) : go();
   const sorted = [...programs].sort((a, b) => a.start.localeCompare(b.start));
 
   return (
@@ -55,7 +59,8 @@ function Connected() {
         <IconButton
           icon={Plus}
           label="New program"
-          onClick={() => navigate("/schedule/new")}
+          aria-disabled={!!offlineReason || undefined}
+          onClick={change(() => navigate("/schedule/new"))}
         />
       }
     >
@@ -71,7 +76,8 @@ function Connected() {
           action={
             <Button
               icon={CalendarPlus}
-              onClick={() => navigate("/schedule/new")}
+              aria-disabled={!!offlineReason}
+              onClick={change(() => navigate("/schedule/new"))}
             >
               Create a program
             </Button>
@@ -106,6 +112,7 @@ function Connected() {
             <Switch
               checked={p.enabled}
               label={`${p.name} program`}
+              aria-disabled={!!offlineReason}
               onChange={(enabled) => {
                 setError(undefined);
                 garden
