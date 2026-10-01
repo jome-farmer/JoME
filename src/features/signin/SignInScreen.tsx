@@ -1,14 +1,26 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { connectDemo, selectDevice } from "../../store/deviceSlice";
 import { errorText } from "../../services/device/errors";
 import { displayPhone } from "../../lib/format";
-import { startCode, type Channel, type CodeTarget } from "../../services/auth";
+import {
+  startCode,
+  verifyGoogle,
+  type Channel,
+  type CodeTarget,
+} from "../../services/auth";
+import {
+  googleAvailable,
+  googleIdToken,
+  prepareGoogle,
+} from "../../services/google";
+import { signIn } from "../../store/authSlice";
 import { Button } from "../../ui/Button";
 import { IconButton } from "../../ui/IconButton";
 import { TextField } from "../../ui/TextField";
+import { GoogleMark } from "./GoogleMark";
 import { toE164, toEmail } from "./signin";
 import styles from "./SignIn.module.css";
 
@@ -31,6 +43,30 @@ export function SignInScreen() {
   );
   const [error, setError] = useState<string>();
   const [sending, setSending] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [googleError, setGoogleError] = useState<string>();
+
+  // On the web, Google's script has to be loaded before the tap opens its sheet.
+  useEffect(() => {
+    if (googleAvailable) void prepareGoogle().catch(() => undefined);
+  }, []);
+
+  const google = async () => {
+    setGoogleBusy(true);
+    setGoogleError(undefined);
+    try {
+      const { idToken, nonce } = await googleIdToken();
+      const session = await verifyGoogle(idToken, nonce);
+      await dispatch(signIn(session));
+      // Same as a code: a new account sets up its first board; a returning one goes home.
+      navigate(session.created ? "/connect" : "/", { replace: true });
+    } catch (e) {
+      // Closing Google's sheet is a choice, not an error.
+      if (!/cancel/i.test(e instanceof Error ? e.message : String(e)))
+        setGoogleError(errorText(e));
+      setGoogleBusy(false);
+    }
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -113,6 +149,23 @@ export function SignInScreen() {
         <Button type="submit" size="lg" block loading={sending}>
           Send code
         </Button>
+        {googleAvailable && (
+          <Button
+            variant="secondary"
+            size="lg"
+            block
+            loading={googleBusy}
+            onClick={() => void google()}
+          >
+            <GoogleMark />
+            Continue with Google
+          </Button>
+        )}
+        {googleError && (
+          <p className={styles.error} role="alert">
+            {googleError}
+          </p>
+        )}
         <Button variant="ghost" block onClick={switchChannel}>
           {channel === "phone" ? "Use email instead" : "Use phone instead"}
         </Button>

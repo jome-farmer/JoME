@@ -39,6 +39,17 @@ export function verifyCode(
   });
 }
 
+/** Google's ID token for a session; the same call signs up and signs in. */
+export function verifyGoogle(
+  idToken: string,
+  nonce?: string,
+): Promise<Session> {
+  return api<Session>("/v1/auth/google", {
+    method: "POST",
+    body: { idToken, nonce },
+  });
+}
+
 /** The signed-in account. */
 export function getMe(): Promise<User> {
   return api<User>("/v1/me");

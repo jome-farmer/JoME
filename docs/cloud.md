@@ -61,6 +61,24 @@ identities}, created}`. `GET /v1/me` returns the user.
   codes are 6 digits and are checked on the sixth; for the 4-digit mock code,
   type `1234` and press Enter.
 
+### Google sign-in setup
+
+The app uses `@capgo/capacitor-social-login` (Google only; Facebook, Apple
+and Twitter are switched off in `capacitor.config.ts`, so their SDKs aren't
+bundled). It sends a fresh `nonce` with each sign-in, and the ID token carries
+it. Continue with Google shows only when the client IDs are set. In development
+without them, it sends a placeholder token, which `MOCK_AUTH` accepts.
+
+One Google Cloud project, three OAuth clients:
+
+| Client  | Where it goes                                                                                                                         |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Web     | `VITE_GOOGLE_WEB_CLIENT_ID`. Android and the web sign in with it, and it's the ID token's audience. Authorized JavaScript origin: `https://app.jome-farmer.ir` (and `http://localhost:5173` for dev). |
+| Android | Nothing in the app. Package `ir.jomefarmer.jome` + the SHA-1 of each signing key: debug, upload, and Play App Signing.                |
+| iOS     | `VITE_GOOGLE_IOS_CLIENT_ID`, plus its reversed form (`com.googleusercontent.apps.…`) as a URL scheme in `ios/App/App/Info.plist` (`CFBundleURLTypes`). |
+
+DouSHamBE must accept the web client ID as the token audience.
+
 ## Devices
 
 | Call                                                | Use                                                                                           |
