@@ -1,4 +1,4 @@
-import type { TrafficLine } from "../../device/client";
+import type { TrafficLine } from "../../services/device/client";
 
 export type TermLine = TrafficLine & { id: number; at: number };
 

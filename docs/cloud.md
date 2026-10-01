@@ -93,7 +93,7 @@ write, on board events, and every 5 minutes while the board is online.
 
 ### Commands
 
-- Only commands the protocol marks *any* are accepted. `wifi.scan` and
+- Only commands the protocol marks _any_ are accepted. `wifi.scan` and
   `wifi.set` give `FORBIDDEN_REMOTE`.
 - Args are checked against the protocol limits before anything reaches the
   board.
@@ -115,7 +115,7 @@ data: {"data": false, "at": 1790814099.1}
 - Comment lines (`: keepalive`, every 15 s) keep the stream open. Reconnect on
   close, then read `GET /v1/devices/{serial}` to catch up.
 - `EventSource` can't send a bearer header, so read it with `fetch` and a
-  `ReadableStream` (`service/client.ts`).
+  `ReadableStream` (`services/client.ts`).
 
 ## Platform notes
 

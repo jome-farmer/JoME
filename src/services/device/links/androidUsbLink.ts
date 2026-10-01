@@ -3,7 +3,7 @@ import {
   registerPlugin,
   type PluginListenerHandle,
 } from "@capacitor/core";
-import type { Link } from "../link";
+import type { Link } from "./link";
 import { DEFAULT_BAUD } from "./webSerialLink";
 
 export type UsbSerialDevice = {

@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { displayPhone } from "../lib/format";
-import type { Identity, Session, User } from "../service/auth";
+import type { Identity, Session, User } from "../services/auth";
 
 export type AuthState = "loading" | "signedOut" | "signedIn";
 

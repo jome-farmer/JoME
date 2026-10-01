@@ -1,4 +1,4 @@
-import type { Status, Zone } from "../../device/types";
+import type { Status, Zone } from "../../services/device/types";
 import { formatClock, formatDuration, whenLabel } from "../../lib/format";
 import type {
   AgentContext,

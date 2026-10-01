@@ -12,7 +12,7 @@ import { Switch } from "../../ui/Switch";
 import { DayChips } from "./DayChips";
 import { stepsLabel, totalSeconds } from "./program";
 import styles from "./Schedule.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 /** Mockup 6: programs run on the board. The start time is the biggest thing because it's what people scan for. */
 export function ScheduleScreen() {

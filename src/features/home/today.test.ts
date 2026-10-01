@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Program } from "../../device/types";
+import type { Program } from "../../services/device/types";
 import { greeting, todayRuns } from "./today";
 
 const program = (p: Partial<Program>): Program => ({

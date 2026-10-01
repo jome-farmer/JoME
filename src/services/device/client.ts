@@ -1,4 +1,4 @@
-import type { Link } from "./link";
+import type { Link } from "./links/link";
 import { encodeLine, LineDecoder, MAX_LINE, type Line } from "./lineCodec";
 import type {
   Args,

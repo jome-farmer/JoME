@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Bluetooth } from "lucide-react";
-import { scanForJoME, type FoundDevice } from "../../device/links/bleLink";
+import {
+  scanForJoME,
+  type FoundDevice,
+} from "../../services/device/links/bleLink";
 import { List, ListRow } from "../../ui/ListRow";
 import { StatusPill } from "../../ui/StatusPill";
 import { SignalBars } from "./SignalBars";

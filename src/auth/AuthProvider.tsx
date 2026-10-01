@@ -7,8 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import { SecureStorage } from "@aparajita/capacitor-secure-storage";
-import { getMe, type Session, type User } from "../service/auth";
-import { onUnauthorized, setToken } from "../service/client";
+import { getMe, type Session, type User } from "../services/auth";
+import { onUnauthorized, setToken } from "../services/client";
 import {
   AuthContext,
   type AuthContextValue,

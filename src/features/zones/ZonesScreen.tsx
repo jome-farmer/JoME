@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Droplet, Play, Plug, Plus, Square } from "lucide-react";
 import { useDevice, useOfflineReason } from "../../device/DeviceContext";
 import { useGarden } from "../../device/useGarden";
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 import { formatClock, formatDuration, formatFlow } from "../../lib/format";
 import { remainingFraction } from "../../lib/math";
 import { Button } from "../../ui/Button";
@@ -15,7 +15,7 @@ import { AddZoneSheet } from "./AddZoneSheet";
 import { valveOptions } from "./valves";
 import { ZoneSheet } from "./ZoneSheet";
 import styles from "./ZonesScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 /** Mockup 5: every zone, what it's doing, one big button to run or stop it. */
 export function ZonesScreen() {

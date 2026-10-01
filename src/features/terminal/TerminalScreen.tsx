@@ -8,10 +8,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Copy, SendHorizontal } from "lucide-react";
 import { useDevice } from "../../device/DeviceContext";
-import type { LinkKind } from "../../device/link";
+import type { LinkKind } from "../../services/device/links/link";
 import { appendCapped, clock, toPlainText, type TermLine } from "./lines";
 import styles from "./TerminalScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 import { parseTerminalCommand } from "./commands";
 import { terminalBanner } from "./banner";
 import { formatWifiState } from "./status";

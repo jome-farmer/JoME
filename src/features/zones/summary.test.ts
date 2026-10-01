@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 import { zoneSummary } from "./summary";
 
 const zone = (n: number, enabled = true): Zone => ({

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import type { DeviceClient } from "../../device/client";
-import type { Program, Zone } from "../../device/types";
+import type { DeviceClient } from "../../services/device/client";
+import type { Program, Zone } from "../../services/device/types";
 import { planTool } from "./tools";
 
 const zones: Zone[] = [

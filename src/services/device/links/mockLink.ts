@@ -1,4 +1,4 @@
-import type { Link } from "../link";
+import type { Link } from "./link";
 import { encodeLine, LineDecoder } from "../lineCodec";
 import {
   PROTOCOL_VERSION,

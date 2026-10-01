@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Play, Square, Trash2 } from "lucide-react";
 import { useOfflineReason } from "../../device/DeviceContext";
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 import { formatDuration } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Sheet } from "../../ui/Sheet";
@@ -11,7 +11,7 @@ import { TextField } from "../../ui/TextField";
 import { ValvePicker } from "./ValvePicker";
 import type { ValveOption } from "./valves";
 import styles from "./ZonesScreen.module.css";
-import { errorText } from "../../device/errors";
+import { errorText } from "../../services/device/errors";
 
 const MAX_MIN = 60; // App-side limit, same as the assistant's (docs/assistant.md).
 const MAX_NAME = 32;

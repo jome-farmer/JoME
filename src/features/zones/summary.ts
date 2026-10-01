@@ -1,4 +1,4 @@
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 
 /** "1 running · 4 idle · 1 off", leaving out parts that are zero. */
 export function zoneSummary(zones: Zone[], runningZone: number | null): string {

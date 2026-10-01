@@ -1,6 +1,6 @@
 import { BleClient } from "@capacitor-community/bluetooth-le";
 import { Capacitor } from "@capacitor/core";
-import type { Link } from "../link";
+import type { Link } from "./link";
 
 /** Nordic UART Service (jome-farmer/protocol §1). RX: app → board, TX: board → app. */
 export const NUS = {

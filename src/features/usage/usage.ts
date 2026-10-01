@@ -1,4 +1,4 @@
-import type { Usage } from "../../device/types";
+import type { Usage } from "../../services/device/types";
 
 /** Phone-local "YYYY-MM-DD" (the board files days in the same local time). */
 export function isoDay(d: Date): string {

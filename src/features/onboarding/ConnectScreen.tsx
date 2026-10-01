@@ -16,15 +16,15 @@ import {
   canScanInApp,
   isBleAvailable,
   pickJoME,
-} from "../../device/links/bleLink";
+} from "../../services/device/links/bleLink";
 import {
   isAndroidUsbAvailable,
   listUsbSerial,
-} from "../../device/links/androidUsbLink";
+} from "../../services/device/links/androidUsbLink";
 import {
   isWebSerialAvailable,
   pickSerialPort,
-} from "../../device/links/webSerialLink";
+} from "../../services/device/links/webSerialLink";
 import { IconButton } from "../../ui/IconButton";
 import { List, ListRow } from "../../ui/ListRow";
 import { StatusPill } from "../../ui/StatusPill";

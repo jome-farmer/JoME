@@ -1,14 +1,14 @@
-import { ApiError } from "../../service/client";
+import { ApiError } from "../../client";
 import {
   followDeviceEvents,
   getDevice,
   sendCommand,
   type CloudDevice,
-} from "../../service/devices";
+} from "../../devices";
 import { DeviceError } from "../client";
 import { offlineText } from "../errors";
 import { encodeLine, LineDecoder } from "../lineCodec";
-import type { Link } from "../link";
+import type { Link } from "./link";
 
 /** Whether the board itself is reachable, and how old the copy is (epoch s) when it isn't. */
 export type Presence = { online: boolean; syncedAt?: number };

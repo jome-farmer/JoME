@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Zone } from "../../device/types";
+import type { Zone } from "../../services/device/types";
 import { createPreviewAgent, findZone } from "./previewAgent";
 import type { AgentContext, AgentEvent } from "./types";
 
