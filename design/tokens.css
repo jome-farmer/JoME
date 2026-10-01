@@ -20,14 +20,14 @@
   --line: #d5e0da;
   --ink: #0f3d2b;
   --ink-2: #4a6457;
-  --ink-3: #7d9488;
+  --ink-3: #5b6f64;    /* AA (4.5:1) on bg, surface and surface-2 */
   --primary: var(--leaf);
   --on-primary: #ffffff;
-  --flow: var(--water);
+  --flow: #166dba;     /* text-safe water: the logo's --water is 3.4:1 on bg */
   --flow-soft: #e3f0fc;
-  --warn: #b7791f;      /* text-safe sun */
+  --warn: #926019;      /* text-safe sun */
   --warn-soft: #fdf3dc;
-  --danger: #c8402f;
+  --danger: #ba3b2c;
   --danger-soft: #fbe6e3;
   --ok: var(--leaf);
   --ok-soft: #e1f3e7;
@@ -54,7 +54,7 @@
   /* Serial terminal: always dark, in both themes. tx is amber because blue means water. */
   --console-bg: #08140e;
   --console-ink: #cfe3d7;
-  --console-dim: #5f7d6c;
+  --console-dim: #668674;
   --console-rx: #8fdca8;
   --console-tx: #f4d38a;
   --console-raised: rgb(255 255 255 / 0.07);
@@ -71,7 +71,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0a1811; --surface: #11241a; --surface-2: #183123; --line: #24402f;
-    --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #6f8a7b;
+    --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #829b8d;
     --primary: #2fa860; --on-primary: #06140d;
     --flow: #4aa3f0; --flow-soft: #0f2a40;
     --warn: #f4b942; --warn-soft: #33290f;
@@ -84,7 +84,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #0a1811; --surface: #11241a; --surface-2: #183123; --line: #24402f;
-  --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #6f8a7b;
+  --ink: #e6f0ea; --ink-2: #a3bbad; --ink-3: #829b8d;
   --primary: #2fa860; --on-primary: #06140d;
   --flow: #4aa3f0; --flow-soft: #0f2a40;
   --warn: #f4b942; --warn-soft: #33290f;

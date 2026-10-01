@@ -54,6 +54,7 @@ lives on the Device tab.
 | Radius | 10 (inputs, chips), 16 (cards), 24 (sheets, hero), full (pills, round buttons) |
 | Motion | 150 ms micro, 250 ms screen/sheet, `--ease`. Screens fade in; sheets slide up to open and down to close. Off when reduce-motion is set. |
 | Haptics | Light tick when a switch changes. A firmer tap when water starts or stops, and on a confirmed change (Confirm, Delete, Restart, Forget). Nothing else buzzes. |
+| Contrast & touch | Text meets WCAG AA (4.5:1) on `bg`, `surface` and `surface-2` in both themes, `ink-3` included. Status colours (`flow`, `warn`, `danger`) are the text-safe shades; the logo's `--water` is for brand art only. Every control has a 48 px (`--tap`) touch area: a small one keeps its look and gets an invisible `data-tap` area around it. |
 | Dark mode | Follows the system, plus a manual override on the Device tab. Colours are re-tuned for dark, not inverted. |
 
 ## Components (`src/ui/`)
@@ -63,10 +64,10 @@ Live reference: run the app and open **`/ui`** (also on https://app.jome-farmer.
 | Component | Notes |
 |---|---|
 | `Button` | Variants: `primary` (leaf), `secondary` (surface-2), `ghost`, `danger`. Sizes: `md` 48 px, `lg` 56 px. Optional leading icon. Loading state keeps its width. `haptic` for run/stop and confirmed changes. |
-| `IconButton` | 44 px round, always has an `aria-label` |
+| `IconButton` | 44 px round, 48 px touch area (`data-tap`), always has an `aria-label` |
 | `Card` | `surface` fill with `--shadow`. Use it only for the hero and tappable items. |
 | `ListRow` | Icon, title, optional subtitle, trailing value or chevron. Divided by `--line`. |
-| `Switch` | 52×32. Leaf when on. Haptic tick on change. |
+| `Switch` | 52×32, 48 px touch area (`data-tap`). Leaf when on. Haptic tick on change. |
 | `Stepper` | − value + for durations. Tap and hold repeats. Value in tabular numerals. |
 | `StatusPill` | Icon + word, soft fill: `Watering` (flow), `Idle` (surface-2), `Off` (ink-3), `Offline` (danger), `Rain delay` (warn). |
 | `WaterRing` | The signature element. A circular progress ring in `--flow` showing time left, with the minutes figure large in its centre. It animates smoothly each second. |

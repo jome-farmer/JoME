@@ -25,6 +25,8 @@ export function IconButton({
         .join(" ")}
       aria-label={label}
       title={label}
+      // 44 px to look at, 48 px to tap (--tap).
+      data-tap
       {...rest}
     >
       <Icon size={22} strokeWidth={1.75} aria-hidden />

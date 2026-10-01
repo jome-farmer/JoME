@@ -27,6 +27,7 @@ export function Switch({
       disabled={disabled}
       aria-disabled={ariaDisabled || undefined}
       className={styles.switch}
+      data-tap
       onClick={() => {
         // Only a real change ticks; a looks-disabled switch just explains itself.
         if (!ariaDisabled) tick();

@@ -53,7 +53,8 @@
   gap: var(--s-2);
 }
 .label[data-hidden] {
-  visibility: hidden;
+  /* Not visibility: hidden, which would take the button's name from screen readers too. */
+  opacity: 0;
 }
 
 .spinner {
