@@ -253,6 +253,7 @@ function Connected() {
           <div className={styles.confirmActions}>
             <Button
               variant="secondary"
+              data-cancel
               onClick={() => setConfirmRestart(false)}
             >
               Cancel
@@ -297,7 +298,11 @@ function Connected() {
             later.
           </p>
           <div className={styles.confirmActions}>
-            <Button variant="secondary" onClick={() => setConfirmForget(false)}>
+            <Button
+              variant="secondary"
+              data-cancel
+              onClick={() => setConfirmForget(false)}
+            >
               Cancel
             </Button>
             <Button
