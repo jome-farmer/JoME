@@ -44,8 +44,7 @@ export function CodeScreen() {
     target.channel === "phone" ? displayPhone(target.to) : target.to;
 
   const verify = async (value: string) => {
-    // Real codes are 6 digits; Enter also sends a shorter one (the dev server's mock code is 1234).
-    if (checking || spent || value.length < 4) return;
+    if (checking || spent || value.length < CODE_LENGTH) return;
     setChecking(true);
     setError(undefined);
     try {
