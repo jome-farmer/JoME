@@ -56,6 +56,17 @@ export function whenLabel(at: number, now: Date): string {
   return `${day} ${hhmm}`;
 }
 
+/** Epoch seconds in the past → "just now", "12 min ago", "3 h ago", "2 days ago". */
+export function agoLabel(at: number, nowMs: number): string {
+  const min = Math.floor((nowMs / 1000 - at) / 60);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min} min ago`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} h ago`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? "1 day ago" : `${d} days ago`;
+}
+
 /** An Iranian mobile "+989123456789" → "0912 345 6789", the way people write it. Others stay as they are. */
 export function displayPhone(e164: string): string {
   if (!/^\+989\d{9}$/.test(e164)) return e164;

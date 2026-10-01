@@ -25,7 +25,7 @@ type ZonePatch = Partial<Omit<Zone, "zone">>;
  * and the zone actions. Each screen that mounts it loads fresh data and follows board events.
  */
 export function useGarden(client: DeviceClient | undefined) {
-  const { info } = useDevice();
+  const { info, offline } = useDevice();
   const [status, setStatus] = useState<Status>();
   const [zones, setZones] = useState<Zone[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -101,6 +101,15 @@ export function useGarden(client: DeviceClient | undefined) {
     ];
     return () => offs.forEach((off) => off());
   }, [client, refresh, applyStatus]);
+
+  // The board went offline or came back: the same reads now give the cloud copy, or the board's live state.
+  const isOffline = offline !== undefined;
+  const wasOffline = useRef(isOffline);
+  useEffect(() => {
+    if (wasOffline.current === isOffline) return;
+    wasOffline.current = isOffline;
+    void refresh();
+  }, [isOffline, refresh]);
 
   // Sensors: flow matters while watering (every 2 s), temperature changes slowly (every minute).
   const canSense = supports(info, "sensors.read");
@@ -221,8 +230,10 @@ export function useGarden(client: DeviceClient | undefined) {
     [client],
   );
 
-  const remaining = run
-    ? Math.max(0, run.remaining - (now - run.at) / 1000)
+  // Offline, the copy's run is history, not water flowing now (design: Board offline).
+  const live = isOffline ? null : run;
+  const remaining = live
+    ? Math.max(0, live.remaining - (now - live.at) / 1000)
     : 0;
 
   return {
@@ -232,7 +243,9 @@ export function useGarden(client: DeviceClient | undefined) {
     valveCount: info?.valveCount ?? 0,
     canMoveValve: true,
     programs,
-    run,
+    run: live,
+    /** Offline only: the zone that was watering at the last sync. */
+    wasWatering: isOffline ? status?.running[0]?.zone : undefined,
     remaining,
     now,
     /** Latest sensors.read; undefined until read or when the board has no sensors. */

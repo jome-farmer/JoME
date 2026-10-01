@@ -5,6 +5,7 @@ import {
   Cable,
   CalendarPlus,
   Cloud,
+  CloudOff,
   CloudRain,
   Droplet,
   FlaskConical,
@@ -80,13 +81,14 @@ export function HomeScreen() {
 }
 
 function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
-  const { client, info } = useDevice();
+  const { client, info, offline } = useDevice();
   const navigate = useNavigate();
   const {
     status,
     zones,
     programs,
     run,
+    wasWatering,
     remaining,
     now,
     sensors,
@@ -146,9 +148,15 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
               </StatusPill>
             </span>
           )}
-          <StatusPill tone="ok" icon={Link.icon}>
-            {Link.label}
-          </StatusPill>
+          {offline ? (
+            <StatusPill tone="danger" icon={CloudOff}>
+              Offline
+            </StatusPill>
+          ) : (
+            <StatusPill tone="ok" icon={Link.icon}>
+              {Link.label}
+            </StatusPill>
+          )}
         </span>
       }
     >
@@ -192,6 +200,20 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
             >
               Stop watering
             </Button>
+          </>
+        ) : wasWatering !== undefined ? (
+          // From the cloud copy: what it was doing at the last sync, never a live countdown.
+          <>
+            <StatusPill tone="off" icon={Droplet}>
+              Was watering
+            </StatusPill>
+            <b className={styles.big}>{zoneName(wasWatering)}</b>
+            <span className={styles.meta}>
+              Zone {wasWatering}
+              {offline?.syncedAt
+                ? ` · at the last sync, ${whenLabel(offline.syncedAt, date)}`
+                : ""}
+            </span>
           </>
         ) : rainUntil ? (
           <>

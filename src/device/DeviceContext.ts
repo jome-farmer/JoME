@@ -14,6 +14,12 @@ export type DeviceContextValue = {
   linkKind?: LinkKind;
   /** USB links only. */
   baudRate?: number;
+  /**
+   * Through the server only: set while the board itself is offline. Reads then
+   * come from the server's cloud copy, last synced at `syncedAt` (epoch s), and
+   * changes are refused (docs/architecture.md, Board offline).
+   */
+  offline?: { syncedAt?: number };
   /** Plain-language reason for the last failed connect or unexpected drop. */
   error?: string;
   connectDemo(): Promise<void>;

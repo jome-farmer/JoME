@@ -3,8 +3,20 @@ import { API_URL, setToken } from "../../lib/api";
 import { DeviceClient } from "../client";
 import { createCloudLink } from "./cloudLink";
 
-/** A fake DouSHamBE: one board, a command handler, and an event stream the test writes to. */
+const COPY = {
+  status: {
+    data: { wifi: {}, rainDelayUntil: null, running: [], nextRun: null },
+    syncedAt: 1_790_000_100,
+  },
+  zones: {
+    data: { zones: [{ zone: 1, name: "Lawn" }] },
+    syncedAt: 1_790_000_000,
+  },
+};
+
+/** A fake DouSHamBE: one board with a cloud copy, a command handler, and an event stream the test writes to. */
 function fakeServer({ online = true } = {}) {
+  const board = { online };
   const commands: { cmd: unknown; args: unknown }[] = [];
   let push: (text: string) => void = () => {};
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
@@ -12,7 +24,12 @@ function fakeServer({ online = true } = {}) {
     const json = (body: unknown, status = 200) =>
       new Response(JSON.stringify(body), { status });
     if (path === "/v1/devices/JM-1")
-      return json({ serial: "JM-1", name: "Backyard", online });
+      return json({
+        serial: "JM-1",
+        name: "Backyard",
+        online: board.online,
+        state: COPY,
+      });
     if (path === "/v1/devices/JM-1/events/stream") {
       const body = new ReadableStream<Uint8Array>({
         start(c) {
@@ -28,6 +45,16 @@ function fakeServer({ online = true } = {}) {
         args?: unknown;
       };
       commands.push({ cmd, args });
+      if (!board.online)
+        return json(
+          {
+            error: {
+              code: "DEVICE_OFFLINE",
+              message: "The board isn't connected",
+            },
+          },
+          409,
+        );
       if (cmd === "wifi.scan")
         return json(
           {
@@ -48,7 +75,19 @@ function fakeServer({ online = true } = {}) {
     return json({ error: { code: "NOT_FOUND", message: path } }, 404);
   });
   vi.stubGlobal("fetch", fetchMock);
-  return { commands, event: (text: string) => push(text) };
+  return { board, commands, event: (text: string) => push(text) };
+}
+
+const online = (on: boolean) =>
+  `event: online\ndata: {"data": ${on}, "at": 2}\n\n`;
+
+async function opened(server = fakeServer()) {
+  const link = createCloudLink("JM-1");
+  const presence = vi.fn();
+  link.onPresence(presence);
+  await link.open();
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2)); // + the stream
+  return { server, link, presence, client: new DeviceClient(link) };
 }
 
 afterEach(() => {
@@ -58,24 +97,17 @@ afterEach(() => {
 
 describe("cloudLink", () => {
   it("answers requests through the server with the same id", async () => {
-    const server = fakeServer();
-    const link = createCloudLink("JM-1");
-    await link.open();
-    const client = new DeviceClient(link);
-
+    const { server, link, client } = await opened();
     await expect(client.request("status", {})).resolves.toEqual({
       cmd: "status",
     });
     expect(server.commands).toEqual([{ cmd: "status", args: {} }]);
+    expect(link.presence()).toEqual({ online: true });
     await link.close();
   });
 
   it("turns server and board errors into protocol errors", async () => {
-    fakeServer();
-    const link = createCloudLink("JM-1");
-    await link.open();
-    const client = new DeviceClient(link);
-
+    const { link, client } = await opened();
     await expect(client.request("wifi.scan", {})).rejects.toMatchObject({
       code: "FORBIDDEN_REMOTE",
     });
@@ -88,17 +120,10 @@ describe("cloudLink", () => {
     await link.close();
   });
 
-  it("turns the event stream into events, and closes when the board goes offline", async () => {
-    const server = fakeServer();
-    const link = createCloudLink("JM-1");
-    const closed = vi.fn();
-    link.onClose(closed);
-    await link.open();
-    const client = new DeviceClient(link);
+  it("turns the event stream into events", async () => {
+    const { server, link, client } = await opened();
     const states = vi.fn();
     client.on("zone.state", states);
-
-    await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
     server.event(
       'event: zone.state\ndata: {"data": {"zone": 1, "state": "watering", "remaining": 90, "total": 90}, "at": 1}\n\n',
     );
@@ -110,30 +135,74 @@ describe("cloudLink", () => {
         total: 90,
       }),
     );
-
-    server.event('event: online\ndata: {"data": true, "at": 2}\n\n');
-    server.event('event: online\ndata: {"data": false, "at": 3}\n\n');
-    await vi.waitFor(() =>
-      expect(closed).toHaveBeenCalledWith(
-        expect.objectContaining({ code: "DEVICE_OFFLINE" }),
-      ),
-    );
-    expect(closed).toHaveBeenCalledTimes(1);
+    await link.close();
   });
 
-  it("won't open to a board that's offline", async () => {
-    fakeServer({ online: false });
-    await expect(createCloudLink("JM-1").open()).rejects.toMatchObject({
+  it("opens to an offline board and answers reads from the cloud copy", async () => {
+    const { server, link, client } = await opened(
+      fakeServer({ online: false }),
+    );
+    expect(link.presence()).toEqual({ online: false, syncedAt: 1_790_000_100 });
+
+    await expect(client.request("zones.list", {})).resolves.toEqual(
+      COPY.zones.data,
+    );
+    // Not in the copy, or a change: refused at once, never sent.
+    await expect(client.request("hello", {})).rejects.toMatchObject({
       code: "DEVICE_OFFLINE",
-      message: expect.stringContaining("Backyard is offline"),
     });
+    await expect(
+      client.request("zone.run", { zone: 1, seconds: 60 }),
+    ).rejects.toMatchObject({
+      code: "DEVICE_OFFLINE",
+      message: "Backyard is offline. Changes need it online.",
+    });
+    expect(server.commands).toEqual([]);
+    await link.close();
+  });
+
+  it("follows the board going offline and coming back", async () => {
+    const { server, link, presence, client } = await opened();
+
+    server.board.online = false;
+    server.event(online(false));
+    await vi.waitFor(() =>
+      expect(presence).toHaveBeenLastCalledWith({
+        online: false,
+        syncedAt: 1_790_000_100,
+      }),
+    );
+    await expect(client.request("status", {})).resolves.toEqual(
+      COPY.status.data,
+    );
+
+    server.board.online = true;
+    server.event(online(true));
+    await vi.waitFor(() =>
+      expect(presence).toHaveBeenLastCalledWith({ online: true }),
+    );
+    await expect(client.request("status", {})).resolves.toEqual({
+      cmd: "status",
+    });
+    expect(presence).toHaveBeenCalledTimes(2);
+    await link.close();
+  });
+
+  it("switches to the copy when a command finds the board offline first", async () => {
+    const { server, presence, client, link } = await opened();
+    server.board.online = false; // The stream hasn't said so yet.
+    await expect(client.request("status", {})).resolves.toEqual(
+      COPY.status.data,
+    );
+    expect(presence).toHaveBeenCalledWith({
+      online: false,
+      syncedAt: 1_790_000_100,
+    });
+    await link.close();
   });
 
   it("says text commands need the phone nearby", async () => {
-    const server = fakeServer();
-    const link = createCloudLink("JM-1");
-    await link.open();
-    const client = new DeviceClient(link);
+    const { server, link, client } = await opened();
     const lines: string[] = [];
     client.onLine((l) => lines.push(`${l.dir} ${l.text}`));
 
