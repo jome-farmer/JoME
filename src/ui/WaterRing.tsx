@@ -21,6 +21,7 @@ export function WaterRing({ remaining, total, size = 132 }: Props) {
       className={styles.ring}
       style={{ width: size, height: size }}
       role="progressbar"
+      aria-label="Watering time left"
       aria-valuemin={0}
       aria-valuemax={total}
       aria-valuenow={Math.max(0, Math.round(remaining))}

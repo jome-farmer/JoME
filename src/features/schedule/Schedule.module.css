@@ -33,8 +33,9 @@ p.error {
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.paused .open {
-  opacity: 0.6;
+.paused .when,
+.paused .meta {
+  color: var(--ink-3);
 }
 .open {
   display: grid;
@@ -152,6 +153,8 @@ p.error {
 }
 .step {
   display: grid;
+  /* Not auto: a long zone name in the select would widen the row past a narrow screen. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
   padding: var(--s-3);
   border-radius: var(--r-md);

@@ -87,6 +87,7 @@ function Bar({
         <button
           type="button"
           className={styles.action}
+          data-tap
           onClick={action.onClick}
         >
           {action.label}

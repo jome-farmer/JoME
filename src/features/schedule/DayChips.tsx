@@ -34,6 +34,7 @@ export function DayChips({ days, onToggle }: Props) {
         <button
           key={d.day}
           type="button"
+          data-tap
           className={`${styles.dayBtn} ${days.includes(d.day) ? styles.dayOn : ""}`}
           aria-pressed={days.includes(d.day)}
           aria-label={d.long}

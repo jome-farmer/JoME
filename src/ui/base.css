@@ -44,6 +44,16 @@ textarea {
   opacity: 0.5;
 }
 
+/* Small controls keep their look but get a full --tap (48 px) touch area. Larger ones are unchanged. */
+[data-tap] {
+  position: relative;
+}
+[data-tap]::before {
+  content: "";
+  position: absolute;
+  inset: min(0px, calc((100% - var(--tap)) / 2));
+}
+
 /* Every screen fades in as it opens (design: Motion). Opacity only: a transform
    would make <main> the containing block for anything position: fixed inside it. */
 main {

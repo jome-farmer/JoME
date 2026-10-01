@@ -73,6 +73,7 @@ export function UsageScreen() {
             key={p}
             type="button"
             className={p === period ? styles.on : undefined}
+            data-tap
             aria-pressed={p === period}
             onClick={() => setPeriod(p)}
           >

@@ -168,6 +168,7 @@ export function TerminalScreen() {
         <button
           type="button"
           className={styles.iconBtn}
+          data-tap
           aria-label="Back"
           onClick={() => navigate(-1)}
         >
@@ -177,6 +178,7 @@ export function TerminalScreen() {
         <button
           type="button"
           className={styles.iconBtn}
+          data-tap
           aria-label={copied ? "Copied" : "Copy output"}
           onClick={copy}
           disabled={!visible.length}
@@ -218,6 +220,7 @@ export function TerminalScreen() {
             )}
             <button
               type="button"
+              data-tap
               className={`${styles.chip} ${showProtocol ? styles.on : ""}`}
               aria-pressed={showProtocol}
               onClick={() => setShowProtocol((v) => !v)}
@@ -226,6 +229,7 @@ export function TerminalScreen() {
             </button>
             <button
               type="button"
+              data-tap
               className={`${styles.chip} ${timestamps ? styles.on : ""}`}
               aria-pressed={timestamps}
               onClick={() => setTimestamps((v) => !v)}
@@ -234,6 +238,7 @@ export function TerminalScreen() {
             </button>
             <button
               type="button"
+              data-tap
               className={styles.chip}
               onClick={() => setLines([])}
             >
