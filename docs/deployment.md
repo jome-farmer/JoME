@@ -14,6 +14,11 @@ available there. Both APIs require **HTTPS**.
 | Domain | `app.jome-farmer.ir`: DNS `CNAME app → jome-farmer.github.io`, HTTPS enforced |
 | Allowed branches | Environment `github-pages`: `main`, `develop` |
 
+The app calls the API at `https://api.jome-farmer.ir` by default (the same in
+the native release builds), so the deploy needs no `VITE_API_URL`. The server
+allows `https://app.jome-farmer.ir` and the native origins in CORS
+([cloud.md](cloud.md)).
+
 Deep links such as `/zones` work because the workflow copies `index.html` to
 `404.html`.
 

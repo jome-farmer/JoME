@@ -140,9 +140,8 @@ data: {"data": false, "at": 1790814099.1}
 
 ## Platform notes
 
-- **Native apps:** the default server is `https`, so release builds need no
-  special allowances. The cleartext and local-network allowances (Android
-  debug cleartext and mixed content, iOS `NSAllowsLocalNetworking`) remain
-  only so a `VITE_API_URL=http://<LAN IP>:8000` dev server still works.
+- **Native apps:** the server is `https`, so there are no cleartext, mixed
+  content or ATS allowances. A plain-`http` dev server (`VITE_API_URL=http://...`)
+  works from the web dev server only, not in the native apps.
 - **CORS:** the server allows `capacitor://localhost`, `https://localhost`,
   `http://localhost`, `http://localhost:5173` and `https://app.jome-farmer.ir`.

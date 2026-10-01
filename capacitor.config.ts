@@ -4,9 +4,6 @@ const config: CapacitorConfig = {
   appId: "ir.jomefarmer.jome", // docs/adr/0003-app-id.md, never change after release
   appName: "JoME",
   webDir: "dist",
-  // The webview's origin is https://localhost, so the http dev server on the LAN is mixed content.
-  // Allowed for now, while the app talks to that server (#103); turn off once the server is https.
-  android: { allowMixedContent: true },
   plugins: {
     // Continue with Google only (#94). The others stay out of the app, Facebook's SDK above all.
     SocialLogin: {
