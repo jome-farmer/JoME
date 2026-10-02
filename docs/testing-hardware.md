@@ -38,3 +38,13 @@ list into the release PR and tick each item.
 - [ ] Wi‑Fi scan lists networks with signal strength
 - [ ] A wrong password shows `wifi.state: failed` with its reason
 - [ ] A correct password shows "connected" and the IP address
+
+## Server registration (board with factory values, signed in)
+
+- [ ] After the claim, *Connecting JoME…* walks through registering and connecting, then Name
+- [ ] The terminal shows `server.set` with the token hidden (`••••`), never the token
+- [ ] With no Wi‑Fi: the screen says to connect the board to Wi‑Fi first (`NO_NETWORK`); *Skip for now* works
+- [ ] A used token (open the app on two phones, register twice): *The setup code expired or was already used*, and *Try again* succeeds
+- [ ] A board with a wrong registration code: *JoME's own code was refused*
+- [ ] A board that belongs to another account: *This JoME belongs to another account*
+- [ ] A development board (`shambe-…` serial) says it can't join an account and continues to Name

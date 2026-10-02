@@ -105,7 +105,8 @@ DouSHamBE must accept the web client ID as the token audience.
 
 | Call                                                | Use                                                                                           |
 | --------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `POST /v1/devices/claim` `{serial, code}`           | Claim a board with its label code (QR `k`). Returns broker credentials once, for `server.set` |
+| `POST /v1/devices/claim` `{serial, code}`           | Claim a board with the 6-digit PIN on its label. Returns `{serial}` only: the board gets its own access by registering (below) |
+| `POST /v1/devices/registration-token`               | A single-use token (valid 10 minutes, tied to this account) for the board: `{token, expiresAt}`. The app hands it to the board with `server.set` |
 | `GET /v1/devices`                                   | The account's boards, each with its cloud copy                                                |
 | `GET /v1/devices/{serial}`                          | One board: `{serial, name, online, lastSeen, claimedAt, state}`                               |
 | `POST /v1/devices/{serial}/commands` `{cmd, args?}` | Send one protocol command. `200 {data}` is the board's `data`                                 |
@@ -113,6 +114,20 @@ DouSHamBE must accept the web client ID as the token audience.
 | `GET /v1/devices/{serial}/events?limit&before`      | Event history, newest first                                                                   |
 | `GET /v1/devices/{serial}/events/stream`            | Live events (SSE)                                                                             |
 | `DELETE /v1/devices/{serial}`                       | Unclaim                                                                                       |
+
+### Registering a board
+
+After the claim, the board registers itself over HTTPS (protocol §1): the app asks
+`POST /v1/devices/registration-token`, then sends `server.set {url, token}` to
+the board **over BLE or USB** (it is local only: through the server it gives
+`FORBIDDEN_REMOTE`). `url` is the API address the app uses (`VITE_API_URL`). The
+board answers `{}` at once and reports `server.state` events: `registering`,
+`registered`, `connecting`, `online`, or `failed` with a `reason`
+(`serverStateText` words them). `server.set` can answer `NO_NETWORK` (no Wi‑Fi
+yet), `CLOCK_NOT_SET` and `BAD_REQUEST`. A token is single use, so every try asks
+for a new one, and it never goes into the terminal's traffic log or app state. A
+board that was never provisioned at the factory (a `shambe-…` dev serial) has no
+code to send and cannot be claimed.
 
 `state` is the cloud copy. Each part is the board's `data` for that read
 command, with the time it was read:

@@ -182,3 +182,26 @@ describe("DeviceClient", () => {
     ]);
   });
 });
+
+describe("redact", () => {
+  it("hides a registration token from the traffic log, and nothing else", async () => {
+    const { redact } = await import("./client");
+    const line = JSON.stringify({
+      id: 4,
+      cmd: "server.set",
+      args: { url: "https://a.com", token: "secret" },
+    });
+    const out = redact(line);
+    expect(out).not.toContain("secret");
+    expect(JSON.parse(out).args.url).toBe("https://a.com");
+    const other = JSON.stringify({
+      id: 5,
+      cmd: "wifi.set",
+      args: { ssid: "x", token: "keep" },
+    });
+    expect(redact(other)).toBe(other);
+    expect(redact("plain log text server.set")).toBe(
+      "plain log text server.set",
+    );
+  });
+});

@@ -9,6 +9,27 @@ import type {
   Result,
 } from "./types";
 
+/**
+ * The line as the terminal may show it: a `server.set` registration token is a
+ * secret for ten minutes, so it never reaches the traffic log (or Copy).
+ */
+export function redact(text: string): string {
+  if (!text.startsWith("{") || !text.includes("server.set")) return text;
+  try {
+    const msg = JSON.parse(text) as {
+      cmd?: unknown;
+      args?: { token?: unknown };
+    };
+    if (msg.cmd === "server.set" && msg.args && "token" in msg.args) {
+      msg.args.token = "••••";
+      return JSON.stringify(msg);
+    }
+  } catch {
+    // not JSON: leave it
+  }
+  return text;
+}
+
 export class DeviceError extends Error {
   constructor(
     readonly code: ErrorCode | string,
@@ -134,7 +155,7 @@ export class DeviceClient {
     this.emitLine({
       dir: "tx",
       kind: text.startsWith("{") ? "msg" : "log",
-      text,
+      text: redact(text),
     });
     // Serialise writes: a BLE link splits each write into MTU chunks, which must not interleave.
     this.writing = this.writing

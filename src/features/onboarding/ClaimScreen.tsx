@@ -4,7 +4,12 @@ import { CloudCheck } from "lucide-react";
 import { useAppSelector } from "../../store";
 import { selectAuthState } from "../../store/authSlice";
 import { selectDevice } from "../../store/deviceSlice";
+import { useDeviceClient, supports } from "../../device/hooks";
 import { errorText } from "../../services/device/errors";
+import { serverStateText } from "../../services/device/serverLink";
+import type { ServerState } from "../../services/device/types";
+import { isLabelSerial } from "./pairingCode";
+import { RegistrationFailed, registerBoard } from "./registration";
 import { latinDigits } from "../../lib/format";
 import { claimDevice } from "../../services/devices";
 import { Button } from "../../ui/Button";
@@ -32,23 +37,56 @@ export function ClaimScreen() {
   const [error, setError] = useState<string>();
   const [claiming, setClaiming] = useState(!!scanned);
   const tried = useRef(false);
+  const client = useDeviceClient();
+  // After the claim the board registers itself with the server (one-time token over the local link).
+  const [phase, setPhase] = useState<"claim" | "register">("claim");
+  const [server, setServer] = useState<ServerState>();
+  const [registering, setRegistering] = useState(false);
+  const [registerError, setRegisterError] = useState<string>();
 
   const serial = info?.serial;
   // The demo board has no account to join, and a signed-out phone has no account to add it to.
   const skip = linkKind === "mock" || authState === "signedOut";
+
+  // Only over a local link (BLE or USB), and only firmware that has `server.set`.
+  const canRegister =
+    !!client &&
+    linkKind !== "cloud" &&
+    linkKind !== "mock" &&
+    supports(info, "server.set");
+
+  const register = async () => {
+    if (!client) return;
+    setPhase("register");
+    setRegistering(true);
+    setRegisterError(undefined);
+    setServer(undefined);
+    try {
+      await registerBoard(client, { onState: setServer });
+      navigate("/setup/name", { replace: true });
+    } catch (err) {
+      setRegisterError(
+        err instanceof RegistrationFailed
+          ? serverStateText({ state: "failed", reason: err.reason })
+          : errorText(err),
+      );
+      setRegistering(false);
+    }
+  };
 
   const claim = async (label: string) => {
     if (!serial) return;
     setClaiming(true);
     setError(undefined);
     try {
-      // ponytail: the reply's broker credentials are dropped until the board can take them (server.set, #96).
       await claimDevice(serial, label);
-      navigate("/setup/name", { replace: true });
     } catch (err) {
       setError(errorText(err));
       setClaiming(false);
+      return;
     }
+    if (canRegister) void register();
+    else navigate("/setup/name", { replace: true });
   };
 
   // Scanned the label: no need to ask, add it straight away (once).
@@ -61,6 +99,72 @@ export function ClaimScreen() {
 
   if (state !== "ready" || !info) return <Navigate to="/connect" replace />;
   if (skip) return <Navigate to="/setup/name" replace />;
+
+  // A board that was never provisioned has no label code, so it can't join an account.
+  if (!isLabelSerial(info.serial))
+    return (
+      <main className={styles.page}>
+        <StepDots step={3} />
+        <div className={styles.hero}>
+          <img src="/logo/symbol.svg" alt="" className={styles.mascotSmall} />
+          <div>
+            <h1 className={styles.title}>{info.name} is a development board</h1>
+            <p className={styles.sub}>
+              It has no factory label code, so it can't be added to an account.
+              It still works from this phone.
+            </p>
+          </div>
+        </div>
+        <Button
+          size="lg"
+          block
+          onClick={() => navigate("/setup/name", { replace: true })}
+        >
+          Continue
+        </Button>
+      </main>
+    );
+
+  // The claim is done; now the board registers with the server.
+  if (phase === "register")
+    return (
+      <main className={styles.page}>
+        <StepDots step={3} />
+        <div className={styles.hero}>
+          <img src="/logo/symbol.svg" alt="" className={styles.mascotSmall} />
+          <div>
+            <h1 className={styles.title}>Connecting {info.name}</h1>
+            <p className={styles.sub}>
+              JoME is signing up with the server, so you can reach it from
+              anywhere. This takes a few seconds.
+            </p>
+          </div>
+        </div>
+        {registering ? (
+          <div className={styles.notice} role="status">
+            <StatusPill tone="warn" live>
+              {server ? serverStateText(server) : "Asking JoME to register…"}
+            </StatusPill>
+          </div>
+        ) : (
+          <div className={styles.section}>
+            <div className={styles.notice} role="alert">
+              <p>{registerError}</p>
+            </div>
+            <Button size="lg" block onClick={() => void register()}>
+              Try again
+            </Button>
+            <Button
+              variant="ghost"
+              block
+              onClick={() => navigate("/setup/name", { replace: true })}
+            >
+              Skip for now
+            </Button>
+          </div>
+        )}
+      </main>
+    );
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
