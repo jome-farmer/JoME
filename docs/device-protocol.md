@@ -61,6 +61,15 @@ same interface. Features never touch a link directly. They go through
 - Serials can be lower case (`shambe-a1b2c3`), so serials and advertised
   names are compared case-insensitively.
 
+## Server link
+
+- `server.set {url, token}` is local only (BLE and USB). The client's traffic
+  log hides the token (`redact`). Errors: `BAD_REQUEST`, `NO_NETWORK`,
+  `CLOCK_NOT_SET`. The outcome comes as `server.state` events, which
+  `registerBoard` follows until `online` or `failed`.
+- `serverStateText` words every `server.state` and every `failed` reason
+  (protocol §4); an unknown reason stays generic.
+
 ## Demo board
 
 `mockLink.ts` simulates a board, with the same commands, events, error codes

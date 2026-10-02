@@ -18,6 +18,8 @@ const TEXT: Record<string, string> = {
   ZONE_DISABLED: "That zone is turned off. Turn it on first.",
   CLOCK_NOT_SET:
     "JoME doesn't know the time yet. Reconnect so the app can set its clock.",
+  NO_NETWORK:
+    "JoME isn't connected to Wi‑Fi yet. Connect it to your network first.",
   WIFI_FAILED: "JoME's Wi‑Fi radio couldn't do that. Try again.",
   VALVE_IN_USE: "Another zone already uses that valve.",
   INTERNAL: "JoME hit a problem. Try again.",

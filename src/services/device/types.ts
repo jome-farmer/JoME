@@ -88,6 +88,12 @@ export type Status = {
   nextRun: { program: number; name: string; at: Epoch } | null;
 };
 
+/** The board's link to DouSHamBE (protocol §4 server.state). `reason` only with `failed`. */
+export type ServerState = {
+  state: "registering" | "registered" | "connecting" | "online" | "failed";
+  reason?: string;
+};
+
 export type WifiNetwork = { ssid: string; rssi: number; secure: boolean };
 
 type Empty = Record<string, never>;
@@ -113,6 +119,8 @@ export type Commands = {
   "program.save": [Program, { id: number }];
   "program.delete": [{ id: number }, Empty];
   "rain.delay": [{ hours: number }, { until: Epoch | null }];
+  /** Local only (never through the server): hands the board a registration token (protocol §3). */
+  "server.set": [{ url: string; token: string }, Empty];
   "device.rename": [{ name: string }, Empty];
   "device.reboot": [Empty, Empty];
   "usage.read": [{ days: number }, Usage];
@@ -136,6 +144,7 @@ export type Events = {
   };
   "wifi.state": WifiState;
   "program.state": ProgramState;
+  "server.state": ServerState;
   status: Status;
 };
 export type EventName = keyof Events;
@@ -150,6 +159,7 @@ export type ErrorCode =
   | "ZONE_DISABLED"
   | "CLOCK_NOT_SET"
   | "INTERNAL"
+  | "NO_NETWORK"
   // Raised by the app, not the board:
   | "TIMEOUT"
   | "LINK_CLOSED";

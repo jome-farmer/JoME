@@ -4,6 +4,11 @@ export type PairingCode = { serial: string; passkey: string };
 const SERIAL = /^[A-Z0-9][A-Z0-9-]{2,30}[A-Z0-9]$/;
 const PASSKEY = /^\d{6}$/;
 
+/** A factory label serial (`JM-…`). Boards that were never provisioned report a dev serial like `shambe-a1b2c3`. */
+export function isLabelSerial(serial: string): boolean {
+  return SERIAL.test(serial);
+}
+
 /** `jome://pair?s=JM-2024-0001&k=483920` → { serial, passkey }, or null for anything else. */
 export function parsePairingCode(text: string): PairingCode | null {
   let url: URL;

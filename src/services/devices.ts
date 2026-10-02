@@ -15,11 +15,11 @@ export type CloudDevice = {
   state?: Partial<Record<string, CopyPart>>;
 };
 
-/** What a claim returns once: the board's own broker login, for `server.set` (#96). */
-export type Claimed = {
-  serial: string;
-  mqtt: { host: string; port: number; username: string; password: string };
-};
+/** What a claim returns: the board is now on the account. It gets no credentials; it registers itself. */
+export type Claimed = { serial: string };
+
+/** A one-time token the board trades for its certificate (docs/cloud.md, Registering a board). */
+export type RegistrationToken = { token: string; expiresAt: number };
 
 const path = (serial: string) => `/v1/devices/${encodeURIComponent(serial)}`;
 
@@ -40,6 +40,16 @@ export function claimDevice(serial: string, code: string): Promise<Claimed> {
   return api<Claimed>("/v1/devices/claim", {
     method: "POST",
     body: { serial, code },
+  });
+}
+
+/**
+ * A single-use token, valid 10 minutes, tied to this account. The app hands it
+ * to the board over BLE or USB (`server.set`); keep it out of logs and state.
+ */
+export function requestRegistrationToken(): Promise<RegistrationToken> {
+  return api<RegistrationToken>("/v1/devices/registration-token", {
+    method: "POST",
   });
 }
 

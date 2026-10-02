@@ -98,7 +98,7 @@ src/
   services/               every service: server calls (docs/cloud.md) and the board protocol
     client.ts             base URL (VITE_API_URL), bearer token, ApiError, 401 hook, SSE reader
     auth.ts               account types, startCode / verifyCode, getMe
-    devices.ts            device types, listDevices, getDevice, claimDevice, sendCommand, followDeviceEvents
+    devices.ts            device types, listDevices, getDevice, claimDevice, requestRegistrationToken, sendCommand, followDeviceEvents
     agent.ts              SSE chat client for the agent backend (fetch + ReadableStream; #22)
     device/               board protocol (jome-farmer/protocol, docs/device-protocol.md)
       client.ts           DeviceClient: typed request/response + events

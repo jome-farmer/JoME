@@ -4,6 +4,7 @@ import {
   PROTOCOL_VERSION,
   type ErrorCode,
   type Program,
+  type ServerState,
   type Status,
   type WifiNetwork,
   type Zone,
@@ -242,6 +243,31 @@ export function createMockLink(): Link {
         );
         event("wifi.state", wifi);
       }, 1500);
+      return {};
+    },
+    // Like the firmware (protocol §3): refuses at once, or answers {} and reports server.state.
+    "server.set": (a) => {
+      const url = String(a.url ?? "");
+      const token = String(a.token ?? "");
+      if (!url.startsWith("https://") || !token || token.length > 128)
+        throw new Fail("BAD_REQUEST", "url (https) and token are required");
+      if (wifi.state !== "connected")
+        throw new Fail("NO_NETWORK", "Wi-Fi is not connected");
+      if (!clockSet) throw new Fail("CLOCK_NOT_SET", "Clock not set");
+      const steps: ServerState[] = token.startsWith("bad")
+        ? [
+            { state: "registering" },
+            { state: "failed", reason: "TOKEN_INVALID" },
+          ]
+        : [
+            { state: "registering" },
+            { state: "registered" },
+            { state: "connecting" },
+            { state: "online" },
+          ];
+      steps.forEach((s, i) =>
+        setTimeout(() => event("server.state", s), 300 * (i + 1)),
+      );
       return {};
     },
     "zones.list": () => ({ zones }),
