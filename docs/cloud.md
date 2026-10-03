@@ -113,7 +113,7 @@ DouSHamBE must accept the web client ID as the token audience.
 | `POST /v1/devices/{serial}/sync`                    | Pull to refresh: re-read everything from the board (202)                                      |
 | `GET /v1/devices/{serial}/events?limit&before`      | Event history, newest first                                                                   |
 | `GET /v1/devices/{serial}/events/stream`            | Live events (SSE)                                                                             |
-| `DELETE /v1/devices/{serial}`                       | Unclaim                                                                                       |
+| `DELETE /v1/devices/{serial}?confirm=<serial>`       | Owner only: remove the board from the account (the serial is repeated as confirmation)        |
 
 ### Sharing
 
@@ -133,6 +133,27 @@ commands; only the owner shares, transfers or detaches it (`NOT_OWNER` otherwise
 
 A removed member's event stream ends within seconds (`403` or `404`): the cloud link closes with
 *JoME was removed from your account.* (`services/shares.ts`, `toShareIdentity`.)
+
+### Transfer and removing a board
+
+The owner can give a board to someone else, or remove it from the account (`services/transfers.ts`).
+An offer is tied to the recipient's **identity**, like an invitation.
+
+| Call | Use |
+| --- | --- |
+| `POST /v1/devices/{serial}/transfer` `{identity, keepAccess}` | Owner: offer the board (one offer per board, 7 days). Errors: `TRANSFER_PENDING`, `CANNOT_TRANSFER_TO_SELF` |
+| `GET /v1/devices/{serial}/transfer` | Owner: the pending offer (`404` when none) |
+| `DELETE /v1/devices/{serial}/transfer` | Owner cancels |
+| `GET /v1/transfers` | Offers for the signed-in account |
+| `POST /v1/transfers/{id}/accept` | Become the owner, with no members |
+| `DELETE /v1/transfers/{id}` | Decline |
+
+On accept the new owner starts with nobody else on the board; the previous owner stays on as a
+member unless `keepAccess` was false. Removing a board (`DELETE …?confirm=<serial>`) drops its
+owner, members, cloud copy and history; the board keeps its schedules and reports `REVOKED`, and a
+new account can claim it again. In the app the owner types the serial to confirm. After a removal
+the board leaves the list on that phone; the Bluetooth or USB link still works if the person
+pairs again.
 
 ### Registering a board
 

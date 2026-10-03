@@ -39,6 +39,9 @@ const TEXT: Record<string, string> = {
   CANNOT_INVITE_SELF: "That is your own account.",
   TOO_MANY_MEMBERS:
     "This JoME is already shared with as many people as it allows.",
+  TRANSFER_PENDING: "This JoME already has an offer waiting. Cancel it first.",
+  CANNOT_TRANSFER_TO_SELF: "That is your own account.",
+  CONFIRM_REQUIRED: "Type the serial exactly to confirm.",
   NOT_OWNER: "Only the owner of this JoME can do that.",
   TOKEN_INVALID: "The setup code expired or was already used. Try again.",
   CLAIM_REJECTED: "That code doesn't match this JoME. Check the label.",

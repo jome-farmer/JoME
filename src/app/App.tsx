@@ -24,6 +24,7 @@ import { NameScreen } from "../features/onboarding/NameScreen";
 import { ClaimScreen } from "../features/onboarding/ClaimScreen";
 import { AnalyticsScreen } from "../features/usage/AnalyticsScreen";
 import { SharingScreen } from "../features/device/SharingScreen";
+import { TransferScreen } from "../features/device/TransferScreen";
 import { ZoneScreen } from "../features/zones/ZoneScreen";
 import { MapScreen } from "../features/map/MapScreen";
 import { MoreScreen } from "../features/more/MoreScreen";
@@ -77,6 +78,7 @@ export function App() {
           <Route path="setup/claim" element={<ClaimScreen />} />
           <Route path="setup/name" element={<NameScreen />} />
           <Route path="device/sharing" element={<SharingScreen />} />
+          <Route path="device/transfer" element={<TransferScreen />} />
           <Route path="device/terminal" element={<TerminalScreen />} />
           <Route path="device/wifi" element={<WifiScreen mode="settings" />} />
           <Route path="schedule/:id" element={<ProgramEditor />} />
