@@ -7,6 +7,7 @@ import {
   Droplet,
   Droplets,
   FlaskConical,
+  Map as MapIcon,
   Pencil,
   Play,
   Square,
@@ -38,6 +39,8 @@ import {
   sampleTrend,
 } from "../../services/field";
 import { formatDuration, formatLiters } from "../../lib/format";
+import { shapeArea } from "../../lib/geo";
+import { getZoneShapes } from "../../lib/storage";
 import { remainingFraction } from "../../lib/math";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
@@ -80,6 +83,8 @@ function Detail({ zoneId }: { zoneId: number }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [today, setToday] = useState<{ liters: number; seconds: number }>();
+  // Measured from the outline drawn on the map; undefined until one is drawn.
+  const [area, setArea] = useState<number>();
   const offlineReason = useOfflineReason();
   const change = (go: () => void) => () =>
     offlineReason ? setError(offlineReason) : go();
@@ -89,6 +94,17 @@ function Detail({ zoneId }: { zoneId: number }) {
   const programs = garden.programs.filter((p) =>
     p.steps.some((s) => s.zone === zoneId),
   );
+
+  useEffect(() => {
+    if (!info) return;
+    let live = true;
+    void getZoneShapes(info.serial).then((s) => {
+      if (live && s[zoneId]) setArea(Math.round(shapeArea(s[zoneId])));
+    });
+    return () => {
+      live = false;
+    };
+  }, [info, zoneId]);
 
   // Today's water for this zone, from the board's log.
   useEffect(() => {
@@ -137,7 +153,10 @@ function Detail({ zoneId }: { zoneId: number }) {
         <div className={styles.titles}>
           <h1 className={styles.title}>{zone.name}</h1>
           <span className={styles.sub}>
-            Valve {zone.valve} · {sampleArea(zoneId)} m² (sample)
+            Valve {zone.valve} ·{" "}
+            {area !== undefined
+              ? `${area.toLocaleString("en-US")} m²`
+              : `${sampleArea(zoneId)} m² (sample)`}
           </span>
         </div>
         {running ? (
@@ -370,6 +389,16 @@ function Detail({ zoneId }: { zoneId: number }) {
               title="Name, valve and run time"
               subtitle={`${zone.name} · valve ${zone.valve} · ${formatDuration(zone.defaultSeconds)}`}
               onClick={() => setSheet(true)}
+            />
+            <ListRow
+              icon={MapIcon}
+              title="Outline on the map"
+              subtitle={
+                area !== undefined
+                  ? `Drawn · ${area.toLocaleString("en-US")} m²`
+                  : "Not drawn yet: tap its corners on the satellite map"
+              }
+              onClick={() => navigate("/map", { state: { draw: zoneId } })}
             />
           </List>
         )}

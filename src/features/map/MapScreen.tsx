@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   CloudSun,
   Droplet,
   Droplets,
+  Layers,
+  LocateFixed,
+  PenLine,
   Plug,
   Sprout,
   Square,
@@ -18,24 +21,34 @@ import { errorText } from "../../services/device/errors";
 import {
   moistureLevel,
   SAMPLE_DEVICES,
-  sampleMapShape,
   sampleSoil,
 } from "../../services/field";
+import type { TileName } from "../../services/mapTiles";
+import { phonePlace, type Shape } from "../../lib/geo";
+import {
+  getGardenPlace,
+  getZoneShapes,
+  setZoneShapes,
+  type Place,
+  type ZoneShapes,
+} from "../../lib/storage";
 import { formatDuration, formatTemperature, whenLabel } from "../../lib/format";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Sparkline } from "../../ui/Chart";
 import { EmptyState } from "../../ui/EmptyState";
+import { IconButton } from "../../ui/IconButton";
 import { List, ListRow } from "../../ui/ListRow";
 import { Screen } from "../../ui/Screen";
 import { Segmented } from "../../ui/Segmented";
 import { StatusPill } from "../../ui/StatusPill";
+import { GardenMap, type MapZone } from "./GardenMap";
 import styles from "./MapScreen.module.css";
 
 const VIEWS = ["Map", "Zones", "Sensors"] as const;
 type View = (typeof VIEWS)[number];
 
-/** The garden from above: each zone as a plot, coloured by what it's doing. */
+/** The garden on a real map (satellite or OpenStreetMap): each zone's outline, coloured by what it's doing. */
 export function MapScreen() {
   const { state } = useAppSelector(selectDevice);
   const client = useDeviceClient();
@@ -72,6 +85,77 @@ function Connected() {
   const offlineReason = useOfflineReason();
   const running = run ? zones.find((z) => z.zone === run.zone) : undefined;
   const open = (zone: number) => navigate(`/zones/${zone}`);
+  const serial = info?.serial ?? "";
+  const [tiles, setTiles] = useState<TileName>("Satellite");
+  const [shapes, setShapes] = useState<ZoneShapes>({});
+  const [place, setPlace] = useState<Place>();
+  const [tileError, setTileError] = useState(false);
+  const [locating, setLocating] = useState(false);
+  // Zone detail's "Draw outline" lands here with the zone to draw.
+  const askedToDraw = (useLocation().state as { draw?: number } | null)?.draw;
+  const [drawing, setDrawing] = useState<{ zone: number; points: Shape }>();
+
+  useEffect(() => {
+    let live = true;
+    void Promise.all([getZoneShapes(serial), getGardenPlace(serial)]).then(
+      ([s, p]) => {
+        if (!live) return;
+        setShapes(s);
+        setPlace(p);
+        if (askedToDraw !== undefined)
+          setDrawing({ zone: askedToDraw, points: s[askedToDraw] ?? [] });
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [serial, askedToDraw]);
+
+  const locate = async () => {
+    setLocating(true);
+    try {
+      setPlace(await phonePlace());
+    } catch {
+      setError(
+        "Couldn't find this phone's location. Allow location for JoME in settings, or move the map by hand.",
+      );
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const saveShapes = (next: ZoneShapes) => {
+    setShapes(next);
+    void setZoneShapes(serial, next);
+  };
+
+  const mapZones: MapZone[] = zones
+    .filter((z) => shapes[z.zone]?.length >= 3 && z.zone !== drawing?.zone)
+    .map((z) => {
+      const moisture = sampleSoil(z.zone).moisture;
+      const low = moistureLevel(moisture) === "Low";
+      return {
+        zone: z.zone,
+        name: z.name,
+        shape: shapes[z.zone],
+        tone:
+          run?.zone === z.zone
+            ? "flow"
+            : !z.enabled
+              ? "off"
+              : low
+                ? "warn"
+                : "ok",
+        detail:
+          run?.zone === z.zone
+            ? `Watering · ${formatDuration(garden.remaining)} left`
+            : !z.enabled
+              ? "Off"
+              : `Soil ${moisture}%${low ? " · Low" : ""}`,
+      };
+    });
+  const unmapped = zones.filter((z) => !(shapes[z.zone]?.length >= 3));
+  const drawingZone = zones.find((z) => z.zone === drawing?.zone);
 
   const stop = async () => {
     if (offlineReason) return setError(offlineReason);
@@ -108,63 +192,137 @@ function Connected() {
       )}
 
       {view === "Map" && (
-        // The map doesn't mirror in RTL: north-west stays top-left.
-        <div className={styles.map} dir="ltr">
-          <img src="/art/field.svg" alt="" className={styles.art} />
-          <svg viewBox="0 0 100 140" className={styles.plots} aria-hidden>
-            {zones.map((z, i) => {
-              const tone =
-                run?.zone === z.zone
-                  ? "flow"
-                  : !z.enabled
-                    ? "off"
-                    : moistureLevel(sampleSoil(z.zone).moisture) === "Low"
-                      ? "warn"
-                      : "ok";
-              return (
-                <polygon
-                  key={z.zone}
-                  points={sampleMapShape(i, zones.length)}
-                  className={styles[tone]}
-                />
-              );
-            })}
-          </svg>
-          {zones.map((z, i) => {
-            const [x, y] = centre(sampleMapShape(i, zones.length));
-            const watering = run?.zone === z.zone;
-            const moisture = sampleSoil(z.zone).moisture;
-            return (
-              <button
-                key={z.zone}
-                type="button"
-                className={`${styles.chip} ${watering ? styles.chipFlow : ""}`}
-                style={{
-                  insetInlineStart: `${x}%`,
-                  insetBlockStart: `${(y / 140) * 100}%`,
-                }}
-                onClick={() => open(z.zone)}
-              >
-                <b>{z.name}</b>
-                <span>
-                  {watering ? (
-                    <>
-                      <Droplet size={12} aria-hidden /> Watering
-                    </>
-                  ) : !z.enabled ? (
-                    "Off"
-                  ) : (
-                    <>
-                      <Droplets size={12} aria-hidden /> {moisture}%{" "}
-                      {moistureLevel(moisture) === "Low" ? "· Low" : ""}
-                    </>
-                  )}
+        <>
+          <div className={styles.map}>
+            <GardenMap
+              tiles={tiles}
+              zones={mapZones}
+              center={place}
+              onZone={open}
+              onTileError={() => setTileError(true)}
+              drawing={
+                drawing && {
+                  points: drawing.points,
+                  onTap: (p) =>
+                    setDrawing((d) => d && { ...d, points: [...d.points, p] }),
+                }
+              }
+            />
+            <div className={styles.tools}>
+              <IconButton
+                icon={LocateFixed}
+                label="Go to this phone's location"
+                disabled={locating}
+                onClick={() => void locate()}
+              />
+              <IconButton
+                icon={Layers}
+                label={tiles === "Satellite" ? "Street map" : "Satellite view"}
+                onClick={() =>
+                  setTiles((t) => (t === "Satellite" ? "Street" : "Satellite"))
+                }
+              />
+            </div>
+            {tileError ? (
+              <span className={styles.sample}>
+                The map needs internet. Your garden keeps running on schedule.
+              </span>
+            ) : !place && mapZones.length === 0 && !drawing ? (
+              <span className={styles.sample}>
+                Standing in the garden? Tap the target to find it.
+              </span>
+            ) : (
+              mapZones.length > 0 && (
+                <span className={styles.sample}>
+                  Soil moisture is sample data
                 </span>
-              </button>
-            );
-          })}
-          <span className={styles.sample}>Sample layout · moisture</span>
-        </div>
+              )
+            )}
+          </div>
+
+          {drawing ? (
+            <Card className={styles.drawBar}>
+              <label className={styles.drawZone}>
+                <span>Outline of</span>
+                <select
+                  value={drawing.zone}
+                  onChange={(e) => {
+                    const zone = Number(e.target.value);
+                    setDrawing({ zone, points: shapes[zone] ?? [] });
+                  }}
+                >
+                  {zones.map((z) => (
+                    <option key={z.zone} value={z.zone}>
+                      {z.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className={styles.meta}>
+                {drawing.points.length < 3
+                  ? `Tap each corner of ${drawingZone?.name ?? "the zone"} on the map, in order. ${drawing.points.length} of at least 3.`
+                  : `${drawing.points.length} corners. Tap to add more, or save.`}
+              </span>
+              <div className={styles.drawActions}>
+                <Button
+                  variant="secondary"
+                  disabled={!drawing.points.length}
+                  onClick={() =>
+                    setDrawing({
+                      ...drawing,
+                      points: drawing.points.slice(0, -1),
+                    })
+                  }
+                >
+                  Undo
+                </Button>
+                <Button variant="ghost" onClick={() => setDrawing(undefined)}>
+                  Cancel
+                </Button>
+                <Button
+                  haptic
+                  disabled={drawing.points.length < 3}
+                  onClick={() => {
+                    saveShapes({ ...shapes, [drawing.zone]: drawing.points });
+                    setDrawing(undefined);
+                  }}
+                >
+                  Save
+                </Button>
+              </div>
+              {shapes[drawing.zone] && (
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    const next = { ...shapes };
+                    delete next[drawing.zone];
+                    saveShapes(next);
+                    setDrawing(undefined);
+                  }}
+                >
+                  Remove this outline
+                </Button>
+              )}
+            </Card>
+          ) : (
+            zones.length > 0 && (
+              <Button
+                variant="secondary"
+                icon={PenLine}
+                onClick={() =>
+                  setDrawing({
+                    zone: (unmapped[0] ?? zones[0]).zone,
+                    points: shapes[(unmapped[0] ?? zones[0]).zone] ?? [],
+                  })
+                }
+              >
+                {unmapped.length
+                  ? `Draw zone outlines · ${unmapped.length} to go`
+                  : "Edit zone outlines"}
+              </Button>
+            )
+          )}
+        </>
       )}
 
       {view === "Zones" && (
@@ -258,13 +416,4 @@ function Connected() {
       </Card>
     </Screen>
   );
-}
-
-/** Average of a polygon's corners, in its own units. */
-function centre(points: string): [number, number] {
-  const xy = points.split(" ").map((p) => p.split(",").map(Number));
-  return [
-    xy.reduce((a, [x]) => a + x, 0) / xy.length,
-    xy.reduce((a, [, y]) => a + y, 0) / xy.length,
-  ];
 }

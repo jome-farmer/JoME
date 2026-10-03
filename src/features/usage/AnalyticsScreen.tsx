@@ -8,6 +8,8 @@ import { errorText } from "../../services/device/errors";
 import type { Usage, Zone } from "../../services/device/types";
 import { sampleArea, sampleDaily } from "../../services/field";
 import { formatDuration, formatLiters } from "../../lib/format";
+import { shapeArea } from "../../lib/geo";
+import { getZoneShapes, type ZoneShapes } from "../../lib/storage";
 import { Card } from "../../ui/Card";
 import { BarChart, Donut } from "../../ui/Chart";
 import { chartColor } from "../../lib/theme";
@@ -67,8 +69,13 @@ function Water({ period }: { period: Period }) {
   const [usage, setUsage] = useState<Usage>();
   const [previous, setPrevious] = useState<number>();
   const [zones, setZones] = useState<Zone[]>([]);
+  const [shapes, setShapes] = useState<ZoneShapes>({});
   const [error, setError] = useState<string>();
   const canRead = supports(info, "usage.read");
+
+  useEffect(() => {
+    if (info) void getZoneShapes(info.serial).then(setShapes);
+  }, [info]);
 
   useEffect(() => {
     if (!client || !canRead) return;
@@ -133,7 +140,12 @@ function Water({ period }: { period: Period }) {
   const byZone = usage.zones.slice().sort((a, b) => b.liters - a.liters);
   const zoneName = (id: number) =>
     zones.find((z) => z.zone === id)?.name ?? `Zone ${id} (removed)`;
-  const area = byZone.reduce((a, z) => a + sampleArea(z.zone), 0);
+  // Real areas once every watered zone is drawn on the map; samples until then.
+  const measured = byZone.every((z) => shapes[z.zone]);
+  const area = byZone.reduce(
+    (a, z) => a + (measured ? shapeArea(shapes[z.zone]) : sampleArea(z.zone)),
+    0,
+  );
 
   return (
     <>
@@ -201,7 +213,9 @@ function Water({ period }: { period: Period }) {
           <span className={styles.cardTitle}>Efficiency</span>
           <b>{(sum.liters / Math.max(1, area)).toFixed(1)} L/m²</b>
           <span className={styles.meta}>
-            Water per area · zone areas are a sample
+            {measured
+              ? "Water per area of the zones you drew"
+              : "Water per area · draw every zone on the map for real areas"}
           </span>
         </span>
       </Card>

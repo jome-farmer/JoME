@@ -14,12 +14,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getGardenPlace, setGardenPlace, type Place } from "../../lib/storage";
+import { phonePlace } from "../../lib/geo";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import {
   describe,
   getWeather,
-  phonePlace,
   roundPlace,
   type Sky,
   type Weather,

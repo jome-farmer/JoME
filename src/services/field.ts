@@ -1,6 +1,6 @@
 /**
  * Sample field data for the parts of the redesign the board can't measure yet:
- * soil probes, the zone map, a weather station, a nutrient doser and rules.
+ * soil probes, zone areas (until an outline is drawn on the map), a weather station, a nutrient doser and rules.
  * Screens label everything from here "Sample". Values are fixed per zone id,
  * so they don't jump between renders.
  *
@@ -50,32 +50,6 @@ export function sampleTrend(last: number, zone = 1): number[] {
     { length: 12 },
     (_, i) => last + Math.sin((i + zone) * 1.3) * last * 0.08 + (11 - i) * 0.3,
   ).map((v, i, a) => (i === a.length - 1 ? last : v));
-}
-
-/**
- * A made-up outline for each zone on a 100 × 140 field, laid out in a grid
- * with skewed corners so it reads as plots, not a table.
- */
-export function sampleMapShape(index: number, count: number): string {
-  const cols = count > 6 ? 3 : 2;
-  const rows = Math.ceil(count / cols);
-  const w = 100 / cols;
-  const h = 140 / rows;
-  const c = index % cols;
-  const r = Math.floor(index / cols);
-  const j = (n: number) => ((index * 7 + n * 13) % 5) - 2; // −2…2, fixed per zone
-  const x0 = c * w + 2;
-  const y0 = r * h + 2;
-  const x1 = x0 + w - 4;
-  const y1 = y0 + h - 4;
-  return [
-    [x0 + j(1), y0 + j(2)],
-    [x1 + j(3), y0 + j(4)],
-    [x1 + j(5), y1 + j(6)],
-    [x0 + j(7), y1 + j(8)],
-  ]
-    .map(([x, y]) => `${x},${y}`)
-    .join(" ");
 }
 
 export type SampleDevice = {

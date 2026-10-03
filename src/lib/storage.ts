@@ -57,6 +57,7 @@ export async function forgetDevice(serial: string): Promise<void> {
   const rest = (await getKnownDevices()).filter((d) => d.serial !== serial);
   await Preferences.set({ key: KEY, value: JSON.stringify(rest) });
   await Preferences.remove({ key: placeKey(serial) });
+  await Preferences.remove({ key: shapesKey(serial) });
 }
 
 /** Where a controller's garden is, in degrees. Kept on this phone only. */
@@ -95,4 +96,29 @@ export async function getFlag(key: string): Promise<boolean> {
 
 export async function setFlag(key: string, on: boolean): Promise<void> {
   await Preferences.set({ key, value: on ? "1" : "0" });
+}
+
+/** Zone outlines drawn on the map, by zone id: corners as [lat, lon]. Kept on this phone until the server stores them. */
+export type ZoneShapes = Record<number, [number, number][]>;
+
+const shapesKey = (serial: string) => `zoneShapes.v1.${serial}`;
+
+export async function getZoneShapes(serial: string): Promise<ZoneShapes> {
+  const { value } = await Preferences.get({ key: shapesKey(serial) });
+  try {
+    const s: unknown = JSON.parse(value ?? "{}");
+    return s && typeof s === "object" ? (s as ZoneShapes) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function setZoneShapes(
+  serial: string,
+  shapes: ZoneShapes,
+): Promise<void> {
+  await Preferences.set({
+    key: shapesKey(serial),
+    value: JSON.stringify(shapes),
+  });
 }
