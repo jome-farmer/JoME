@@ -73,7 +73,7 @@ export function DeviceScreen() {
 
   if (state !== "ready" || !info || !linkKind) {
     return (
-      <Screen title="Device">
+      <Screen title="Controller" onBack={() => navigate("/more")}>
         <EmptyState
           title="No controller connected"
           action={
@@ -148,7 +148,7 @@ function Connected() {
   };
 
   return (
-    <Screen title="Device">
+    <Screen title="Controller" onBack={() => navigate("/more")}>
       <Card className={styles.card}>
         <div className={styles.head}>
           <img src="/logo/symbol.svg" alt="" className={styles.mascot} />

@@ -24,6 +24,12 @@
   align-items: center;
   gap: var(--s-3);
 }
+.back {
+  margin-inline-start: calc(var(--s-2) * -1);
+}
+:dir(rtl) .back svg {
+  transform: scaleX(-1);
+}
 .avatar {
   width: 44px;
   height: 44px;

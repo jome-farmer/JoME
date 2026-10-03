@@ -309,7 +309,8 @@ export function TerminalScreen() {
         </>
       ) : (
         <p className={styles.hint}>
-          Connect to a controller on the Device tab to see its serial output.
+          Connect to a controller in More › Controller settings to see its
+          serial output.
         </p>
       )}
     </main>

@@ -31,3 +31,6 @@ export function applyTheme(theme: Theme): void {
     void SystemBars.setStyle({ style: barStyle(theme) }).catch(() => {});
   }
 }
+
+/** The i-th categorical chart colour (design/tokens.css --chart-1…6). */
+export const chartColor = (i: number) => `var(--chart-${(i % 6) + 1})`;

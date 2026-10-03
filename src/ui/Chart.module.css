@@ -1,0 +1,67 @@
+.bars {
+  display: grid;
+  gap: var(--s-2);
+}
+.plot,
+.axis {
+  display: grid;
+  grid-template-columns: repeat(var(--bars, 7), 1fr);
+  gap: 6px;
+}
+.plot {
+  align-items: end;
+}
+.plot span {
+  border-radius: 6px 6px 3px 3px;
+  background: var(--mint);
+  transition: block-size var(--dur) var(--ease);
+}
+.plot .hi {
+  background: var(--primary);
+}
+.axis {
+  font-size: 11px;
+  color: var(--ink-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.spark {
+  inline-size: 100%;
+  block-size: 28px;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.spark polyline {
+  vector-effect: non-scaling-stroke;
+}
+.ok {
+  stroke: var(--sprout);
+}
+.warn {
+  stroke: var(--warn);
+}
+
+.donut {
+  inline-size: 132px;
+  block-size: 132px;
+  flex: none;
+}
+.donut circle {
+  fill: none;
+  stroke-width: 6;
+}
+.donut .track {
+  stroke: var(--surface-2);
+}
+.donut text {
+  fill: var(--ink);
+  font-size: 6px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
+}

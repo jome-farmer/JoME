@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice">
+  <!-- Zone hero: rows of leafy vegetables, close up. -->
+  <rect width="400" height="160" fill="#5b4a37"/>
+  <path d="M0 0 H400 V40 Q200 28 0 40Z" fill="#a9c79a"/>
+  <g fill="#3f8a3c">
+    <ellipse cx="30" cy="62" rx="26" ry="14"/><ellipse cx="100" cy="58" rx="28" ry="15"/><ellipse cx="175" cy="60" rx="27" ry="14"/>
+    <ellipse cx="250" cy="57" rx="28" ry="15"/><ellipse cx="325" cy="61" rx="27" ry="14"/><ellipse cx="395" cy="58" rx="26" ry="14"/>
+  </g>
+  <g fill="#4ea047">
+    <ellipse cx="-5" cy="108" rx="40" ry="24"/><ellipse cx="90" cy="104" rx="44" ry="26"/><ellipse cx="190" cy="110" rx="42" ry="25"/>
+    <ellipse cx="290" cy="104" rx="44" ry="26"/><ellipse cx="390" cy="108" rx="42" ry="25"/>
+  </g>
+  <g fill="#6cbd5a">
+    <path d="M60 160 Q40 120 70 96 Q100 120 80 160Z"/><path d="M95 160 Q100 110 140 98 Q138 135 110 160Z"/>
+    <path d="M160 160 Q150 118 185 100 Q205 130 180 160Z"/><path d="M250 160 Q245 112 285 96 Q300 128 272 160Z"/>
+    <path d="M300 160 Q315 118 350 110 Q345 140 320 160Z"/><path d="M5 160 Q10 125 40 112 Q42 140 25 160Z"/>
+  </g>
+  <g stroke="#2f6e2c" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M70 160 Q72 128 70 100"/><path d="M118 160 Q122 128 136 102"/><path d="M182 160 Q182 130 186 104"/>
+    <path d="M272 160 Q276 128 284 100"/><path d="M322 160 Q330 132 346 113"/>
+  </g>
+</svg>

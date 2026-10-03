@@ -1,0 +1,21 @@
+.section {
+  display: grid;
+  gap: var(--s-2);
+}
+.label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.label span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+.spark {
+  display: block;
+  inline-size: 72px;
+}

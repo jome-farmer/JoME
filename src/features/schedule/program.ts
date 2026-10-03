@@ -66,3 +66,61 @@ export function moveStep<T>(steps: T[], i: number, delta: number): T[] {
   [next[i], next[j]] = [next[j], next[i]];
   return next;
 }
+
+export type PlanRow = {
+  program: Program;
+  step: number;
+  zone: number;
+  /** "HH:MM" this step starts, the program start plus the steps before it. */
+  start: string;
+  seconds: number;
+  state: "done" | "now" | "next" | "paused";
+};
+
+/**
+ * What runs on `day`, one row per zone step, by start time. Past steps are
+ * done, the running step (from the board's report) is now, paused programs
+ * stay listed so people see them.
+ */
+export function dayPlan(
+  programs: Program[],
+  day: Date,
+  now: Date,
+  running?: { program?: number; zone: number } | null,
+): PlanRow[] {
+  const rows: PlanRow[] = [];
+  for (const p of programs) {
+    if (!p.days.includes(day.getDay())) continue;
+    const [h, m] = p.start.split(":").map(Number);
+    let at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m);
+    p.steps.forEach((s, i) => {
+      const end = new Date(at.getTime() + s.seconds * 1000);
+      const state = !p.enabled
+        ? "paused"
+        : running?.program === p.id && running?.zone === s.zone
+          ? "now"
+          : end <= now
+            ? "done"
+            : "next";
+      rows.push({
+        program: p,
+        step: i,
+        zone: s.zone,
+        start: `${String(at.getHours()).padStart(2, "0")}:${String(at.getMinutes()).padStart(2, "0")}`,
+        seconds: s.seconds,
+        state,
+      });
+      at = end;
+    });
+  }
+  return rows.sort((a, b) => a.start.localeCompare(b.start));
+}
+
+/** Monday to Sunday of the week `day` is in. */
+export function weekOf(day: Date): Date[] {
+  const monday = day.getDate() - ((day.getDay() + 6) % 7);
+  return Array.from(
+    { length: 7 },
+    (_, i) => new Date(day.getFullYear(), day.getMonth(), monday + i),
+  );
+}

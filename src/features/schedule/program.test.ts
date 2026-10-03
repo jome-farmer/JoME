@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Program, Zone } from "../../services/device/types";
 import {
+  dayPlan,
+  weekOf,
   moveStep,
   newProgram,
   programProblems,
@@ -76,5 +78,60 @@ describe("helpers", () => {
   it("moves steps within bounds", () => {
     expect(moveStep(["a", "b", "c"], 2, -1)).toEqual(["a", "c", "b"]);
     expect(moveStep(["a", "b"], 0, -1)).toEqual(["a", "b"]);
+  });
+});
+
+describe("dayPlan", () => {
+  // Tuesday 30 Sep 2025, 08:00.
+  const day = new Date(2025, 8, 30);
+  const now = new Date(2025, 8, 30, 8, 0);
+  const morning: Program = {
+    id: 1,
+    name: "Morning",
+    enabled: true,
+    days: [2],
+    start: "06:00",
+    steps: [
+      { zone: 1, seconds: 25 * 60 },
+      { zone: 2, seconds: 18 * 60 },
+    ],
+  };
+  const evening: Program = {
+    ...morning,
+    id: 2,
+    name: "Evening",
+    start: "18:00",
+  };
+  const paused: Program = { ...morning, id: 3, enabled: false, start: "19:00" };
+
+  it("lists each step at its own start time, in order", () => {
+    const rows = dayPlan([evening, morning], day, now);
+    expect(rows.map((r) => [r.start, r.zone, r.state])).toEqual([
+      ["06:00", 1, "done"],
+      ["06:25", 2, "done"],
+      ["18:00", 1, "next"],
+      ["18:25", 2, "next"],
+    ]);
+  });
+  it("marks the step the board is running, and paused programs", () => {
+    const rows = dayPlan([morning, paused], day, now, { program: 1, zone: 2 });
+    expect(rows.map((r) => r.state)).toEqual([
+      "done",
+      "now",
+      "paused",
+      "paused",
+    ]);
+  });
+  it("skips programs that don't run that day", () => {
+    expect(dayPlan([{ ...morning, days: [3] }], day, now)).toEqual([]);
+  });
+});
+
+describe("weekOf", () => {
+  it("runs Monday to Sunday around the day", () => {
+    const week = weekOf(new Date(2025, 8, 30));
+    expect(week[0].getDate()).toBe(29);
+    expect(week[0].getDay()).toBe(1);
+    expect(week[6].getDate()).toBe(5);
   });
 });

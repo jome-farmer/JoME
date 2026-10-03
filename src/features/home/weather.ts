@@ -103,14 +103,3 @@ export async function getWeather(place: Place): Promise<Weather> {
   cache.set(url, { at: Date.now(), weather });
   return weather;
 }
-
-/** The phone's rough position. Rejects with GeolocationPositionError (code 1 = denied). */
-export function phonePlace(): Promise<Place> {
-  return new Promise((resolve, reject) =>
-    navigator.geolocation.getCurrentPosition(
-      (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
-      reject,
-      { enableHighAccuracy: false, timeout: 15_000, maximumAge: 3_600_000 },
-    ),
-  );
-}

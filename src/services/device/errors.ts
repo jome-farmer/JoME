@@ -29,7 +29,7 @@ const TEXT: Record<string, string> = {
   // From the server (docs/cloud.md).
   DEVICE_OFFLINE: offlineText("JoME"),
   FORBIDDEN_REMOTE:
-    "That change needs the phone near JoME. Connect nearby from the Device tab.",
+    "That change needs the phone near JoME. Connect nearby from More › Controller settings.",
   NETWORK: "Couldn't reach JoME's server. Check your internet and try again.",
   UNAUTHORIZED: "You've been signed out. Sign in again.",
   CODE_INVALID: "That code didn't work. Check it or ask for a new one.",

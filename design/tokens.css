@@ -2,7 +2,8 @@
  * JoME design tokens — single source of truth.
  * Used by design/mockups.html and imported by src/ui/tokens.css.
  * Palette derives from the logo (public/logo/symbol.svg).
- * Layout: calm off-white ground, one hero surface per screen, water blue only means "water is flowing".
+ * Layout (redesign-2026-10.png): pale sage ground, deep pine primary, big soft cards, photo heroes.
+ * Water blue still only means "water is flowing".
  */
 :root {
   /* Brand */
@@ -12,16 +13,18 @@
   --mint: #8fdca8;
   --water: #1e88e5;    /* active watering, flow */
   --sun: #f4b942;      /* schedule, rain delay, caution */
+  --pine: #1d5c37;     /* primary action, selected tab and segment */
+  --clay: #c9783f;     /* charts only */
 
   /* Semantic — light */
-  --bg: #f4f7f5;
+  --bg: #f2f5f1;
   --surface: #ffffff;
-  --surface-2: #eaf0ec;
+  --surface-2: #e9efe9;
   --line: #d5e0da;
   --ink: #0f3d2b;
   --ink-2: #4a6457;
   --ink-3: #5b6f64;    /* AA (4.5:1) on bg, surface and surface-2 */
-  --primary: var(--leaf);
+  --primary: var(--pine);
   --on-primary: #ffffff;
   --flow: #166dba;     /* text-safe water: the logo's --water is 3.4:1 on bg */
   --flow-soft: #e3f0fc;
@@ -31,7 +34,12 @@
   --danger-soft: #fbe6e3;
   --ok: var(--leaf);
   --ok-soft: #e1f3e7;
-  --shadow: 0 1px 2px rgb(15 61 43 / 0.06), 0 8px 24px rgb(15 61 43 / 0.08);
+  --shadow: 0 1px 2px rgb(15 61 43 / 0.05), 0 6px 20px rgb(15 61 43 / 0.06);
+  /* Glass tiles and text laid over a hero picture: white text on --scrim is AA. */
+  --scrim: rgb(12 38 24 / 0.62);
+  --on-scrim: #ffffff;
+  /* Categorical chart colours (zones in a donut). Never blue: past use isn't water flowing. */
+  --chart-1: var(--pine); --chart-2: #2fa860; --chart-3: #8fdca8; --chart-4: #e2b041; --chart-5: var(--clay); --chart-6: #7f8b52;
 
   /* Type */
   --font-ui: "Manrope Variable", "Manrope", "Vazirmatn", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -47,10 +55,11 @@
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px;
 
   /* Shape */
-  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-full: 999px;
+  --r-sm: 12px; --r-md: 20px; --r-lg: 28px; --r-full: 999px;
   --tap: 48px;          /* min touch target */
   --wordmark: #0f5a34;  /* logo wordmark letters (horizontal.svg) */
-  --knob: #ffffff;      /* switch knob, white in both themes like native switches */
+  --knob: #ffffff;
+  --art-filter: none;   /* hero illustrations; dimmed in dark mode */      /* switch knob, white in both themes like native switches */
   /* Serial terminal: always dark, in both themes. tx is amber because blue means water. */
   --console-bg: #08140e;
   --console-ink: #cfe3d7;
@@ -78,6 +87,8 @@
     --danger: #ef6a5a; --danger-soft: #3a1a15;
     --ok: #4ce08a; --ok-soft: #123822;
     --wordmark: #e6f0ea;
+    --art-filter: brightness(0.62) saturate(0.85);
+    --pine: #2fa860;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
     color-scheme: dark;
   }
@@ -92,6 +103,8 @@
   --ok: #4ce08a; --ok-soft: #123822;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.3);
   --wordmark: #e6f0ea;
+  --art-filter: brightness(0.62) saturate(0.85);
+  --pine: #2fa860;
   color-scheme: dark;
 }
 

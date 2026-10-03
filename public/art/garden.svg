@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice">
+  <!-- Home hero: hills, a greenhouse and crop rows. Transparent sky, so the screen ground shows through. -->
+  <path d="M0 120 L40 96 L78 108 L120 78 L160 100 L205 70 L250 98 L300 80 L345 102 L400 86 V240 H0Z" fill="#9db7a6"/>
+  <path d="M0 140 Q60 112 130 128 T260 118 T400 124 V240 H0Z" fill="#6f9a72"/>
+  <path d="M0 152 Q90 132 190 146 T400 140 V240 H0Z" fill="#4f8a4f"/>
+  <g transform="translate(250 118)">
+    <path d="M0 30 V12 Q0 0 14 0 H86 Q100 0 100 12 V30Z" fill="#e8f1ea" stroke="#b9cfc0" stroke-width="1.2"/>
+    <path d="M18 1 V30 M36 0 V30 M54 0 V30 M72 0 V30" stroke="#b9cfc0" stroke-width="1"/>
+  </g>
+  <path d="M0 162 H400 V240 H0Z" fill="#3e7a3c"/>
+  <g stroke="#2c5f2c" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M200 164 L-60 240"/><path d="M200 164 L10 240"/><path d="M200 164 L80 240"/>
+    <path d="M200 164 L150 240"/><path d="M200 164 L220 240"/><path d="M200 164 L290 240"/>
+    <path d="M200 164 L360 240"/><path d="M200 164 L430 240"/>
+  </g>
+  <g stroke="#7fbf62" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 7" fill="none">
+    <path d="M200 166 L-25 240"/><path d="M200 166 L45 240"/><path d="M200 166 L115 240"/>
+    <path d="M200 166 L185 240"/><path d="M200 166 L255 240"/><path d="M200 166 L325 240"/><path d="M200 166 L395 240"/>
+  </g>
+</svg>

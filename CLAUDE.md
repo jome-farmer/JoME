@@ -60,7 +60,9 @@ desktop bench tool in Chrome.
   Live objects (`Link`, `DeviceClient`) and the token stay out of the store.
 - No PrimeReact, Font Awesome, or UI kits. Use `src/ui/` components with
   `lucide-react` icons.
-- Fonts and assets are bundled. The app must work offline.
+- Fonts and assets are bundled. The app must work offline. Only map tiles
+  (`services/mapTiles.ts`: Esri satellite, OpenStreetMap) and the weather need
+  internet, and both say so when it's missing.
 
 ## Commands
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dailyLiters, isoDay, totals } from "./usage";
+import { dailyLiters, isoDay, totals, previousLiters } from "./usage";
 
 const usage = {
   days: [
@@ -46,5 +46,24 @@ describe("totals", () => {
 describe("isoDay", () => {
   it("pads month and day", () => {
     expect(isoDay(new Date(2026, 0, 5))).toBe("2026-01-05");
+  });
+});
+
+describe("previousLiters", () => {
+  const today = new Date(2025, 8, 30);
+  it("sums the period before the latest one", () => {
+    const u = {
+      days: [
+        { date: "2025-09-20", liters: 40 },
+        { date: "2025-09-23", liters: 60 },
+        { date: "2025-09-28", liters: 500 },
+      ],
+      zones: [],
+    };
+    expect(previousLiters(u, 7, today)).toBe(100);
+  });
+  it("is undefined when nothing was logged before", () => {
+    const u = { days: [{ date: "2025-09-29", liters: 10 }], zones: [] };
+    expect(previousLiters(u, 7, today)).toBeUndefined();
   });
 });

@@ -220,3 +220,161 @@ p.error {
   grid-template-columns: 1fr 1fr;
   gap: var(--s-2);
 }
+
+/* Plan of the day (redesign) */
+.add {
+  display: grid;
+  place-items: center;
+  inline-size: var(--tap);
+  block-size: var(--tap);
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--s-1);
+}
+.week button {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-block-size: 60px;
+  padding-block: var(--s-2);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+.week b {
+  font-size: var(--text-lg);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.week .dayOn,
+.week .dayOn b {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.plan {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.plan li + li {
+  border-block-start: 1px solid var(--line);
+}
+.none {
+  padding: var(--s-4);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+.planRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  inline-size: 100%;
+  min-block-size: 64px;
+  padding: var(--s-3) var(--s-4);
+  border: 0;
+  border-inline-start: 3px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.planTime {
+  inline-size: 44px;
+  flex: none;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.planIcon {
+  display: grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ok-soft);
+  color: var(--primary);
+}
+.planText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.planText span {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.planState {
+  display: grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  flex: none;
+  border-radius: 50%;
+}
+.done .planState {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.now {
+  border-inline-start-color: var(--flow);
+}
+/* Blue: this step is watering right now. */
+.now .planState {
+  background: var(--flow);
+  color: var(--bg);
+}
+.next .planState {
+  border: 2px solid var(--line);
+  color: var(--ink-3);
+}
+.paused {
+  opacity: 0.55;
+}
+.paused .planState {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.addSchedule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 56px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--ok-soft);
+  color: var(--primary);
+  font-size: var(--text-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+h2.label {
+  margin: var(--s-2) 0 0;
+}

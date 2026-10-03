@@ -21,7 +21,11 @@ import { ConnectScreen } from "../features/onboarding/ConnectScreen";
 import { WifiScreen } from "../features/onboarding/WifiScreen";
 import { NameScreen } from "../features/onboarding/NameScreen";
 import { ClaimScreen } from "../features/onboarding/ClaimScreen";
-import { UsageScreen } from "../features/usage/UsageScreen";
+import { AnalyticsScreen } from "../features/usage/AnalyticsScreen";
+import { ZoneScreen } from "../features/zones/ZoneScreen";
+import { MapScreen } from "../features/map/MapScreen";
+import { MoreScreen } from "../features/more/MoreScreen";
+import { DevicesScreen } from "../features/devices/DevicesScreen";
 import { SignInScreen } from "../features/signin/SignInScreen";
 import { CodeScreen } from "../features/signin/CodeScreen";
 import { codeSignInEnabled } from "../features/signin/signin";
@@ -44,9 +48,14 @@ export function App() {
           <Route element={<TabLayout />}>
             <Route index element={<HomeScreen />} />
             <Route path="zones" element={<ZonesScreen />} />
-            <Route path="assistant" element={<AssistantScreen />} />
+            <Route path="zones/:zone" element={<ZoneScreen />} />
+            <Route path="map" element={<MapScreen />} />
             <Route path="schedule" element={<ScheduleScreen />} />
+            <Route path="more" element={<MoreScreen />} />
+            <Route path="assistant" element={<AssistantScreen />} />
             <Route path="device" element={<DeviceScreen />} />
+            <Route path="devices" element={<DevicesScreen />} />
+            <Route path="analytics" element={<AnalyticsScreen />} />
           </Route>
           <Route path="welcome" element={<WelcomeScreen />} />
           <Route path="signin" element={<SignInScreen />} />
@@ -67,7 +76,7 @@ export function App() {
           <Route path="device/terminal" element={<TerminalScreen />} />
           <Route path="device/wifi" element={<WifiScreen mode="settings" />} />
           <Route path="schedule/:id" element={<ProgramEditor />} />
-          <Route path="usage" element={<UsageScreen />} />
+          <Route path="usage" element={<Navigate to="/analytics" replace />} />
           <Route
             path="ui"
             element={
