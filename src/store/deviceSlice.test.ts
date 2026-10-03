@@ -7,6 +7,7 @@ import {
   connectDemo,
   disconnect,
   rename,
+  serverChanged,
   restart,
 } from "./deviceSlice";
 
@@ -48,6 +49,21 @@ describe("device", () => {
     expect(rememberDevice).toHaveBeenCalledWith(
       expect.objectContaining({ serial: info?.serial, lastLink: "mock" }),
     );
+  });
+
+  it("keeps the board's latest server.state until the connection changes", async () => {
+    const store = makeStore();
+    await settle(store.dispatch(connectDemo()));
+    expect(store.getState().device.server).toBeUndefined();
+    store.dispatch(serverChanged({ state: "connecting" }));
+    store.dispatch(serverChanged({ state: "failed", reason: "REVOKED" }));
+    expect(store.getState().device.server).toEqual({
+      state: "failed",
+      reason: "REVOKED",
+    });
+    // A new connection starts without a guess about the old one.
+    await settle(store.dispatch(connectDemo()));
+    expect(store.getState().device.server).toBeUndefined();
   });
 
   it("renames the board and keeps the new name", async () => {
