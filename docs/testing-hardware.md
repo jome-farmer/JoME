@@ -60,3 +60,11 @@ list into the release PR and tick each item.
 - [ ] `jome://pair?s=<serial>&pin=<pin>` opens the same step
 - [ ] A link for another host, or the old `jome://pair?s=…&k=…`, does nothing
 
+## Sharing (two phones, two accounts)
+
+- [ ] The owner's Device tab has *Sharing*; the invited account's has *Leave this JoME* instead
+- [ ] Invite the second account by email: it shows under *invitations*, and on that phone's Home after sign-in, *Accept* adds the board and it opens
+- [ ] The member can run a zone; *Sharing* is not offered to them, and an owner-only action says only the owner can do that
+- [ ] The owner removes the member: within seconds the member's phone says *JoME was removed from your account.*
+- [ ] A member leaves; inviting your own account and the same person twice give the right messages
+

@@ -12,6 +12,8 @@ export type CloudDevice = {
   online: boolean;
   lastSeen?: number;
   claimedAt?: number;
+  /** What this account is on the board: only the owner shares, transfers or detaches it. */
+  role?: "owner" | "member";
   state?: Partial<Record<string, CopyPart>>;
 };
 

@@ -51,6 +51,7 @@ import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { greeting, todayRuns } from "./today";
 import { WeatherCard } from "./WeatherCard";
 import { UsageCard } from "./UsageCard";
+import { InvitesCard } from "./InvitesCard";
 import { useGarden } from "../../device/useGarden";
 import { refreshGarden } from "../../store/gardenSlice";
 import styles from "./HomeScreen.module.css";
@@ -73,6 +74,7 @@ export function HomeScreen() {
   if (state !== "ready" || !info || !client || !linkKind) {
     return (
       <Screen title="Home">
+        <InvitesCard />
         <EmptyState
           title="No controller connected"
           action={
@@ -226,6 +228,7 @@ function Connected({ name, linkKind }: { name: string; linkKind: LinkKind }) {
       </section>
 
       <div className={styles.body}>
+        <InvitesCard />
         {(error || actionError) && (
           <p className={styles.error} role="alert">
             {actionError ?? `Couldn't read JoME's status. ${error}`}

@@ -115,6 +115,25 @@ DouSHamBE must accept the web client ID as the token audience.
 | `GET /v1/devices/{serial}/events/stream`            | Live events (SSE)                                                                             |
 | `DELETE /v1/devices/{serial}`                       | Unclaim                                                                                       |
 
+### Sharing
+
+A board has one owner and any number of members. Members read it, follow its events and send
+commands; only the owner shares, transfers or detaches it (`NOT_OWNER` otherwise). `role`
+(`owner` or `member`) comes with the board. Invitations are tied to the invitee's **identity**
+(`email:…` or `phone:+98…`), not to a link: they show up after that identity signs in.
+
+| Call | Use |
+| --- | --- |
+| `POST /v1/devices/{serial}/shares` `{identity}` | Owner: invite. Errors: `ALREADY_MEMBER`, `CANNOT_INVITE_SELF`, `TOO_MANY_MEMBERS` (pending invitations count), `TOO_MANY_REQUESTS` (20 a day) |
+| `GET /v1/devices/{serial}/shares` | Owner: `{members, invites}` |
+| `DELETE /v1/devices/{serial}/shares/{id}` | Owner removes a member (`userId`) or cancels an invitation (`id`); a member removes themselves with their own `userId` |
+| `GET /v1/shares/invites` | Invitations for the signed-in account |
+| `POST /v1/shares/invites/{id}/accept` | Become a member |
+| `DELETE /v1/shares/invites/{id}` | Decline |
+
+A removed member's event stream ends within seconds (`403` or `404`): the cloud link closes with
+*JoME was removed from your account.* (`services/shares.ts`, `toShareIdentity`.)
+
 ### Registering a board
 
 After the claim, the board registers itself over HTTPS (protocol §1): the app asks
