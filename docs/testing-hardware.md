@@ -13,7 +13,7 @@ list into the release PR and tick each item.
 
 - [ ] Scan finds `JoME-XXXX` within 5 s
 - [ ] The system pairing dialog appears on first connect. The right passkey pairs. A wrong one shows a clear error in the app.
-- [ ] QR scan finds the device, shows its passkey large, and connects (phones)
+- [ ] QR scan of the new label (`https://link.jome-farmer.ir/p?s=…#pin=…`) finds the device, shows its PIN large, and connects (phones)
 - [ ] Scanning a non-JoME QR code shows "That QR code isn't a JoME label"
 - [ ] With the board powered off, a scan gives up after 20 s with a clear message
 - [ ] `hello` info appears on the Device tab
@@ -51,4 +51,12 @@ list into the release PR and tick each item.
 - [ ] Device tab → *JoME's server*: *Online* after the board is registered; *Not reported* right after connecting nearby until the board says something
 - [ ] Powering the router off shows *Needs attention*, *JoME couldn't reach the server*; it returns to *Online* on its own
 - [ ] Removing the board from the account (another phone, once available) shows *Needs attention*, *The server removed JoME…*; *Connect again* registers it and it goes *Online*
+
+## Label link (needs DouSHamBE#79 live)
+
+- [ ] With the app installed, scanning the label with the phone's camera opens JoME on the Connect step, finds that board and shows its PIN (Android and iPhone)
+- [ ] Opening it with the app closed (cold start) and with the app open both work
+- [ ] Without the app, the link opens the store page
+- [ ] `jome://pair?s=<serial>&pin=<pin>` opens the same step
+- [ ] A link for another host, or the old `jome://pair?s=…&k=…`, does nothing
 

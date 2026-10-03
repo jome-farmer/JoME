@@ -6,6 +6,7 @@ import { DeviceLifecycle } from "../device/DeviceLifecycle";
 import { store } from "../store";
 import { applyTheme, loadTheme } from "../lib/theme";
 import { AndroidBack } from "./AndroidBack";
+import { DeepLinks } from "./DeepLinks";
 import { FirstRunRedirect } from "./FirstRunRedirect";
 import { Splash } from "./Splash";
 import { TabLayout } from "./TabLayout";
@@ -40,6 +41,7 @@ export function App() {
       <BrowserRouter>
         <FirstRunRedirect />
         <AndroidBack />
+        <DeepLinks />
         <Routes>
           <Route element={<TabLayout />}>
             <Route index element={<HomeScreen />} />

@@ -74,3 +74,33 @@ npx @capacitor/assets generate --ios --android \
   --logoSplashScale 0.5
 ``` See
 [CONTRIBUTING.md](../CONTRIBUTING.md#releasing).
+
+### Label links (App Links and Universal Links)
+
+The QR on every board label is `https://link.jome-farmer.ir/p?s=<serial>#pin=<pin>` (protocol §10). A
+phone with the app opens it straight into pairing; without the app the page sends the person to the
+store. DouSHamBE serves the page and the verification files
+([DouSHamBE#79](https://github.com/jome-farmer/DouSHamBE/issues/79)); this app claims the host.
+
+In the app:
+
+- **Android:** `AndroidManifest.xml` has an `autoVerify` intent filter for
+  `https://link.jome-farmer.ir/p`, and one for `jome://pair`.
+- **iOS:** `App.entitlements` has `applinks:link.jome-farmer.ir`, and `Info.plist` registers
+  `jome://`.
+- `DeepLinks` turns an opened label link into the Connect step with that serial and PIN, and ignores
+  every other link. The link host is `VITE_LINK_HOST` (default `link.jome-farmer.ir`); the manifest and
+  the entitlement are fixed, because a label is printed once and its host never changes.
+
+What DouSHamBE needs from here to publish `assetlinks.json` and `apple-app-site-association`:
+
+| For | Value | Where it comes from |
+| --- | --- | --- |
+| Android | package `ir.jomefarmer.jome` | `android/app/build.gradle` |
+| Android | the **SHA-256** fingerprint of each signing key (debug, upload, and the Play App Signing key once the app is in Play) | `keytool -list -v -keystore <keystore>` or `./gradlew signingReport` in `android/`: the SHA-256 line, not the SHA-1 above |
+| iOS | team ID and bundle ID `ir.jomefarmer.jome` | the Apple developer account (not available yet) |
+| both | the Play Store and App Store URLs | the store listings (not published yet) |
+
+Until DouSHamBE#79 is live, Android shows the "open with" chooser instead of opening the app
+directly, and iOS opens the link in Safari. `jome://pair` works either way.
+

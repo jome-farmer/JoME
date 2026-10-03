@@ -57,13 +57,27 @@ export function ConnectScreen() {
   const navigate = useNavigate();
   const device = useAppSelector(selectDevice);
   const dispatch = useAppDispatch();
-  const back = (useLocation().state as { back?: string } | null)?.back;
+  const route = useLocation().state as {
+    back?: string;
+    /** From a label link opened in the app (DeepLinks). */
+    pairing?: PairingCode;
+  } | null;
+  const back = route?.back;
   const [error, setError] = useState<string>();
   // Only react to connections started here, not one that was already up.
   const started = useRef(false);
 
   // Set after scanning a label: we look for that board and show its pairing code.
   const [pairing, setPairing] = useState<PairingCode | null>(null);
+
+  // A link from the label's QR opened the app: the same as having scanned it here (once).
+  const linked = useRef(false);
+  useEffect(() => {
+    if (!route?.pairing || linked.current) return;
+    linked.current = true;
+    started.current = true;
+    setPairing(route.pairing);
+  }, [route]);
 
   useEffect(() => {
     if (!started.current || device.state !== "ready") return;

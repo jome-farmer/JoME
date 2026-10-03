@@ -9,21 +9,43 @@ export function isLabelSerial(serial: string): boolean {
   return SERIAL.test(serial);
 }
 
-/** `jome://pair?s=JM-2024-0001&k=483920` → { serial, passkey }, or null for anything else. */
-export function parsePairingCode(text: string): PairingCode | null {
+/** The host of the label link (docs/deployment.md, App Links). `VITE_LINK_HOST` for a test host. */
+export const LINK_HOST = (
+  import.meta.env.VITE_LINK_HOST || "link.jome-farmer.ir"
+).toLowerCase();
+
+/**
+ * What the label QR holds (jome-farmer/protocol §10), and what the app gets when the link opens it:
+ * - `https://link.jome-farmer.ir/p?s=JM-2024-0001#pin=483920`, with the PIN in the fragment so no web server sees it;
+ * - `jome://pair?s=JM-2024-0001&pin=483920`, the form the link page falls back to.
+ * Anything else, including the old `k=` form, is null.
+ */
+export function parsePairingCode(
+  text: string,
+  linkHost: string = LINK_HOST,
+): PairingCode | null {
   let url: URL;
   try {
     url = new URL(text.trim());
   } catch {
     return null;
   }
-  // Non-special schemes parse "pair" as the host in some engines and as the path in others.
-  const target = (url.host || url.pathname.replace(/^\/+/, "")).toLowerCase();
-  if (url.protocol !== "jome:" || target !== "pair") return null;
+  let pin: string | null;
+  if (url.protocol === "https:") {
+    if (url.hostname.toLowerCase() !== linkHost.toLowerCase()) return null;
+    if (url.pathname.replace(/\/+$/, "") !== "/p") return null;
+    pin = new URLSearchParams(url.hash.replace(/^#/, "")).get("pin");
+  } else if (url.protocol === "jome:") {
+    // Non-special schemes parse "pair" as the host in some engines and as the path in others.
+    const target = (url.host || url.pathname.replace(/^\/+/, "")).toLowerCase();
+    if (target !== "pair") return null;
+    pin = url.searchParams.get("pin");
+  } else {
+    return null;
+  }
   const serial = url.searchParams.get("s")?.toUpperCase() ?? "";
-  const passkey = url.searchParams.get("k") ?? "";
-  return SERIAL.test(serial) && PASSKEY.test(passkey)
-    ? { serial, passkey }
+  return SERIAL.test(serial) && PASSKEY.test(pin ?? "")
+    ? { serial, passkey: pin ?? "" }
     : null;
 }
 
