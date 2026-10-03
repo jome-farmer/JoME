@@ -8,6 +8,8 @@ import {
   CloudOff,
   DoorOpen,
   Users,
+  UserX,
+  Gift,
   CloudRain,
   FlaskConical,
   LogOut,
@@ -41,7 +43,9 @@ import {
 import type { LinkKind } from "../../services/device/links/link";
 import { useGarden } from "../../device/useGarden";
 import { refreshGarden } from "../../store/gardenSlice";
+import { TextField } from "../../ui/TextField";
 import { removeShare } from "../../services/shares";
+import { detachBoard } from "../../services/transfers";
 import { whenLabel } from "../../lib/format";
 import { applyTheme, loadTheme, saveTheme, type Theme } from "../../lib/theme";
 import { Button } from "../../ui/Button";
@@ -120,6 +124,9 @@ function Connected() {
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [confirmDetach, setConfirmDetach] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [detaching, setDetaching] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [actionError, setActionError] = useState<string>();
   // Offline, changes look disabled and a tap says why instead of opening anything.
@@ -215,6 +222,14 @@ function Connected() {
             onClick={() => navigate("/device/sharing")}
           />
         )}
+        {role === "owner" && (
+          <ListRow
+            icon={Gift}
+            title="Hand over"
+            subtitle="Give this JoME to someone else"
+            onClick={() => navigate("/device/transfer")}
+          />
+        )}
         {supports(info, "rain.delay") && (
           <ListRow
             icon={CloudRain}
@@ -258,6 +273,14 @@ function Connected() {
             trailing={restarting ? "Restarting…" : undefined}
             aria-disabled={!!offlineReason}
             onClick={change(() => setConfirmRestart(true))}
+          />
+        )}
+        {role === "owner" && (
+          <ListRow
+            icon={UserX}
+            title="Remove from my account"
+            tone="danger"
+            onClick={() => setConfirmDetach(true)}
           />
         )}
         {role === "member" && (
@@ -371,6 +394,68 @@ function Connected() {
               }}
             >
               Leave
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {confirmDetach && (
+        <div
+          className={styles.confirm}
+          role="alertdialog"
+          aria-label="Remove from my account"
+        >
+          <p>
+            <b>Remove {info.name} from your account?</b> You lose its history
+            and the people you shared it with lose access. The board keeps
+            running its schedules, and someone can add it to their own account
+            with the code on its label. To confirm, type its serial:{" "}
+            <b>{info.serial}</b>
+          </p>
+          <TextField
+            id="detach-serial"
+            label="Serial"
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="characters"
+          />
+          <div className={styles.confirmActions}>
+            <Button
+              variant="secondary"
+              data-cancel
+              onClick={() => {
+                setConfirmDetach(false);
+                setTyped("");
+              }}
+            >
+              Keep
+            </Button>
+            <Button
+              variant="danger"
+              icon={UserX}
+              loading={detaching}
+              disabled={
+                typed.trim().toUpperCase() !== info.serial.toUpperCase()
+              }
+              haptic
+              onClick={async () => {
+                setDetaching(true);
+                setActionError(undefined);
+                try {
+                  await detachBoard(info.serial);
+                  await dispatch(disconnect({ forget: true }));
+                  navigate("/", { replace: true });
+                } catch (e) {
+                  setActionError(`Couldn't remove it. ${errorText(e)}`);
+                  setConfirmDetach(false);
+                } finally {
+                  setDetaching(false);
+                  setTyped("");
+                }
+              }}
+            >
+              Remove
             </Button>
           </div>
         </div>
