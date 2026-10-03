@@ -17,7 +17,7 @@ import {
 } from "../services/device/links/cloudLink";
 import { createMockLink } from "../services/device/links/mockLink";
 import { createWebSerialLink } from "../services/device/links/webSerialLink";
-import type { Hello } from "../services/device/types";
+import type { Hello, ServerState } from "../services/device/types";
 import type { AuthState } from "./authSlice";
 import { conn, teardown } from "./connection";
 import type { AppThunk, RootState } from ".";
@@ -37,6 +37,11 @@ export type DeviceState = {
    * changes are refused (docs/architecture.md, Board offline).
    */
   offline?: { syncedAt?: number };
+  /**
+   * The board's last `server.state` since this connection opened (protocol §4).
+   * Events come on change only, so it is unknown until the board reports one.
+   */
+  server?: ServerState;
   /** Plain-language reason for the last failed connect or unexpected drop. */
   error?: string;
 };
@@ -79,6 +84,9 @@ const deviceSlice = createSlice({
     offlineChanged: (s, { payload }: PayloadAction<DeviceState["offline"]>) => {
       s.offline = payload;
     },
+    serverChanged: (s, { payload }: PayloadAction<ServerState>) => {
+      s.server = payload;
+    },
     renamed: (s, { payload }: PayloadAction<string>) => {
       if (s.info) s.info.name = payload;
     },
@@ -88,7 +96,11 @@ const deviceSlice = createSlice({
 
 export const deviceReducer = deviceSlice.reducer;
 /** For gardenSlice: a new board, or none, means another garden. */
-export const { ready: deviceReady, closed: deviceClosed } = deviceSlice.actions;
+export const {
+  ready: deviceReady,
+  closed: deviceClosed,
+  serverChanged,
+} = deviceSlice.actions;
 const {
   connecting,
   ready,

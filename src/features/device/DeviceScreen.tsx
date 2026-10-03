@@ -5,6 +5,7 @@ import {
   Cable,
   Check,
   Cloud,
+  CloudOff,
   CloudRain,
   FlaskConical,
   LogOut,
@@ -48,6 +49,8 @@ import { RainDelaySheet } from "../../ui/RainDelaySheet";
 import { Screen } from "../../ui/Screen";
 import { Sheet } from "../../ui/Sheet";
 import styles from "./DeviceScreen.module.css";
+import { ServerSheet } from "./ServerSheet";
+import { serverRow } from "./serverRow";
 import { errorText } from "../../services/device/errors";
 
 const LINK: Record<LinkKind, { label: string; icon: typeof Bluetooth }> = {
@@ -99,13 +102,14 @@ export function DeviceScreen() {
 }
 
 function Connected() {
-  const { info, linkKind } = useAppSelector(selectDevice);
+  const { info, linkKind, offline, server } = useAppSelector(selectDevice);
+  const signedIn = useAppSelector(selectAuthState) === "signedIn";
   const client = useDeviceClient();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const garden = useGarden();
   const [theme, setTheme] = useState<Theme>("system");
-  const [sheet, setSheet] = useState<"rain" | "theme">();
+  const [sheet, setSheet] = useState<"rain" | "theme" | "server">();
   const [confirmForget, setConfirmForget] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [restarting, setRestarting] = useState(false);
@@ -124,6 +128,13 @@ function Connected() {
   const cloud = linkKind === "cloud";
   // Wi‑Fi and the board's logs need the phone nearby; Connect comes back here afterwards.
   const nearby = () => navigate("/connect", { state: { back: "/device" } });
+  // Only a local link can hand the board a new registration token.
+  const row = serverRow({
+    linkKind,
+    offline: !!offline,
+    server,
+    canRegister: signedIn && !cloud && supports(info, "server.set"),
+  });
   const now = new Date(garden.now);
   const wifi = garden.status?.wifi;
   const until = garden.status?.rainDelayUntil;
@@ -177,6 +188,15 @@ function Connected() {
             }
             subtitle={cloud ? "Connect nearby to change it" : undefined}
             onClick={() => (cloud ? nearby() : navigate("/device/wifi"))}
+          />
+        )}
+        {row && (
+          <ListRow
+            icon={row.attention || row.value === "Offline" ? CloudOff : Cloud}
+            title="JoME's server"
+            subtitle={row.attention ? row.text : undefined}
+            trailing={row.value}
+            onClick={() => setSheet("server")}
           />
         )}
         {supports(info, "rain.delay") && (
@@ -332,6 +352,14 @@ function Connected() {
           await dispatch(refreshGarden());
         }}
       />
+      {row && (
+        <ServerSheet
+          open={sheet === "server"}
+          onClose={() => setSheet(undefined)}
+          row={row}
+          client={client}
+        />
+      )}
       <Sheet
         open={sheet === "theme"}
         onClose={() => setSheet(undefined)}

@@ -35,6 +35,8 @@ const TEXT: Record<string, string> = {
   CODE_INVALID: "That code didn't work. Check it or ask for a new one.",
   TOO_MANY_REQUESTS: "Wait a minute before asking for another code.",
   SEND_FAILED: "We couldn't send the code. Try again in a minute.",
+  NOT_OWNER: "Only the owner of this JoME can do that.",
+  TOKEN_INVALID: "The setup code expired or was already used. Try again.",
   CLAIM_REJECTED: "That code doesn't match this JoME. Check the label.",
   ALREADY_CLAIMED:
     "This JoME belongs to another account. Ask its owner to remove it first.",
