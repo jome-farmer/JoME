@@ -2,7 +2,12 @@ import { useEffect, useRef } from "react";
 import { reconnectDelay } from "../lib/backoff";
 import { useAppDispatch, useAppSelector } from "../store";
 import { selectAuthState, type AuthState } from "../store/authSlice";
-import { autoConnect, retry, selectDevice } from "../store/deviceSlice";
+import {
+  autoConnect,
+  retry,
+  selectDevice,
+  serverChanged,
+} from "../store/deviceSlice";
 import {
   programStep,
   readSensors,
@@ -77,6 +82,7 @@ function useGardenSync() {
           void dispatch(refreshStatus());
       }),
       client.on("program.state", (e) => dispatch(programStep(e))),
+      client.on("server.state", (e) => dispatch(serverChanged(e))),
     ];
     return () => offs.forEach((off) => off());
   }, [client, dispatch]);

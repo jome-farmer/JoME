@@ -67,6 +67,9 @@ same interface. Features never touch a link directly. They go through
   log hides the token (`redact`). Errors: `BAD_REQUEST`, `NO_NETWORK`,
   `CLOCK_NOT_SET`. The outcome comes as `server.state` events, which
   `registerBoard` follows until `online` or `failed`.
+- The latest `server.state` is kept in `deviceSlice` (`server`) for the Device tab. The
+  board sends it on change only, so it is unknown after connecting until one arrives;
+  through the server the app already knows the board is online.
 - `serverStateText` words every `server.state` and every `failed` reason
   (protocol §4); an unknown reason stays generic.
 

@@ -48,3 +48,7 @@ list into the release PR and tick each item.
 - [ ] A board with a wrong registration code: *JoME's own code was refused*
 - [ ] A board that belongs to another account: *This JoME belongs to another account*
 - [ ] A development board (`shambe-…` serial) says it can't join an account and continues to Name
+- [ ] Device tab → *JoME's server*: *Online* after the board is registered; *Not reported* right after connecting nearby until the board says something
+- [ ] Powering the router off shows *Needs attention*, *JoME couldn't reach the server*; it returns to *Online* on its own
+- [ ] Removing the board from the account (another phone, once available) shows *Needs attention*, *The server removed JoME…*; *Connect again* registers it and it goes *Online*
+
