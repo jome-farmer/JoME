@@ -139,8 +139,13 @@ export function createCloudLink(serial: string): CloudLink {
             if (payload === false) void sync().catch(() => undefined);
             else if (device) setDevice({ ...device, online: true });
           },
-          // Signed out, or the board left this account.
-          onError: (e) => close(e),
+          // Signed out, or the board left this account (removed, or the owner detached it).
+          onError: (e) =>
+            close(
+              e.status === 403 || e.status === 404
+                ? new Error("JoME was removed from your account.")
+                : e,
+            ),
         },
         live.signal,
       );

@@ -216,4 +216,29 @@ describe("cloudLink", () => {
     expect(server.commands).toEqual([]);
     await link.close();
   });
+
+  it("says the board was removed when the server no longer lets this account follow it", async () => {
+    const json = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), { status });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = url.slice(API_URL.length);
+        if (path === "/v1/devices/JM-1")
+          return json({ serial: "JM-1", name: "Backyard", online: true });
+        // The owner removed this member while the stream was open.
+        return json(
+          { error: { code: "NOT_FOUND", message: "Not found" } },
+          404,
+        );
+      }),
+    );
+    const link = createCloudLink("JM-1");
+    const closed = new Promise<Error | undefined>((resolve) =>
+      link.onClose(resolve),
+    );
+    await link.open();
+    const error = await closed;
+    expect(error?.message).toBe("JoME was removed from your account.");
+  });
 });

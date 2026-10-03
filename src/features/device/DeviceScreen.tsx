@@ -6,6 +6,8 @@ import {
   Check,
   Cloud,
   CloudOff,
+  DoorOpen,
+  Users,
   CloudRain,
   FlaskConical,
   LogOut,
@@ -39,6 +41,7 @@ import {
 import type { LinkKind } from "../../services/device/links/link";
 import { useGarden } from "../../device/useGarden";
 import { refreshGarden } from "../../store/gardenSlice";
+import { removeShare } from "../../services/shares";
 import { whenLabel } from "../../lib/format";
 import { applyTheme, loadTheme, saveTheme, type Theme } from "../../lib/theme";
 import { Button } from "../../ui/Button";
@@ -50,6 +53,7 @@ import { Screen } from "../../ui/Screen";
 import { Sheet } from "../../ui/Sheet";
 import styles from "./DeviceScreen.module.css";
 import { ServerSheet } from "./ServerSheet";
+import { useBoardRole } from "./useRole";
 import { serverRow } from "./serverRow";
 import { errorText } from "../../services/device/errors";
 
@@ -104,6 +108,8 @@ export function DeviceScreen() {
 function Connected() {
   const { info, linkKind, offline, server } = useAppSelector(selectDevice);
   const signedIn = useAppSelector(selectAuthState) === "signedIn";
+  const role = useBoardRole();
+  const me = useAppSelector(selectUser);
   const client = useDeviceClient();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -112,6 +118,8 @@ function Connected() {
   const [sheet, setSheet] = useState<"rain" | "theme" | "server">();
   const [confirmForget, setConfirmForget] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [actionError, setActionError] = useState<string>();
   // Offline, changes look disabled and a tap says why instead of opening anything.
@@ -199,6 +207,14 @@ function Connected() {
             onClick={() => setSheet("server")}
           />
         )}
+        {role === "owner" && (
+          <ListRow
+            icon={Users}
+            title="Sharing"
+            subtitle="Let family or a gardener use this JoME"
+            onClick={() => navigate("/device/sharing")}
+          />
+        )}
         {supports(info, "rain.delay") && (
           <ListRow
             icon={CloudRain}
@@ -242,6 +258,14 @@ function Connected() {
             trailing={restarting ? "Restarting…" : undefined}
             aria-disabled={!!offlineReason}
             onClick={change(() => setConfirmRestart(true))}
+          />
+        )}
+        {role === "member" && (
+          <ListRow
+            icon={DoorOpen}
+            title="Leave this JoME"
+            tone="danger"
+            onClick={() => setConfirmLeave(true)}
           />
         )}
         <ListRow
@@ -304,6 +328,52 @@ function Connected() {
         <p className={styles.confirm} role="alert">
           {actionError}
         </p>
+      )}
+
+      {confirmLeave && (
+        <div
+          className={styles.confirm}
+          role="alertdialog"
+          aria-label="Leave this JoME"
+        >
+          <p>
+            <b>Leave {info.name}?</b> It leaves your list and you can't use it
+            from your phone until its owner invites you again. The owner and the
+            controller are not affected.
+          </p>
+          <div className={styles.confirmActions}>
+            <Button
+              variant="secondary"
+              data-cancel
+              onClick={() => setConfirmLeave(false)}
+            >
+              Stay
+            </Button>
+            <Button
+              variant="danger"
+              icon={DoorOpen}
+              loading={leaving}
+              haptic
+              onClick={async () => {
+                if (!me) return;
+                setLeaving(true);
+                setActionError(undefined);
+                try {
+                  await removeShare(info.serial, me.id);
+                  await dispatch(disconnect({ forget: true }));
+                  navigate("/", { replace: true });
+                } catch (e) {
+                  setActionError(`Couldn't leave. ${errorText(e)}`);
+                  setConfirmLeave(false);
+                } finally {
+                  setLeaving(false);
+                }
+              }}
+            >
+              Leave
+            </Button>
+          </div>
+        </div>
       )}
 
       {confirmForget && (

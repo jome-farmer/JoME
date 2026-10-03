@@ -338,3 +338,18 @@
   color: var(--ink);
   font-weight: 700;
 }
+
+.invite {
+  display: grid;
+  gap: var(--s-3);
+}
+.inviteText {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink);
+}
+.inviteActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
