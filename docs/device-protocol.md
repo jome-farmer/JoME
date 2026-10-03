@@ -33,6 +33,11 @@ same interface. Features never touch a link directly. They go through
 - **Pairing:** the OS shows its own passkey dialog the first time the app
   writes. Apps can't fill it in, so the app shows the passkey from the QR label
   large while the dialog is open.
+- **The label QR** is `https://link.jome-farmer.ir/p?s=<serial>#pin=<pin>` (the PIN in
+  the fragment); the link page falls back to `jome://pair?s=<serial>&pin=<pin>`.
+  `parsePairingCode` reads both and nothing else (the old `k=` form is gone), and
+  only for the configured link host. An opened link (`DeepLinks`) goes to Connect as
+  if the label had been scanned in the app.
 
 ## Client
 
