@@ -21,6 +21,8 @@ import { StatusPill } from "../ui/StatusPill";
 import { Stepper } from "../ui/Stepper";
 import { Switch } from "../ui/Switch";
 import { WaterRing } from "../ui/WaterRing";
+import { Segmented } from "../ui/Segmented";
+import { BarChart, Donut, Sparkline } from "../ui/Chart";
 import { formatDuration } from "../lib/format";
 import styles from "./UiGallery.module.css";
 
@@ -33,6 +35,7 @@ export default function UiGallery() {
   const [minutes, setMinutes] = useState(10);
   const [sheet, setSheet] = useState(false);
   const [left, setLeft] = useState(402);
+  const [view, setView] = useState<"Map" | "Zones" | "Sensors">("Map");
 
   useEffect(() => {
     const root = document.documentElement;
@@ -102,6 +105,39 @@ export default function UiGallery() {
           <StatusPill tone="flow" live>
             Connecting…
           </StatusPill>
+        </div>
+      </Section>
+
+      <Section title="Segmented">
+        <Segmented
+          options={["Map", "Zones", "Sensors"] as const}
+          value={view}
+          onChange={setView}
+          label="View"
+        />
+      </Section>
+
+      <Section title="BarChart, Sparkline and Donut (never blue)">
+        <Card>
+          <BarChart
+            values={[120, 80, 95, 0, 90, 88, 140]}
+            labels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+            highlight={6}
+            label="Water per day"
+          />
+        </Card>
+        <div className={styles.row}>
+          <span style={{ inlineSize: 96 }}>
+            <Sparkline values={[60, 64, 62, 66, 68, 65, 68]} />
+          </span>
+          <span style={{ inlineSize: 96 }}>
+            <Sparkline values={[50, 48, 46, 45, 44, 43, 42]} tone="warn" />
+          </span>
+          <Donut
+            parts={[28, 18, 24, 15, 10, 5]}
+            center="1,300 L"
+            label="By zone"
+          />
         </div>
       </Section>
 

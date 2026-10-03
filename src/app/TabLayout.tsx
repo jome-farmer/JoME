@@ -1,25 +1,31 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   CalendarDays,
-  Cpu,
   House,
+  Map,
+  Menu,
   Sprout,
   type LucideIcon,
 } from "lucide-react";
 import { ConnectionBanner } from "./ConnectionBanner";
 import styles from "./TabLayout.module.css";
 
-type Tab = { to: string; label: string; icon: LucideIcon | "mascot" };
-
-const TABS: Tab[] = [
+const TABS: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/", label: "Home", icon: House },
   { to: "/zones", label: "Zones", icon: Sprout },
-  { to: "/assistant", label: "JoME", icon: "mascot" },
+  { to: "/map", label: "Map", icon: Map },
   { to: "/schedule", label: "Schedule", icon: CalendarDays },
-  { to: "/device", label: "Device", icon: Cpu },
+  { to: "/more", label: "More", icon: Menu },
 ];
 
+/** Screens opened from More keep More lit. */
+const UNDER_MORE = ["/more", "/device", "/devices", "/assistant", "/analytics"];
+
 export function TabLayout() {
+  const { pathname } = useLocation();
+  const underMore = UNDER_MORE.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
   return (
     <div className={styles.layout}>
       <ConnectionBanner />
@@ -28,13 +34,16 @@ export function TabLayout() {
       </div>
       <nav className={styles.tabbar} aria-label="Main">
         {TABS.map(({ to, label, icon: Icon }) => (
-          <NavLink key={to} to={to} end={to === "/"} className={styles.tab}>
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            className={({ isActive }) =>
+              `${styles.tab} ${isActive || (to === "/more" && underMore) ? styles.active : ""}`
+            }
+          >
             <span className={styles.icon}>
-              {Icon === "mascot" ? (
-                <img src="/logo/symbol.svg" alt="" className={styles.mascot} />
-              ) : (
-                <Icon size={24} strokeWidth={1.75} aria-hidden />
-              )}
+              <Icon size={24} strokeWidth={1.75} aria-hidden />
             </span>
             {label}
           </NavLink>

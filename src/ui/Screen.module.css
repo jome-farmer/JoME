@@ -15,8 +15,22 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s-3);
+}
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+.back {
+  margin-inline-start: calc(var(--s-2) * -1);
+}
+:dir(rtl) .back svg {
+  transform: scaleX(-1);
+}
+.subtitle {
+  margin: 2px 0 0;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
 }
 .eyebrow {
   font-size: var(--text-xs);

@@ -38,19 +38,14 @@
   display: grid;
   place-items: center;
   width: 52px;
-  height: 30px;
+  height: 32px;
   border-radius: var(--r-full);
   transition: background var(--dur) var(--ease);
 }
-.mascot {
-  width: 26px;
-  height: 26px;
+.active {
+  color: var(--primary);
 }
-
-.tab:global(.active) {
-  color: var(--ink);
-}
-.tab:global(.active) .icon {
+.active .icon {
   background: var(--ok-soft);
   color: var(--primary);
 }

@@ -1,0 +1,123 @@
+.error {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.map {
+  position: relative;
+  aspect-ratio: 100 / 140;
+  max-block-size: 70vh;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.art,
+.plots {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.art {
+  filter: var(--art-filter);
+}
+.plots polygon {
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  fill-opacity: 0.35;
+}
+.ok {
+  fill: var(--sprout);
+  stroke: var(--mint);
+}
+.warn {
+  fill: var(--sun);
+  stroke: var(--sun);
+}
+.off {
+  fill: var(--ink-3);
+  stroke: var(--line);
+}
+/* Blue: this zone's valve is open right now. */
+.flow {
+  fill: var(--water);
+  stroke: var(--water);
+  fill-opacity: 0.55;
+}
+.chip {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  gap: 1px;
+  max-inline-size: 30%;
+  min-block-size: 40px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--scrim);
+  color: var(--on-scrim);
+  font-size: 11px;
+  text-align: start;
+  cursor: pointer;
+}
+.chip b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chip span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+.chipFlow {
+  background: var(--flow);
+  color: var(
+    --bg
+  ); /* white on light --flow, near-black on the brighter dark-mode --flow */
+}
+.sample {
+  position: absolute;
+  inset-block-end: var(--s-3);
+  inset-inline-start: var(--s-3);
+  padding: 2px 10px;
+  border-radius: var(--r-full);
+  background: var(--scrim);
+  color: var(--on-scrim);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.now {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.nowText {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+  min-width: 0;
+}
+.flowIcon,
+.flowText {
+  color: var(--flow);
+}
+.flowText {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.meta {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.spark {
+  display: block;
+  inline-size: 72px;
+}

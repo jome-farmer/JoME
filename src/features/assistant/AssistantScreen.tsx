@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  ArrowLeft,
   BookOpen,
   Check,
   Play,
@@ -125,6 +126,18 @@ function Chat() {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
+        {/* Opened from Home or More: go back where it came from. */}
+        <IconButton
+          icon={ArrowLeft}
+          label="Back"
+          variant="plain"
+          className={styles.back}
+          onClick={() =>
+            (window.history.state as { idx?: number } | null)?.idx
+              ? navigate(-1)
+              : navigate("/more")
+          }
+        />
         <img src="/logo/symbol.svg" alt="" className={styles.avatar} />
         <div className={styles.headText}>
           <h1 className={styles.title}>Ask JoME</h1>

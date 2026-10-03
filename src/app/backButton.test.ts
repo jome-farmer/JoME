@@ -20,9 +20,11 @@ describe("Android back", () => {
   it("goes back a screen when there is one", () => {
     expect(backAction(at("/schedule/3", 2))).toBe("back");
     expect(backAction(at("/setup/claim", 1))).toBe("back");
+    expect(backAction(at("/device", 1))).toBe("back");
   });
   it("goes Home from another tab, not back through the tabs", () => {
-    expect(backAction(at("/device"))).toBe("home");
+    expect(backAction(at("/more"))).toBe("home");
+    expect(backAction(at("/map", 2))).toBe("home");
     expect(backAction(at("/schedule", 3))).toBe("home");
   });
   it("leaves from Home, or a first screen with nothing behind it", () => {

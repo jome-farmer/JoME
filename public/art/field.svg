@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" preserveAspectRatio="none">
+  <!-- Map tab background: an aerial field with hedges and a farm track. -->
+  <rect width="100" height="140" fill="#5f8b4c"/>
+  <path d="M0 20 Q30 12 55 22 T100 18 V0 H0Z" fill="#4f7a40"/>
+  <path d="M0 110 Q40 100 70 112 T100 108 V140 H0Z" fill="#6c9654"/>
+  <g fill="#3f6b35" opacity="0.8">
+    <circle cx="6" cy="8" r="4"/><circle cx="14" cy="5" r="3"/><circle cx="92" cy="9" r="4"/>
+    <circle cx="96" cy="70" r="3.5"/><circle cx="4" cy="76" r="3"/><circle cx="88" cy="132" r="4"/><circle cx="10" cy="134" r="3.5"/>
+  </g>
+  <path d="M-5 128 Q30 118 52 126 T105 120" stroke="#c9b48a" stroke-width="2.4" fill="none"/>
+  <rect x="64" y="124" width="9" height="6" rx="1" fill="#a2583c"/>
+</svg>

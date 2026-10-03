@@ -16,7 +16,7 @@ list into the release PR and tick each item.
 - [ ] QR scan finds the device, shows its passkey large, and connects (phones)
 - [ ] Scanning a non-JoME QR code shows "That QR code isn't a JoME label"
 - [ ] With the board powered off, a scan gives up after 20 s with a clear message
-- [ ] `hello` info appears on the Device tab
+- [ ] `hello` info appears in More → Controller settings
 - [ ] Zone run, stop and stop-all reach the board. The water ring counts down.
 - [ ] Turning the board off shows "Connection lost. Reconnecting…". Turning it
       on again reconnects on its own (retries at 1 s, 2 s, 5 s, then every 10 s).

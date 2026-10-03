@@ -6,13 +6,7 @@ import { useDeviceClient, useOfflineReason } from "../../device/hooks";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { selectDevice } from "../../store/deviceSlice";
 import { useGarden } from "../../device/useGarden";
-import {
-  createZone,
-  deleteZone,
-  runZone,
-  stopZone,
-  updateZone,
-} from "../../store/gardenSlice";
+import { createZone, runZone, stopZone } from "../../store/gardenSlice";
 import type { Zone } from "../../services/device/types";
 import { formatClock, formatDuration, formatFlow } from "../../lib/format";
 import { remainingFraction } from "../../lib/math";
@@ -23,7 +17,6 @@ import { StatusPill } from "../../ui/StatusPill";
 import { zoneSummary } from "./summary";
 import { AddZoneSheet } from "./AddZoneSheet";
 import { valveOptions } from "./valves";
-import { ZoneSheet } from "./ZoneSheet";
 import styles from "./ZonesScreen.module.css";
 import { errorText } from "../../services/device/errors";
 
@@ -55,8 +48,8 @@ export function ZonesScreen() {
 function Connected() {
   const garden = useGarden();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { zones, run, remaining, sensors } = garden;
-  const [open, setOpen] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState<number>();
   const [error, setError] = useState<string>();
@@ -79,7 +72,6 @@ function Connected() {
     }
   };
 
-  const sheetZone = zones.find((z) => z.zone === open);
   const { valveCount } = garden;
   const loaded = garden.status !== undefined;
 
@@ -131,8 +123,8 @@ function Connected() {
               <button
                 type="button"
                 className={styles.open}
-                onClick={() => setOpen(z.zone)}
-                aria-label={`${z.name}, valve ${z.valve}. Open settings`}
+                onClick={() => navigate(`/zones/${z.zone}`)}
+                aria-label={`${z.name}, valve ${z.valve}. Open zone`}
               >
                 <span className={styles.zn}>VALVE {z.valve}</span>
                 <span className={styles.name}>{z.name}</span>
@@ -202,21 +194,6 @@ function Connected() {
           options={valveOptions(valveCount, zones)}
           onClose={() => setAdding(false)}
           onCreate={(z) => dispatch(createZone(z))}
-        />
-      )}
-
-      {sheetZone && (
-        <ZoneSheet
-          key={sheetZone.zone}
-          zone={sheetZone}
-          running={run?.zone === sheetZone.zone}
-          onClose={() => setOpen(null)}
-          onRun={(s) => dispatch(runZone(sheetZone.zone, s))}
-          onStop={() => dispatch(stopZone(sheetZone.zone))}
-          onUpdate={(p) => dispatch(updateZone(sheetZone.zone, p))}
-          onDelete={() => dispatch(deleteZone(sheetZone.zone))}
-          valves={valveOptions(valveCount, zones, sheetZone.zone)}
-          canMoveValve={garden.canMoveValve}
         />
       )}
     </Screen>

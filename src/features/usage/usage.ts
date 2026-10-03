@@ -31,3 +31,18 @@ export function totals(usage: Usage): { liters: number; seconds: number } {
     { liters: 0, seconds: 0 },
   );
 }
+
+/**
+ * Litres in the `days` before the latest `days`, from a log that covers both
+ * (usage.read with 2 × days). Undefined when nothing was logged then, so there's
+ * nothing to compare with.
+ */
+export function previousLiters(
+  usage: Usage,
+  days: number,
+  today: Date,
+): number | undefined {
+  const before = dailyLiters(usage, days * 2, today).slice(0, days);
+  const sum = before.reduce((a, d) => a + d.liters, 0);
+  return sum > 0 ? sum : undefined;
+}
